@@ -235,6 +235,14 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 .lg-editor img{display:block;max-width:100%;height:auto;border-radius:5px;margin:12px 0;border:1px solid var(--line)}
 .role-link{color:var(--gold-hi);background:rgba(201,166,94,.1);border:1px solid var(--gold-line);border-radius:4px;padding:0 6px;text-decoration:none;cursor:pointer;white-space:nowrap}
 .role-link:hover{background:rgba(201,166,94,.2)}
+.lore-ref{color:#c3d0dc;background:rgba(147,170,187,.1);border:1px solid rgba(147,170,187,.38);border-radius:4px;padding:0 6px;text-decoration:none;cursor:pointer;white-space:nowrap;font-style:italic}
+.lore-ref:hover{background:rgba(147,170,187,.2)}
+.lore-ref.missing{color:var(--muted);text-decoration:line-through;border-color:var(--line);background:none}
+.lr-plain{color:#c3d0dc;font-weight:600;font-style:italic;cursor:help;border-bottom:1px dotted rgba(147,170,187,.55)}
+.hovercard.lore .hc-ph{width:46px;aspect-ratio:1;border-color:rgba(147,170,187,.38);color:#c3d0dc}
+.hovercard.lore .hc-name{color:#dfe7ee}
+.hc-ex{font-size:13px;line-height:1.45;color:var(--muted);margin-top:4px}
+.hovercard.lore{max-width:min(340px,calc(100vw - 16px));align-items:flex-start}
 .role-link.missing{color:var(--muted);text-decoration:line-through;border-color:var(--line);background:none}
 .lg-back{margin-top:16px;font-size:14px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .lg-pin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px 12px;border:1px dashed var(--gold-line);border-radius:8px;background:rgba(201,166,94,.04)}
@@ -438,6 +446,14 @@ function renderModal(){
       <div class="foot" style="margin-top:18px">${hasText(m.html)?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
     </div></div>`;
   }
+  if(m.kind==='lorepick'){
+    const q=(m.q||'').toLowerCase();
+    const list=S.lore.filter(a=>!q||(a.title||'').toLowerCase().includes(q));
+    return wrap(`<h2 id="m-h">Ссылка на лор</h2>
+    <div class="field"><label for="m-lq">Поиск</label><input id="m-lq" value="${h(m.q||'')}" placeholder="Название статьи" autocomplete="off"></div>
+    <div class="pick-list">${list.map(a=>`<button data-lpick="${a.id}">${h(a.title||'Без названия')}<small>${h(loreExcerpt(a.body,60))}</small></button>`).join('')||`<p class="empty">${S.lore.length?'Ничего не найдено.':'Статей лора пока нет. Добавьте их во вкладке «Лор игры».'}</p>`}</div>
+    <div class="foot"><span class="grow"></span><button class="btn" id="m-cancel">Отмена</button></div>`);
+  }
   if(m.kind==='rolepick'){
     const q=(m.q||'').toLowerCase();
     const list=orderedRoles().filter(x=>!q||x.r.name.toLowerCase().includes(q));
@@ -478,7 +494,7 @@ document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='lg-editor'){scheduleLegendSave();return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
-  if(t.id==='m-rq'){ui.modal.q=t.value;render();return}
+  if(t.id==='m-rq'||t.id==='m-lq'){ui.modal.q=t.value;render();return}
   if(t.id==='lg-pin-in'){t.value=t.value.replace(/\D/g,'');(ui.pinDraft=ui.pinDraft||{})[ui.legend]=t.value;return}
   if(t.dataset.bind){setPath(t.dataset.bind,t.value);if(t.dataset.bind==='hero.title'){const b=document.querySelector('.brand-name');if(b)b.textContent=t.value}soft()}
   else if(t.dataset.lbind){const a=S.lore.find(x=>x.id===ui.lore);if(a){a[t.dataset.lbind]=t.value;if(t.dataset.lbind==='title'){const l=document.querySelector(`[data-lore="${a.id}"]`);if(l)l.textContent=t.value||'Без названия'}soft()}}
@@ -505,6 +521,7 @@ function applyFmt(id,kind){
 
 document.addEventListener('click',async ev=>{
   const rl=ev.target.closest('.role-link'); if(rl){ev.preventDefault();goLegend(rl.dataset.role);return}
+  const lr=ev.target.closest('.lore-ref'); if(lr){ev.preventDefault();goLore(lr.dataset.loreref);return}
   const t=ev.target.closest('button, .modal-bg'); if(!t) return;
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
@@ -517,6 +534,8 @@ document.addEventListener('click',async ev=>{
   if(ds.cmd){document.execCommand(ds.cmd,false,null);scheduleLegendSave();return}
   if(ds.block){document.execCommand('formatBlock',false,'<'+ds.block.toLowerCase()+'>');scheduleLegendSave();return}
   if(ds.lgact==='photo'){saveRange();document.getElementById('lg-photo').click();return}
+  if(ds.lgact==='lorelink'){saveRange();ui.modal={kind:'lorepick',q:''};render();document.getElementById('m-lq')?.focus();return}
+  if(ds.lpick){const a=S.lore.find(x=>x.id===ds.lpick);ui.modal=null;render();if(a)insertAtSaved(`<a class="lore-ref" data-loreref="${a.id}" contenteditable="false">${h(a.title||'Без названия')}</a>&nbsp;`);return}
   if(ds.lgact==='link'){saveRange();ui.modal={kind:'rolepick',q:''};render();document.getElementById('m-rq')?.focus();return}
   if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
   if(t.id==='lg-export-one'){exportDocx(false);return}
@@ -623,6 +642,10 @@ function sanitize(html){
       if(n.tagName==='H1'){const x=document.createElement('h2');x.append(...n.childNodes);n.replaceWith(x);n=x}
       if(!OK.has(n.tagName)){walk(n);n.replaceWith(...n.childNodes);return}
       if(n.tagName==='IMG'){const src=n.getAttribute('src')||'';strip(n);if(!/^data:image\/(png|jpe?g|webp|gif);/i.test(src)){n.remove();return}n.setAttribute('src',src);return}
+      if(n.tagName==='A'&&n.getAttribute('data-loreref')){
+        const lid=n.getAttribute('data-loreref'), a=S.lore.find(x=>x.id===lid), label=n.textContent; strip(n);
+        n.setAttribute('data-loreref',lid);n.setAttribute('contenteditable','false');n.className='lore-ref'+(a?'':' missing');
+        n.textContent=a?(a.title||'Без названия'):(label||'статья удалена');return}
       if(n.tagName==='A'){
         const rid=n.getAttribute('data-role'); if(!rid){walk(n);n.replaceWith(...n.childNodes);return}
         const r=S.roles.find(x=>x.id===rid), label=n.textContent; strip(n);
@@ -681,7 +704,7 @@ function renderLegends(){
       <span class="lg-sep"></span>
       <button class="lg-tool" data-cmd="insertUnorderedList" title="Маркированный список">•</button><button class="lg-tool" data-cmd="insertOrderedList" title="Нумерованный список">1.</button><button class="lg-tool" data-cmd="removeFormat" title="Убрать оформление">⌫</button>
       <span class="lg-sep"></span>
-      <button class="lg-tool wide" data-lgact="photo">+ Фото</button><button class="lg-tool wide" data-lgact="link">+ Ссылка на роль</button>
+      <button class="lg-tool wide" data-lgact="photo">+ Фото</button><button class="lg-tool wide" data-lgact="link">+ Ссылка на роль</button><button class="lg-tool wide" data-lgact="lorelink" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Ссылка на лор</button>
       <input type="file" id="lg-photo" accept="image/*" hidden>
     </div>
     <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-ph="Начните писать легенду персонажа…">${sanitize(LG[r.id]?.html||'')}</div>
@@ -717,6 +740,7 @@ async function openPlayerLegend(rid,code){
 }
 function readerHtml(html){
   const tpl=document.createElement('template');tpl.innerHTML=sanitize(html);
+  tpl.content.querySelectorAll('a.lore-ref').forEach(a=>{const sp=document.createElement('span');sp.className='lr-plain';sp.dataset.loreref=a.getAttribute('data-loreref');sp.tabIndex=0;sp.textContent=a.textContent;a.replaceWith(sp)});
   tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.dataset.role=a.getAttribute('data-role');sp.tabIndex=0;sp.textContent=a.textContent;a.replaceWith(sp)});
   return tpl.innerHTML;
 }
@@ -738,6 +762,19 @@ async function saveLegend(){
   else if(!data) setStatus('Код мастера больше не подходит. Скопируйте текст, выйдите и войдите заново.');
   else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
     document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',hasText(html)))}
+}
+function loreExcerpt(md,n){
+  let t=(md||'').replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
+  if(t.length>n){t=t.slice(0,n);t=t.slice(0,Math.max(t.lastIndexOf(' '),n-15))+'…'}
+  return t;
+}
+function goLore(id){
+  if(!S.lore.some(a=>a.id===id)) return;
+  if(ui.tab==='legends') flushLegend();
+  ui.tab='lore'; ui.lore=id; ui.modal=null;
+  try{history.replaceState(null,'','#lore')}catch(_){}
+  render();
+  const m=document.querySelector('main'); if(m&&m.getBoundingClientRect().top<0) window.scrollTo({top:window.scrollY+m.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});
 }
 function goLegend(id){
   if(!pin) return;
@@ -787,11 +824,20 @@ document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toL
 
 /* ---------------- character hover card ---------------- */
 let hcEl=null, hcFor=null;
+const LORE_ICON=`<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6 4h10a2 2 0 0 1 2 2v12a2 2 0 0 0 2 2H8a2 2 0 0 1-2-2V4z"/><path d="M6 4a2 2 0 0 0-2 2v2h2M9.5 8.5h5M9.5 12h5M9.5 15.5h3"/></svg>`;
 function showHC(el){
+  if(!hcEl){hcEl=document.createElement('div');hcEl.setAttribute('role','tooltip');document.body.appendChild(hcEl)}
+  if(el.dataset.loreref){
+    const a=S.lore.find(x=>x.id===el.dataset.loreref); if(!a){hideHC();return}
+    hcEl.className='hovercard lore';
+    const ex=loreExcerpt(a.body,170);
+    hcEl.innerHTML=`<div class="hc-ph">${LORE_ICON}</div><div><div class="hc-name">${h(a.title||'Без названия')}</div><div class="hc-meta">Лор игры</div>${ex?`<div class="hc-ex">${h(ex)}</div>`:''}</div>`;
+  }else{
   const r=S.roles.find(x=>x.id===el.dataset.role); if(!r){hideHC();return}
-  if(!hcEl){hcEl=document.createElement('div');hcEl.className='hovercard';hcEl.setAttribute('role','tooltip');document.body.appendChild(hcEl)}
+  hcEl.className='hovercard';
   const t=S.teams.find(x=>x.id===r.team), src=photoSrc(r.photo), meta=[r.title,t&&t.name].filter(Boolean).map(h).join('<br>');
   hcEl.innerHTML=`<div class="hc-ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><div class="hc-name">${h(r.name)}</div>${meta?`<div class="hc-meta">${meta}</div>`:''}</div>`;
+  }
   hcFor=el;
   const b=el.getBoundingClientRect(), w=hcEl.offsetWidth, hh=hcEl.offsetHeight, vw=document.documentElement.clientWidth;
   let top=b.top-hh-10; if(top<8) top=b.bottom+10;
@@ -800,12 +846,12 @@ function showHC(el){
   requestAnimationFrame(()=>hcEl&&hcEl.classList.add('on'));
 }
 function hideHC(){if(hcEl){hcEl.classList.remove('on')}hcFor=null}
-const HC_SEL='.rl-plain[data-role], .role-link[data-role]';
+const HC_SEL='.rl-plain[data-role], .role-link[data-role], .lr-plain[data-loreref], .lore-ref[data-loreref]';
 document.addEventListener('mouseover',ev=>{const el=ev.target.closest&&ev.target.closest(HC_SEL);if(el&&el!==hcFor)showHC(el)});
 document.addEventListener('mouseout',ev=>{const el=ev.target.closest&&ev.target.closest(HC_SEL);if(el&&!el.contains(ev.relatedTarget))hideHC()});
-document.addEventListener('focusin',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain'))showHC(ev.target)});
-document.addEventListener('focusout',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain'))hideHC()});
-document.addEventListener('click',ev=>{const el=ev.target.closest&&ev.target.closest('.rl-plain[data-role]');if(el){hcFor===el&&hcEl&&hcEl.classList.contains('on')?hideHC():showHC(el)}else if(!ev.target.closest('.role-link'))hideHC()},true);
+document.addEventListener('focusin',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain, .lr-plain'))showHC(ev.target)});
+document.addEventListener('focusout',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain, .lr-plain'))hideHC()});
+document.addEventListener('click',ev=>{const el=ev.target.closest&&ev.target.closest('.rl-plain[data-role], .lr-plain[data-loreref]');if(el){hcFor===el&&hcEl&&hcEl.classList.contains('on')?hideHC():showHC(el)}else if(!ev.target.closest('.role-link, .lore-ref'))hideHC()},true);
 document.addEventListener('scroll',hideHC,true);
 window.addEventListener('resize',hideHC);
 
@@ -831,6 +877,7 @@ async function htmlToParas(D,html,all){
       const tg=n.tagName;
       if(tg==='BR'){out.push(new D.TextRun({text:'',break:1}));continue}
       if(tg==='IMG'){out.push(await imageRun(D,n.getAttribute('src'),430));continue}
+      if(tg==='A'&&n.getAttribute('data-loreref')){out.push(new D.TextRun({text:n.textContent,...fmt,italics:true,color:'4F6B7D'}));continue}
       if(tg==='A'){const rid=n.getAttribute('data-role');const tr=new D.TextRun({text:n.textContent,...fmt,color:'8A6A2B',underline:{}});
         out.push(all&&exportIds.has(rid)?new D.InternalHyperlink({anchor:'role_'+rid,children:[tr]}):tr);continue}
       const f={...fmt};
