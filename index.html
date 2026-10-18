@@ -102,6 +102,7 @@ main.col{padding-block:36px 140px}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold-line);outline:none}
 .field textarea{line-height:1.6;resize:vertical}
 .hint{font-size:13px;color:var(--muted)}
+.field label.btn{text-transform:none;letter-spacing:normal;font-size:13px;color:var(--gold-hi)}
 .edit-banner{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid var(--gold-line);background:rgba(201,166,94,.06);
   border-radius:8px;padding:10px 14px;font-size:14px;color:#d9cfb9;margin-bottom:24px}
 .toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
@@ -357,6 +358,8 @@ function render(){
       :`<button class="icon-btn" id="login-open" aria-label="Вход для мастера">${ICON_LOCK}<span class="lbl">Мастер</span></button>`}</div>
   </div></header>`;
 
+  const showHero=ui.tab==='about'||(ui.tab==='legends'&&!pin);
+  if(showHero){
   o+=`<section class="hero gutter">${MARK}<div class="col">`;
   if(e){
     o+=`<div class="field"><label for="f-eyebrow">Подзаголовок</label><input id="f-eyebrow" data-bind="hero.eyebrow" value="${h(S.hero.eyebrow)}"></div>
@@ -366,6 +369,7 @@ function render(){
     o+=`<div class="eyebrow">${h(S.hero.eyebrow)}</div><h1>${titleHtml(S.hero.title)}</h1>${S.hero.text?`<div class="lead">${md(S.hero.text)}</div>`:''}`;
   }
   o+='</div></section>';
+  }
 
   o+='<main class="col gutter">';
   if(e) o+=`<div class="edit-banner">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</div>`;
@@ -560,7 +564,7 @@ document.addEventListener('click',async ev=>{
   if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
   if(t.id==='lg-export-one'){exportDocx(false);return}
   if(t.id==='lg-export-all'){exportDocx(true);return}
-  if(ds.tab){if(ui.tab==='legends')flushLegend();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(hero&&window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
+  if(ds.tab){if(ui.tab==='legends')flushLegend();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
   if(t.id==='to-top'){window.scrollTo({top:0,behavior:'smooth'});return}
   if(ds.fmt){applyFmt(ds.for,ds.fmt);return}
   if(t.id==='login-open'){ui.modal={kind:'login'};render();document.getElementById('m-pin')?.focus();return}
