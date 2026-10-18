@@ -295,6 +295,17 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 @media (max-width:900px){.map-layout{grid-template-columns:1fr}.map-stage{height:68vh}}
 @media (max-width:820px){.tabs[style*="--n:6"] .tab{font-size:13px;padding:11px 0;letter-spacing:0}}
 
+/* legend tabs */
+.lg-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 10px;border-bottom:1px solid var(--line)}
+.lg-tab{display:inline-flex;align-items:center;gap:6px;background:none;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;padding:7px 12px;margin-bottom:-1px;font-size:14px;color:var(--muted);cursor:pointer}
+.lg-tab:hover{color:var(--fg)}
+.lg-tab[aria-selected="true"]{color:var(--gold-hi);background:var(--surface);border-color:var(--line)}
+.lg-tab.hid{font-style:italic}
+.lg-tab.add{color:var(--gold);margin-left:auto}
+.lg-tabbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.lg-tabbar .ms-in{flex:1;min-width:160px}
+@media (max-width:820px){.lg-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.lg-tabs::-webkit-scrollbar{display:none}.lg-tab{flex:none}.lg-tab.add{margin-left:0}}
+
 /* branding */
 .brand-logo{flex:none;height:32px;width:auto;max-width:56px;object-fit:contain}
 .hero-mark.img{opacity:.09;height:auto;object-fit:contain;max-height:90%}
@@ -488,7 +499,7 @@ function render(){
   const a=document.activeElement, aid=a&&a.id, sel=a&&('selectionStart' in a)?[a.selectionStart,a.selectionEnd]:null, y=window.scrollY;
   const keepEd=document.getElementById('lg-editor'); const keepSel=keepEd?rangeToPath(keepEd):null;
   document.getElementById('root').innerHTML=o;
-  if(keepEd&&keepEd.dataset.role===ui.legend&&ui.tab==='legends'){const ne=document.getElementById('lg-editor');if(ne){ne.replaceWith(keepEd);if(keepSel&&aid==='lg-editor'){keepEd.focus({preventScroll:true});pathToRange(keepEd,keepSel)}}}
+  if(keepEd&&keepEd.dataset.role===ui.legend&&ui.tab==='legends'&&(keepEd.dataset.tab||'main')===curLgTab(ui.legend)){const ne=document.getElementById('lg-editor');if(ne){ne.replaceWith(keepEd);if(keepSel&&aid==='lg-editor'){keepEd.focus({preventScroll:true});pathToRange(keepEd,keepSel)}}}
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   measure(); updateBg(); if(ui.tab==='map') afterMapRender();
@@ -616,8 +627,9 @@ function renderModal(){
     const meta=[t&&t.name,r.title].filter(Boolean).map(h).join(' · ');
     return `<div class="modal-bg" id="modal-bg"><div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="m-h">
       <div class="reader-head"><div class="lg-head" style="margin:0"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2 id="m-h" style="margin:0">${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div></div>
-      <div class="lg-editor reader">${hasText(m.html)?readerHtml(m.html):'<p class="empty">Мастер ещё не написал эту легенду.</p>'}</div>
-      <div class="foot" style="margin-top:18px">${hasText(m.html)?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
+      ${(m.tabs||[]).length?`<div class="lg-tabs" role="tablist"><button class="lg-tab" data-rdtab="main" aria-selected="${(m.tab||'main')==='main'}">Легенда</button>${m.tabs.map(t=>`<button class="lg-tab" data-rdtab="${h(t.id)}" aria-selected="${m.tab===t.id}">${h(t.title||'Без названия')}</button>`).join('')}</div>`:''}
+      <div class="lg-editor reader">${(()=>{const cur=(m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).html||'':m.html;return hasText(cur)?readerHtml(cur):'<p class="empty">'+((m.tab&&m.tab!=='main')?'Здесь пока пусто.':'Мастер ещё не написал эту легенду.')+'</p>'})()}</div>
+      <div class="foot" style="margin-top:18px">${(hasText(m.html)||(m.tabs||[]).some(t=>hasText(t.html)))?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
     </div></div>`;
   }
   if(m.kind==='lorepick'){
@@ -672,6 +684,7 @@ document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='lg-editor'){scheduleLegendSave();return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
+  if(t.id==='lg-tab-title'){const L=lgDoc(ui.legend),x=L.tabs.find(y=>y.id===ui.lgTab);if(x){x.title=t.value;const b=document.querySelector(`.lg-tab[data-lgtab="${ui.lgTab}"]`);if(b)b.lastChild.textContent=t.value||'Без названия';lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},1200)}return}
   if(t.id==='map-name'){try{localStorage.setItem('vpv-name',t.value.trim())}catch(_){}return}
   if(t.id==='lore-search'){(ui.lsq=ui.lsq||{})[SEC().k]=t.value;render();return}
   if(t.id==='m-rq'||t.id==='m-lq'){ui.modal.q=t.value;render();return}
@@ -730,9 +743,15 @@ document.addEventListener('click',async ev=>{
   if(t.id==='ms-reset'){if(!ui.confirmReset){ui.confirmReset=true;render();return}ui.confirmReset=false;ui.mapRoll=null;commitMap({tokens:clone((S.map||{}).start||[]),log:[]},'начал новую партию');return}
   if(ds.tstr){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(tk){tk.str=Math.min(30,Math.max(1,tk.str+(+ds.tstr)));commitMap(ns,`сила «${tk.label}» теперь ${tk.str}`)}return}
   if(t.id==='map-del-tok'){if(ui.confirmTokDel!==ui.mapSel){ui.confirmTokDel=ui.mapSel;render();return}const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);ns.tokens=ns.tokens.filter(x=>x.id!==ui.mapSel);ui.mapSel=null;ui.confirmTokDel=null;commitMap(ns,`убрал фишку «${tk?tk.label:''}»`);return}
+  if(ds.lgtab){flushLegend();ui.lgTab=ds.lgtab;ui.confirmTabDel=null;render();return}
+  if(t.id==='lg-tab-add'){const nt={id:uid('t'),title:'Новая вкладка',html:'',hidden:true};legendMeta(L=>L.tabs.push(nt));ui.lgTab=nt.id;render();document.getElementById('lg-tab-title')?.select();return}
+  if(t.id==='lg-tab-vis'){legendMeta(L=>{const x=L.tabs.find(y=>y.id===ui.lgTab);if(x)x.hidden=!x.hidden});return}
+  if(ds.lgtabmove){legendMeta(L=>{const i=L.tabs.findIndex(y=>y.id===ui.lgTab);move(L.tabs,i,+ds.lgtabmove)});return}
+  if(t.id==='lg-tab-del'){if(ui.confirmTabDel!==ui.lgTab){ui.confirmTabDel=ui.lgTab;render();return}const del=ui.lgTab;ui.confirmTabDel=null;if(lgTimer){clearTimeout(lgTimer);lgTimer=null}ui.lgTab='main';const L=lgDoc(ui.legend);L.tabs=L.tabs.filter(y=>y.id!==del);lgDirtyId=ui.legend;render();saveLegend();return}
   if(ds.lg){goLegend(ds.lg);return}
   if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
-  if(t.id==='rd-export'){const m=ui.modal;exportDocx(false,{role:m.role,html:m.html,status:x=>{const el=document.getElementById('rd-status');if(el)el.textContent=x}});return}
+  if(ds.rdtab&&ui.modal&&ui.modal.kind==='reader'){ui.modal.tab=ds.rdtab;render();return}
+  if(t.id==='rd-export'){const m=ui.modal;exportDocx(false,{role:m.role,html:{html:m.html,tabs:m.tabs||[]},status:x=>{const el=document.getElementById('rd-status');if(el)el.textContent=x}});return}
   if(t.id==='lg-pin-save'){const v=(document.getElementById('lg-pin-in').value||'').trim();if(!/^\d{4,8}$/.test(v)){ui.pinMsg={id:ui.legend,text:'Код должен состоять из 4–8 цифр.'};render();return}setRolePin(ui.legend,v);return}
   if(t.id==='lg-pin-gen'){const v=String(Math.floor(1000+Math.random()*9000));(ui.pinDraft=ui.pinDraft||{})[ui.legend]=v;ui.pinMsg={id:ui.legend,text:'Нажмите «Сохранить код», чтобы он заработал.'};render();return}
   if(t.id==='lg-pin-del'){if(ui.confirmPinDel!==ui.legend){ui.confirmPinDel=ui.legend;ui.pinMsg={id:ui.legend,text:'Нажмите «Закрыть доступ» ещё раз для подтверждения.'};render();return}ui.confirmPinDel=null;setRolePin(ui.legend,'');return}
@@ -1156,22 +1175,22 @@ function renderLegends(){
   if(!list.length) return `<div class="section-title"><h2>Легенды</h2></div><p class="empty">Сначала добавьте роли в «Сетку ролей». Для каждой роли здесь сразу появится своя легенда.</p>`;
   if(!list.some(x=>x.r.id===ui.legend)) ui.legend=list[0].r.id;
   const cur=list.find(x=>x.r.id===ui.legend), r=cur.r, q=(ui.lgq||'').toLowerCase();
-  const done=list.filter(x=>hasText(LG[x.r.id]?.html)).length;
+  const done=list.filter(x=>lgHasText(LG[x.r.id])).length;
   let nav=`<input id="lg-search" class="lg-search" type="search" placeholder="Найти роль" value="${h(ui.lgq||'')}" autocomplete="off">`;
   let lastT='—', sel='', navT=null;
   list.forEach(x=>{
     const tn=x.t?x.t.name:'Без команды';
     if(tn!==lastT){sel+=(lastT==='—'?'':'</optgroup>')+`<optgroup label="${h(tn)}">`}
-    sel+=`<option value="${x.r.id}" ${x.r.id===r.id?'selected':''}>${h(x.r.name)}${hasText(LG[x.r.id]?.html)?'':' (пусто)'}</option>`;
+    sel+=`<option value="${x.r.id}" ${x.r.id===r.id?'selected':''}>${h(x.r.name)}${lgHasText(LG[x.r.id])?'':' (пусто)'}</option>`;
     if(q&&!x.r.name.toLowerCase().includes(q)){lastT=tn;return}
     if(tn!==navT){const ic=x.t&&photoSrc(x.t.icon);nav+=`<div class="lg-cap">${ic?`<img class="ci" src="${h(ic)}" alt="">`:''}${h(tn)}</div>`;navT=tn}
-    nav+=`<button class="lg-link" data-lg="${x.r.id}" aria-current="${x.r.id===r.id}"><span class="lg-dot ${hasText(LG[x.r.id]?.html)?'full':''}"></span>${h(x.r.name)}${PINS&&PINS[x.r.id]?'<span class="lg-pinmark">PIN</span>':''}</button>`;
+    nav+=`<button class="lg-link" data-lg="${x.r.id}" aria-current="${x.r.id===r.id}"><span class="lg-dot ${lgHasText(LG[x.r.id])?'full':''}"></span>${h(x.r.name)}${PINS&&PINS[x.r.id]?'<span class="lg-pinmark">PIN</span>':''}</button>`;
     lastT=tn;
   });
   sel+='</optgroup>';
   const src=photoSrc(r.photo);
   const meta=[cur.t?.name,r.title,r.player?'Игрок: '+r.player:'Роль свободна'].filter(Boolean).map(h).join(' · ');
-  const back=Object.keys(LG).filter(id=>id!==r.id&&(LG[id].html||'').includes(`data-role="${r.id}"`)).map(id=>S.roles.find(x=>x.id===id)).filter(Boolean);
+  const back=Object.keys(LG).filter(id=>id!==r.id&&lgAllHtml(LG[id]).includes(`data-role="${r.id}"`)).map(id=>S.roles.find(x=>x.id===id)).filter(Boolean);
   return `<div class="section-title"><h2>Легенды</h2></div>
   <p class="hint" style="margin:-10px 0 18px">Видно только мастерам. Написано ${done} из ${list.length}. Сохраняется автоматически.</p>
   <div class="lg"><nav class="lg-nav" aria-label="Роли">${nav}</nav>
@@ -1180,6 +1199,7 @@ function renderLegends(){
     <div class="lg-head"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2>${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div>
     ${renderPinRow(r)}
     <div class="lg-actions"><button class="btn small gold" id="lg-export-one">Скачать легенду (.docx)</button><button class="btn small" id="lg-export-all">Скачать все легенды</button><span class="lg-status" id="lg-status">${h(ui.lgStatus||'')}</span></div>
+    ${renderLgTabs(r.id)}
     <div class="lg-toolbar" role="toolbar" aria-label="Форматирование">
       <button class="lg-tool" data-cmd="bold" title="Жирный"><b>Ж</b></button><button class="lg-tool" data-cmd="italic" title="Курсив"><i>К</i></button><button class="lg-tool" data-cmd="underline" title="Подчеркнуть"><u>Ч</u></button>
       <span class="lg-sep"></span>
@@ -1190,9 +1210,25 @@ function renderLegends(){
       <button class="lg-tool wide" data-lgact="photo">+ Фото</button><button class="lg-tool wide" data-lgact="link">+ Ссылка на роль</button><button class="lg-tool wide" data-lgact="lorelink" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Ссылка на лор</button>
       <input type="file" id="lg-photo" accept="image/*" hidden>
     </div>
-    <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-ph="Начните писать легенду персонажа…">${sanitize(LG[r.id]?.html||'')}</div>
+    <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-tab="${h(curLgTab(r.id))}" data-ph="${curLgTab(r.id)==='main'?'Начните писать легенду персонажа…':'Текст вкладки…'}">${sanitize(lgTabHtml(LG[r.id],curLgTab(r.id)))}</div>
     ${back.length?`<div class="lg-back">Упоминается в легендах: ${back.map(b=>`<a class="role-link" data-role="${b.id}" href="#legends">${h(b.name)}</a>`).join(' ')}</div>`:''}
   </div></div>`;
+}
+function curLgTab(id){const L=LG&&LG[id];if(ui.lgTab&&ui.lgTab!=='main'&&L&&(L.tabs||[]).some(t=>t.id===ui.lgTab))return ui.lgTab;return 'main'}
+const ICON_EYE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>`;
+const ICON_HIDE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2l12 12M6.6 3.7A6.6 6.6 0 0 1 8 3.5c4.1 0 6.5 4.5 6.5 4.5a11 11 0 0 1-1.9 2.4M4.2 5.1A11.3 11.3 0 0 0 1.5 8S3.9 12.5 8 12.5c1 0 1.9-.3 2.7-.7"/></svg>`;
+function renderLgTabs(id){
+  const L=LG[id]||{tabs:[]}, cur=curLgTab(id), tabs=L.tabs||[];
+  let o=`<div class="lg-tabs" role="tablist" aria-label="Вкладки легенды"><button class="lg-tab" role="tab" data-lgtab="main" aria-selected="${cur==='main'}">Легенда</button>`;
+  tabs.forEach(t=>{o+=`<button class="lg-tab ${t.hidden?'hid':''}" role="tab" data-lgtab="${h(t.id)}" aria-selected="${cur===t.id}" title="${t.hidden?'Скрыто от игрока':'Видно игроку'}">${t.hidden?ICON_HIDE:''}${h(t.title||'Без названия')}</button>`});
+  o+=`<button class="lg-tab add" id="lg-tab-add">+ Вкладка</button></div>`;
+  if(cur!=='main'){const t=tabs.find(x=>x.id===cur), i=tabs.indexOf(t);
+    o+=`<div class="lg-tabbar"><input id="lg-tab-title" class="ms-in" value="${h(t.title||'')}" placeholder="Название вкладки" maxlength="40" aria-label="Название вкладки">
+      <button class="btn small ${t.hidden?'':'gold'}" id="lg-tab-vis">${t.hidden?ICON_HIDE+' Скрыто от игрока':ICON_EYE+' Видно игроку'}</button>
+      <button class="btn small" data-lgtabmove="-1" ${i<=0?'disabled':''} aria-label="Сдвинуть влево">←</button><button class="btn small" data-lgtabmove="1" ${i>=tabs.length-1?'disabled':''} aria-label="Сдвинуть вправо">→</button>
+      <button class="btn small danger" id="lg-tab-del">${ui.confirmTabDel===t.id?'Точно удалить?':'Удалить вкладку'}</button>
+      <span class="hint" style="flex-basis:100%">${t.hidden?'Игрок не увидит эту вкладку: сервер её не отдаёт.':'Игрок увидит эту вкладку рядом с легендой.'}</span></div>`;}
+  return o;
 }
 function renderPinRow(r){
   if(pinsMissing) return `<div class="lg-pin"><span class="hint">Пинкоды игроков заработают после настройки базы (файл voi-po-volku-player-pins.sql).</span></div>`;
@@ -1217,7 +1253,7 @@ async function openPlayerLegend(rid,code){
   const {data,error}=await sb.rpc('get_player_legend',{p_role_id:rid,p_pin:code});
   const st=data&&data.status;
   if(error||!st){ui.modal={kind:'playerpin',role:rid,err:error?rpcErr(error):'Нет связи с сервером.'};render();return}
-  if(st==='ok'){ui.modal={kind:'reader',role:rid,html:data.html||''};render();return}
+  if(st==='ok'){ui.modal={kind:'reader',role:rid,html:data.html||'',tabs:Array.isArray(data.tabs)?data.tabs:[],tab:'main'};render();return}
   ui.modal={kind:'playerpin',role:rid,err:st==='bad'?'Неверный пинкод.':st==='locked'?'Слишком много неверных попыток. Подождите 15 минут.':'Легенда этой роли пока закрыта.'};
   render();document.getElementById('p-pin')?.select();
 }
@@ -1227,6 +1263,19 @@ function readerHtml(html){
   tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.dataset.role=a.getAttribute('data-role');sp.tabIndex=0;sp.textContent=a.textContent;a.replaceWith(sp)});
   return tpl.innerHTML;
 }
+function lgDoc(id){const L=LG[id]=LG[id]||{html:'',tabs:[]};if(!Array.isArray(L.tabs))L.tabs=[];return L}
+const lgHasText=L=>!!L&&(hasText(L.html)||(L.tabs||[]).some(t=>hasText(t.html)));
+const lgAllHtml=L=>L?[L.html||''].concat((L.tabs||[]).map(t=>t.html||'')).join(' '):'';
+function lgTabHtml(L,tab){if(!L)return '';if(!tab||tab==='main')return L.html||'';const t=(L.tabs||[]).find(x=>x.id===tab);return t?t.html||'':''}
+function captureEditor(){
+  const ed=document.getElementById('lg-editor'); if(!ed||!LG) return;
+  const L=lgDoc(ed.dataset.role), tab=ed.dataset.tab||'main', html=sanitize(ed.innerHTML);
+  if(tab==='main') L.html=html; else {const t=L.tabs.find(x=>x.id===tab); if(t) t.html=html}
+}
+function legendMeta(fn){ // change tabs (add, rename, hide, delete, move) and save right away
+  if(lgTimer){clearTimeout(lgTimer);lgTimer=null}
+  captureEditor(); const L=lgDoc(ui.legend); fn(L); lgDirtyId=ui.legend; render(); saveLegend();
+}
 function setStatus(m){ui.lgStatus=m;const el=document.getElementById('lg-status');if(el)el.textContent=m}
 function scheduleLegendSave(){
   const ed=document.getElementById('lg-editor'); if(!ed) return;
@@ -1235,16 +1284,20 @@ function scheduleLegendSave(){
 }
 function flushLegend(){if(lgTimer){clearTimeout(lgTimer);lgTimer=null;saveLegend()}}
 async function saveLegend(){
-  const ed=document.getElementById('lg-editor'); const id=lgDirtyId; if(!id) return;
-  const html=(ed&&ed.dataset.role===id)?sanitize(ed.innerHTML):(LG[id]?.html||'');
-  lgDirtyId=null; LG[id]={html,updated_at:new Date().toISOString()};
+  const id=lgDirtyId; if(!id) return;
+  captureEditor();
+  const L=lgDoc(id); L.updated_at=new Date().toISOString(); lgDirtyId=null;
+  const html=L.html||'', tabs=clone(L.tabs||[]);
   lgSavingN++; setStatus('Сохраняю…');
-  const {data,error}=await sb.rpc('save_legend',{p_pin:pin,p_role_id:id,p_html:html});
+  let {data,error}=await sb.rpc('save_legend_v2',{p_pin:pin,p_role_id:id,p_html:html,p_tabs:tabs});
+  let noTabs=false;
+  if(error&&(error.code==='PGRST202'||/Could not find the function/i.test(error.message||''))){noTabs=true;({data,error}=await sb.rpc('save_legend',{p_pin:pin,p_role_id:id,p_html:html}))}
   lgSavingN--;
+  if(noTabs&&!error&&data&&tabs.length){setStatus('Основной текст сохранён. Вкладки сохранятся после настройки базы (файл voi-po-volku-legend-tabs.sql).');return}
   if(error) setStatus('Не сохранилось: '+rpcErr(error));
   else if(!data) setStatus('Код мастера больше не подходит. Скопируйте текст, выйдите и войдите заново.');
   else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
-    document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',hasText(html)))}
+    document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',lgHasText(L)))}
 }
 function insertToken(tok){
   const m=ui.modal; ui.modal=null; render();
@@ -1269,7 +1322,7 @@ function goLore(id){
 }
 function goLegend(id){
   if(!pin) return;
-  flushLegend(); ui.tab='legends'; ui.legend=id; ui.lgStatus=''; ui.modal=null;
+  flushLegend(); ui.tab='legends'; ui.legend=id; ui.lgTab='main'; ui.confirmTabDel=null; ui.lgStatus=''; ui.modal=null;
   try{history.replaceState(null,'','#legends')}catch(_){}
   render();
   const m=document.querySelector('main'); if(m&&m.getBoundingClientRect().top<0) window.scrollTo({top:window.scrollY+m.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});
@@ -1400,9 +1453,14 @@ async function roleSection(D,x,all,override){
   const meta=[x.t?.name,r.title,r.player?'Игрок: '+r.player:''].filter(Boolean).join(' · ');
   if(meta) out.push(new D.Paragraph({children:[new D.TextRun({text:meta,italics:true,color:'8A6A2B'})],spacing:{after:200}}));
   const src=photoSrc(r.photo); if(src) out.push(new D.Paragraph({children:[await imageRun(D,src,170)],spacing:{after:200}}));
-  const html=override!=null?override:(LG&&LG[r.id]?.html)||'';
+  const doc=override!=null?(typeof override==='string'?{html:override,tabs:[]}:override):(LG&&LG[r.id])||{html:'',tabs:[]};
+  const html=doc.html||'';
   if(hasText(html)) out.push(...await htmlToParas(D,html,all));
-  else out.push(new D.Paragraph({children:[new D.TextRun({text:'Легенда ещё не написана.',italics:true,color:'888888'})]}));
+  else if(!(doc.tabs||[]).length) out.push(new D.Paragraph({children:[new D.TextRun({text:'Легенда ещё не написана.',italics:true,color:'888888'})]}));
+  for(const t of (doc.tabs||[])){
+    out.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_2,children:[new D.TextRun(t.title||'Без названия'),...(t.hidden?[new D.TextRun({text:'  (скрыто от игрока)',italics:true,size:20,color:'999999'})]:[])]}));
+    if(hasText(t.html)) out.push(...await htmlToParas(D,t.html,all));
+  }
   return out;
 }
 async function exportDocx(all,opt){
