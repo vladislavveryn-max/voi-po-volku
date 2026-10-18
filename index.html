@@ -285,8 +285,8 @@ const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',moda
 const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['roles','Сетка ролей','Роли']];
 const LEG_TAB=['legends','Легенды','Легенды'];
 const tabs=()=>pin?TABS.concat([LEG_TAB]):TABS;
-let PINNED=new Set(), PINS=null, pinsMissing=false, playerPins={};
-try{playerPins=JSON.parse(sessionStorage.getItem('vpv-ppins')||'{}')||{}}catch(_){}
+let PINNED=new Set(), PINS=null, pinsMissing=false;
+try{sessionStorage.removeItem('vpv-ppins')}catch(_){}  // player codes are never remembered
 let LG=null, lgLoading=false, lgErr='', lgTimer=null, lgDirtyId=null, lgSavingN=0, lgRange=null, exportIds=new Set(), docxReady=null;
 const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=p=>p+Math.random().toString(36).slice(2,10);
@@ -500,7 +500,7 @@ document.addEventListener('click',async ev=>{
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
   if(ds.lg){goLegend(ds.lg);return}
-  if(ds.plg){if(playerPins[ds.plg]){ui.modal={kind:'playerpin',role:ds.plg};openPlayerLegend(ds.plg,playerPins[ds.plg])}else{ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus()}return}
+  if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
   if(t.id==='rd-export'){const m=ui.modal;exportDocx(false,{role:m.role,html:m.html,status:x=>{const el=document.getElementById('rd-status');if(el)el.textContent=x}});return}
   if(t.id==='lg-pin-save'){const v=(document.getElementById('lg-pin-in').value||'').trim();if(!/^\d{4,8}$/.test(v)){ui.pinMsg={id:ui.legend,text:'Код должен состоять из 4–8 цифр.'};render();return}setRolePin(ui.legend,v);return}
   if(t.id==='lg-pin-gen'){const v=String(Math.floor(1000+Math.random()*9000));(ui.pinDraft=ui.pinDraft||{})[ui.legend]=v;ui.pinMsg={id:ui.legend,text:'Нажмите «Сохранить код», чтобы он заработал.'};render();return}
@@ -702,8 +702,7 @@ async function openPlayerLegend(rid,code){
   const {data,error}=await sb.rpc('get_player_legend',{p_role_id:rid,p_pin:code});
   const st=data&&data.status;
   if(error||!st){ui.modal={kind:'playerpin',role:rid,err:error?rpcErr(error):'Нет связи с сервером.'};render();return}
-  if(st==='ok'){playerPins[rid]=code;try{sessionStorage.setItem('vpv-ppins',JSON.stringify(playerPins))}catch(_){} ui.modal={kind:'reader',role:rid,html:data.html||''};render();return}
-  if(playerPins[rid]){delete playerPins[rid];try{sessionStorage.setItem('vpv-ppins',JSON.stringify(playerPins))}catch(_){}}
+  if(st==='ok'){ui.modal={kind:'reader',role:rid,html:data.html||''};render();return}
   ui.modal={kind:'playerpin',role:rid,err:st==='bad'?'Неверный пинкод.':st==='locked'?'Слишком много неверных попыток. Подождите 15 минут.':'Легенда этой роли пока закрыта.'};
   render();document.getElementById('p-pin')?.select();
 }
