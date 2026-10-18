@@ -144,6 +144,14 @@ main.col{padding-block:36px 140px}
 .status{justify-self:start;font-size:11px;letter-spacing:.1em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-top:6px}
 .status.free{color:var(--ok);border:1px solid rgba(138,172,119,.45)}
 .status.taken{color:var(--muted);border:1px solid var(--line)}
+.contact{display:flex;gap:6px;align-items:center;font-size:14px;margin-top:2px;min-width:0}
+.contact svg{flex:none;width:14px;height:14px;color:var(--muted)}
+.contact a,.contact span.c{flex:1 1 auto;color:#b9cad8;overflow-wrap:anywhere;text-decoration:none;min-width:0;line-height:1.35}
+.contact a{text-decoration:underline dotted rgba(147,170,187,.6);text-underline-offset:3px}
+.contact a:hover{color:#dfe7ee}
+.copy-btn{flex:none;display:grid;place-items:center;width:26px;height:26px;background:none;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer;padding:0}
+.copy-btn svg{width:13px;height:13px}
+.copy-btn:hover{color:var(--fg);border-color:var(--gold-line)}
 .card-tools{display:flex;gap:6px;padding:0 16px 14px}
 .add-card{border:1px dashed var(--gold-line);border-radius:8px;background:rgba(201,166,94,.03);color:var(--gold);cursor:pointer;min-height:200px;font-size:16px;font-family:var(--display);letter-spacing:.05em}
 .add-card:hover{background:rgba(201,166,94,.07)}
@@ -464,12 +472,26 @@ function renderRoles(){
   return o;
 }
 function photoSrc(p){if(!p) return ''; if(p.startsWith('ph:')) return photos[p.slice(3)]||''; return p}
+const ICON_MSG=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>`;
+function contactHref(c){
+  if(/^https?:\/\/\S+$/i.test(c)) return c;
+  if(/^(t\.me|telegram\.me|vk\.com|vk\.ru|wa\.me|instagram\.com|discord\.gg)\/\S+$/i.test(c)) return 'https://'+c;
+  if(/^@[A-Za-z0-9_]{4,32}$/.test(c)) return 'https://t.me/'+c.slice(1);
+  if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c)) return 'mailto:'+c;
+  if(/^\+?[\d\s()-]{7,}$/.test(c)) return 'tel:'+c.replace(/[^\d+]/g,'');
+  return '';
+}
+function contactHtml(c){
+  const href=contactHref(c);
+  const label=href?`<a href="${h(href)}" target="_blank" rel="noopener noreferrer">${h(c)}</a>`:`<span class="c">${h(c)}</span>`;
+  return `<div class="contact">${ICON_MSG}${label}<button class="copy-btn" data-copy="${h(c)}" aria-label="Скопировать контакт" title="Скопировать"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5"/><path d="M10.5 5V3.5A1.5 1.5 0 0 0 9 2H3.5A1.5 1.5 0 0 0 2 3.5V9a1.5 1.5 0 0 0 1.5 1.5H5"/></svg></button></div>`;
+}
 function renderCard(r){
   const src=photoSrc(r.photo);
   const ph=src?`<img src="${h(src)}" alt="${h(r.name)}" loading="lazy">`:`<span class="initial">${h((r.name||'?').trim()[0]||'?')}</span>`;
   const st=r.player?`<span class="status taken">Игрок: ${h(r.player)}</span>`:`<span class="status free">Свободна</span>`;
   const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда (мастер)</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда (мастер)</button></div>`:PINNED.has(r.id)?`<div class="card-tools"><button class="btn small gold" data-plg="${r.id}">Посмотреть легенду</button></div>`:'';
-  return `<article class="card"><div class="portrait">${ph}</div><div class="card-body"><h3>${h(r.name)}</h3>${r.title?`<div class="rtitle">${h(r.title)}</div>`:''}${r.text?`<p>${h(r.text)}</p>`:''}${st}</div>${tools}</article>`;
+  return `<article class="card"><div class="portrait">${ph}</div><div class="card-body"><h3>${h(r.name)}</h3>${r.title?`<div class="rtitle">${h(r.title)}</div>`:''}${r.text?`<p>${h(r.text)}</p>`:''}${st}${r.contact&&r.contact.trim()?contactHtml(r.contact.trim()):''}</div>${tools}</article>`;
 }
 
 function renderModal(){
@@ -536,6 +558,7 @@ function renderModal(){
     <div class="field"><label for="m-text">Короткий текст</label><textarea id="m-text" data-d="text" rows="4">${h(d.text)}</textarea></div>
     <div class="field"><label for="m-team">Команда</label><select id="m-team" data-d="team">${S.teams.map(t=>`<option value="${t.id}" ${t.id===d.team?'selected':''}>${h(t.name)}</option>`).join('')}</select></div>
     <div class="field"><label for="m-player">Игрок</label><input id="m-player" data-d="player" value="${h(d.player)}" placeholder="Пусто, если роль свободна"></div>
+    <div class="field"><label for="m-contact">Контакт игрока</label><input id="m-contact" data-d="contact" value="${h(d.contact||'')}" placeholder="@ник в Telegram, ссылка ВК, почта или телефон" autocomplete="off"><span class="hint">Виден всем посетителям сайта, чтобы игроки могли списаться.</span></div>
     <div class="foot">${m.isNew?'':`<button class="btn danger" id="m-del">${m.confirm?'Точно удалить?':'Удалить'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="m-ok" ${m.uploading?'disabled':''}>Готово</button></div>`);
   }
   const d=m.draft, count=m.isNew?0:S.roles.filter(r=>r.team===d.id).length;
@@ -590,6 +613,8 @@ document.addEventListener('click',async ev=>{
   const t=ev.target.closest('button, .modal-bg'); if(!t) return;
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
+  if(ds.copy!==undefined){const v=ds.copy;const done=()=>toast('Контакт скопирован');
+    try{navigator.clipboard.writeText(v).then(done,()=>{fallbackCopy(v);done()})}catch(_){fallbackCopy(v);done()}return}
   if(ds.lg){goLegend(ds.lg);return}
   if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
   if(t.id==='rd-export'){const m=ui.modal;exportDocx(false,{role:m.role,html:m.html,status:x=>{const el=document.getElementById('rd-status');if(el)el.textContent=x}});return}
@@ -624,7 +649,7 @@ document.addEventListener('click',async ev=>{
   if(t.id==='lore-del'){const X=SEC();if(ui.confirmLore===ui[X.c]){S[X.k]=S[X.k].filter(x=>x.id!==ui[X.c]);ui[X.c]=null;ui.confirmLore=null}else ui.confirmLore=ui[X.c];render();return}
   if(ds.lmove!==undefined){move(S[SEC().k],+ds.lmove,+ds.dir);render();return}
   if(ds.rmove){const team=S.roles.find(r=>r.id===ds.rmove).team;const idx=S.roles.map((r,i)=>r.team===team?i:-1).filter(i=>i>=0);const pos=idx.indexOf(S.roles.findIndex(r=>r.id===ds.rmove));const to=pos+(+ds.dir);if(to>=0&&to<idx.length){const a=idx[pos],b=idx[to];[S.roles[a],S.roles[b]]=[S.roles[b],S.roles[a]]}render();return}
-  if(ds.roleAdd){ui.modal={kind:'role',isNew:true,draft:{id:uid('r'),team:ds.roleAdd,name:'',title:'',text:'',player:'',photo:''}};render();document.getElementById('m-name')?.focus();return}
+  if(ds.roleAdd){ui.modal={kind:'role',isNew:true,draft:{id:uid('r'),team:ds.roleAdd,name:'',title:'',text:'',player:'',contact:'',photo:''}};render();document.getElementById('m-name')?.focus();return}
   if(ds.roleEdit){ui.modal={kind:'role',isNew:false,draft:{...S.roles.find(x=>x.id===ds.roleEdit)}};render();return}
   if(ds.teamEdit){ui.modal={kind:'team',isNew:false,draft:{...S.teams.find(x=>x.id===ds.teamEdit)}};render();return}
   if(t.id==='team-add'){ui.modal={kind:'team',isNew:true,draft:{id:uid('t'),name:'',desc:''}};render();document.getElementById('m-tname')?.focus();return}
@@ -645,6 +670,7 @@ document.addEventListener('click',async ev=>{
   if(t.id==='discard'){S=JSON.parse(saved);ui.err='';render();return}
   if(t.id==='save'){save();return}
 });
+function fallbackCopy(v){const ta=document.createElement('textarea');ta.value=v;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(_){}ta.remove()}
 function move(a,i,d){const j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]]}
 function rpcErr(error){const m=(error&&error.message)||'';if(/too_many_attempts/.test(m))return 'Слишком много неверных попыток. Подождите 15 минут.';if(error&&(error.code==='PGRST202'||/Could not find the function/i.test(m)))return 'Вход по коду ещё не настроен в базе.';return 'Нет связи с сервером. Попробуйте ещё раз.'}
 
