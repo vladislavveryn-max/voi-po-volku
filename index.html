@@ -201,7 +201,7 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 
 /* lore covers + page background */
 #page-bg{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center;opacity:0;transition:opacity .5s;pointer-events:none}
-#page-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,14,17,.62) 0%,rgba(13,14,17,.86) 45%,rgba(13,14,17,.95) 100%)}
+#page-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,14,17,.45) 0%,rgba(13,14,17,.76) 45%,rgba(13,14,17,.9) 100%)}
 #page-bg.on{opacity:1}
 body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .lore-cover{position:relative;aspect-ratio:16/7;max-width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--gold-line);margin-bottom:22px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
@@ -212,6 +212,20 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .cover-pick .thumb img{width:100%;height:100%;object-fit:cover}
 .hovercard.lore .hc-ph img{width:100%;height:100%;object-fit:cover}
 @media (max-width:820px){.lore-cover{aspect-ratio:16/9;border-radius:8px}.cover-pick .thumb{width:100%}}
+
+/* branding */
+.brand-logo{flex:none;height:32px;width:auto;max-width:56px;object-fit:contain}
+.hero-mark.img{opacity:.09;height:auto;object-fit:contain;max-height:90%}
+body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,14,17,.82))}
+.brand-grid{display:grid;gap:14px}
+.brand-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.brand-row .thumb{width:120px;aspect-ratio:16/9;border-radius:6px;overflow:hidden;border:1px dashed var(--gold-line);display:grid;place-items:center;color:var(--muted);font-size:12px;flex:none;background:var(--surface)}
+.brand-row .thumb.logo{width:64px;aspect-ratio:1}
+.brand-row .thumb img{width:100%;height:100%;object-fit:cover}
+.brand-row .thumb.logo img{object-fit:contain}
+.brand-row .info{flex:1;min-width:150px;display:grid;gap:6px}
+.brand-row .ttl{font-family:var(--display);font-size:19px}
+.brand-row .acts{display:flex;gap:6px;flex-wrap:wrap}
 
 /* legends (master only) */
 .tab .short{display:none}
@@ -357,7 +371,7 @@ function render(){
   const e=ui.edit;
   let o='';
   o+=`<header class="topbar gutter"><div class="col tb-row">
-    <button class="brand" id="to-top" aria-label="Наверх">${SIGIL}<span class="brand-name">${h(S.hero.title)}</span></button>
+    <button class="brand" id="to-top" aria-label="Наверх">${logoSrc()?`<img class="brand-logo" src="${h(logoSrc())}" alt="">`:SIGIL}<span class="brand-name">${h(S.hero.title)}</span></button>
     <nav class="tabs" role="tablist" style="--n:${tabs().length}">${tabs().map(([k,l,sh])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab===k}"><span class="full">${l}</span><span class="short">${sh}</span></button>`).join('')}</nav>
     <div class="tb-actions">${isMaster()
       ?`<button class="icon-btn ${e?'on':''}" id="edit-toggle" aria-pressed="${e}">${ICON_PEN}<span class="lbl">${e?'Редактирую':'Редактировать'}</span></button><button class="icon-btn" id="logout" aria-label="Выйти из режима мастера">${ICON_OUT}<span class="lbl">Выйти</span></button>`
@@ -366,7 +380,7 @@ function render(){
 
   const showHero=ui.tab==='about'||(ui.tab==='legends'&&!pin);
   if(showHero){
-  o+=`<section class="hero gutter">${MARK}<div class="col">`;
+  o+=`<section class="hero gutter">${logoSrc()?`<img class="hero-mark img" src="${h(logoSrc())}" alt="" aria-hidden="true">`:MARK}<div class="col">`;
   if(e){
     o+=`<div class="field"><label for="f-eyebrow">Подзаголовок</label><input id="f-eyebrow" data-bind="hero.eyebrow" value="${h(S.hero.eyebrow)}"></div>
       <div class="field"><label for="f-title">Название игры</label><input id="f-title" data-bind="hero.title" value="${h(S.hero.title)}"></div>
@@ -378,7 +392,7 @@ function render(){
   }
 
   o+='<main class="col gutter">';
-  if(e) o+=`<div class="edit-banner">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</div>`;
+  if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
   else o+= ui.tab==='legends'&&pin?renderLegends():ui.tab==='lore'?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
@@ -459,6 +473,20 @@ function renderModal(){
     <form id="login-form"><div class="field"><label for="m-pin">Код мастера</label><input id="m-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" required></div>
     <p class="err" id="m-err">${h(m.err||'')}</p>
     <div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Отмена</button><button type="submit" class="btn primary" id="m-login">Войти</button></div></form>`);
+  if(m.kind==='brand'){
+    const row=(key,title,desc,isLogo)=>{const src=photoSrc((S.brand||{})[key]);return `<div class="brand-row"><div class="thumb ${isLogo?'logo':''}">${src?`<img src="${h(src)}" alt="">`:'Нет'}</div>
+      <div class="info"><div class="ttl">${title}</div><div class="hint">${desc}</div><div class="acts"><label class="btn small gold" for="bf-${key}">${src?'Заменить':'Загрузить'}</label><input type="file" id="bf-${key}" data-brand="${key}" accept="image/*" hidden>${src?`<button class="btn small" data-brand-clear="${key}">Убрать</button>`:''}</div></div></div>`};
+    return `<div class="modal-bg" id="modal-bg"><div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">Оформление сайта</h2>
+      <div class="brand-grid">
+        ${row('logo','Логотип','Заменяет щит в верхней панели и на главной, ставится значком вкладки. Лучше квадратный PNG с прозрачным фоном.',true)}
+        ${row('bg','Фон всех страниц','Используется везде, где нет отдельного фона.')}
+        ${row('bgAbout','Фон «Об игре»','Необязательно. Если не задан, берётся общий фон.')}
+        ${row('bgLore','Фон «Лор игры»','Необязательно. Обложка открытой статьи всё равно главнее.')}
+        ${row('bgRoles','Фон «Сетки ролей»','Необязательно. Также используется на вкладке «Легенды».')}
+      </div>
+      <p class="err" style="margin-top:12px">${h(m.msg||'')}</p>
+      <div class="foot"><span class="hint" style="align-self:center">Изменения применятся у всех после «Сохранить» внизу экрана.</span><span class="grow"></span><button class="btn" id="m-cancel">Готово</button></div></div></div>`;
+  }
   if(m.kind==='playerpin'){
     const r=S.roles.find(x=>x.id===m.role)||{name:''};
     return wrap(`<h2 id="m-h">Легенда: ${h(r.name)}</h2>
@@ -534,6 +562,7 @@ document.addEventListener('change',ev=>{
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='lg-select') goLegend(t.value);
+  if(t.dataset.brand&&t.files&&t.files[0]){const f=t.files[0],k=t.dataset.brand;t.value='';uploadBrand(k,f)}
   if(t.id==='lore-cover-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadCover(f)}
   if(t.id==='lg-photo'&&t.files&&t.files[0]){const f=t.files[0];t.value='';insertPhoto(f)}
 });
@@ -582,6 +611,8 @@ document.addEventListener('click',async ev=>{
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
   if(ds.lore){ui.lore=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
+  if(t.id==='brand-open'){ui.modal={kind:'brand'};render();return}
+  if(ds.brandClear){if(S.brand)delete S.brand[ds.brandClear];ui.modal.msg='';render();applyFavicon();return}
   if(t.id==='lore-cover-clear'){const a=S.lore.find(x=>x.id===ui.lore);if(a){delete a.cover;ui.coverMsg='Обложка убрана. Не забудьте сохранить.'}render();return}
   if(t.id==='lore-add'){const a={id:uid('l'),title:'Новая статья',body:''};S.lore.push(a);ui.lore=a.id;render();document.getElementById('f-ltitle')?.select();return}
   if(t.id==='lore-del'){if(ui.confirmLore===ui.lore){S.lore=S.lore.filter(x=>x.id!==ui.lore);ui.lore=null;ui.confirmLore=null}else ui.confirmLore=ui.lore;render();return}
@@ -641,12 +672,40 @@ async function uploadCover(file){
   }catch(e){ui.coverMsg=e.message||'Не получилось загрузить обложку.'}
   render();
 }
+function logoSrc(){return photoSrc((S.brand||{}).logo)}
+function applyFavicon(){
+  let l=document.querySelector('link[rel="icon"]'); const src=logoSrc();
+  if(!src){if(l)l.remove();return}
+  if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l)}
+  if(l.href!==src)l.href=src;
+}
+async function uploadBrand(key,file){
+  ui.modal.msg='Загружаю…';render();
+  try{
+    const d=key==='logo'?await shrink(file,256,'png'):await shrink(file,1800);
+    const id=uid('b');
+    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    if(error) throw new Error(rpcErr(error));
+    if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
+    photos[id]=d; S.brand=S.brand||{}; S.brand[key]='ph:'+id;
+    if(ui.modal) ui.modal.msg='Загружено. Нажмите «Сохранить» внизу, чтобы применить для всех.';
+    applyFavicon();
+  }catch(e){if(ui.modal)ui.modal.msg=e.message||'Не получилось загрузить картинку.'}
+  render();
+}
 function updateBg(){
   const el=document.getElementById('page-bg'); if(!el) return;
   let src='';
-  if(ui.tab==='lore'&&!ui.loading){const a=S.lore.find(x=>x.id===ui.lore)||S.lore[0];src=a?photoSrc(a.cover):''}
+  const B=S.brand||{};
+  if(!ui.loading){
+    if(ui.tab==='lore'){const a=S.lore.find(x=>x.id===ui.lore)||S.lore[0];src=(a&&photoSrc(a.cover))||photoSrc(B.bgLore)}
+    else if(ui.tab==='about') src=photoSrc(B.bgAbout);
+    else src=photoSrc(B.bgRoles);
+    if(!src) src=photoSrc(B.bg);
+  }
   if(el.dataset.src!==src){el.dataset.src=src;if(src){el.style.backgroundImage=`url("${src}")`;el.classList.add('on')}else{el.classList.remove('on')}}
   document.body.classList.toggle('has-bg',!!src);
+  applyFavicon();
 }
 async function handlePhoto(file){
   if(!ui.modal)return;
@@ -662,11 +721,12 @@ async function handlePhoto(file){
   }catch(e){if(ui.modal)ui.modal.photoErr=e.message||'Не получилось загрузить фото. Попробуйте JPG или PNG.'}
   if(ui.modal){ui.modal.uploading=false;render()}
 }
-function shrink(file,max){
+function shrink(file,max,fmt){
   return new Promise((res,rej)=>{
     const img=new Image(),url=URL.createObjectURL(file);
     img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
       c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+      if(fmt==='png'){const d=c.toDataURL('image/png');if(d.length<380000){res(d);return}}
       let q=.82,d=c.toDataURL('image/jpeg',q);while(d.length>380000&&q>.4){q-=.12;d=c.toDataURL('image/jpeg',q)}res(d)};
     img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Не получилось прочитать файл. Попробуйте JPG или PNG.'))};
     img.src=url;
@@ -1019,7 +1079,7 @@ async function save(){
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
-function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.lore.map(a=>a.cover||'')).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.lore.map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
