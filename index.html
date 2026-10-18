@@ -171,7 +171,7 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
   .tb-row{flex-wrap:wrap;gap:0;min-height:0}
   .brand{flex:1;padding:10px 0}
   .brand-name{font-size:19px}
-  .tabs{order:3;width:100%;margin:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+  .tabs{order:3;width:100%;margin:0;display:grid;grid-template-columns:repeat(var(--n,3),1fr);border-top:1px solid var(--line)}
   .tab{padding:11px 4px;font-size:16px;text-align:center}
   .tab[aria-selected="true"]::after{left:18%;right:18%}
   .icon-btn .lbl{display:none}
@@ -197,6 +197,61 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
   .modal{width:100%;border-radius:16px 16px 0 0;max-height:92vh;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px))}
 }
 @media (max-width:360px){.grid{grid-template-columns:1fr}}
+
+/* legends (master only) */
+.tab .short{display:none}
+.lg{display:grid;grid-template-columns:270px minmax(0,1fr);gap:36px;align-items:start}
+.lg-nav{position:sticky;top:calc(var(--tb) + env(safe-area-inset-top,0px) + 20px);max-height:calc(100vh - var(--tb) - 60px);overflow:auto;padding-right:4px;display:grid;gap:2px}
+.lg-search{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font-size:15px;margin-bottom:10px}
+.lg-search:focus{border-color:var(--gold-line);outline:none}
+.lg-cap{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);padding:12px 12px 4px}
+.lg-link{display:flex;align-items:center;gap:10px;text-align:left;background:none;border:0;border-radius:6px;padding:8px 12px;cursor:pointer;color:var(--muted);font-size:15px;line-height:1.3;width:100%}
+.lg-link:hover{color:var(--fg);background:var(--surface)}
+.lg-link[aria-current="true"]{color:var(--gold-hi);background:var(--surface)}
+.lg-dot{flex:none;width:7px;height:7px;border-radius:50%;border:1px solid var(--muted)}
+.lg-dot.full{background:var(--gold);border-color:var(--gold)}
+.lg-select{display:none;width:100%;background:var(--bg);border:1px solid var(--gold-line);border-radius:6px;padding:10px 12px;font-size:16px;margin-bottom:14px}
+.lg-head{display:flex;gap:16px;align-items:center;margin-bottom:14px}
+.lg-head .ph{width:64px;aspect-ratio:3/4;border-radius:5px;overflow:hidden;border:1px solid var(--gold-line);flex:none;background:var(--surface);display:grid;place-items:center;font-family:var(--display);font-size:30px;color:rgba(201,166,94,.4)}
+.lg-head .ph img{width:100%;height:100%;object-fit:cover}
+.lg-head h2{font-size:clamp(28px,4.4vw,40px)}
+.lg-meta{color:var(--gold);font-style:italic;font-size:15px}
+.lg-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.lg-status{font-size:13px;color:var(--muted);margin-left:auto}
+.lg-toolbar{position:sticky;top:calc(var(--tb) + env(safe-area-inset-top,0px));z-index:4;display:flex;gap:4px;flex-wrap:wrap;padding:8px 0;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:12px}
+.lg-tool{border:1px solid var(--line);background:var(--raised);color:var(--fg);border-radius:5px;min-width:34px;height:34px;padding:0 9px;font-size:14px;cursor:pointer}
+.lg-tool:hover{border-color:var(--gold-line)}
+.lg-tool.wide{color:var(--gold-hi);border-color:var(--gold-line);background:transparent}
+.lg-sep{width:1px;background:var(--line);margin:4px 2px}
+.lg-editor{min-height:55vh;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:24px 28px;line-height:1.7;outline:none;overflow-wrap:anywhere}
+.lg-editor:focus{border-color:var(--gold-line)}
+.lg-editor:empty::before{content:attr(data-ph);color:var(--muted);font-style:italic}
+.lg-editor > :first-child{margin-top:0}
+.lg-editor p,.lg-editor div{margin:0 0 .9em}
+.lg-editor h2{font-size:30px;margin:1.2em 0 .4em;color:var(--gold-hi)}
+.lg-editor h3{font-size:23px;margin:1.1em 0 .35em}
+.lg-editor ul,.lg-editor ol{margin:0 0 1em;padding-left:1.4em}
+.lg-editor blockquote{margin:0 0 1em;padding:4px 0 4px 16px;border-left:2px solid var(--gold);color:#cfc6b4;font-style:italic}
+.lg-editor img{display:block;max-width:100%;height:auto;border-radius:5px;margin:12px 0;border:1px solid var(--line)}
+.role-link{color:var(--gold-hi);background:rgba(201,166,94,.1);border:1px solid var(--gold-line);border-radius:4px;padding:0 6px;text-decoration:none;cursor:pointer;white-space:nowrap}
+.role-link:hover{background:rgba(201,166,94,.2)}
+.role-link.missing{color:var(--muted);text-decoration:line-through;border-color:var(--line);background:none}
+.lg-back{margin-top:16px;font-size:14px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pick-list{display:grid;gap:2px;max-height:50vh;overflow:auto;margin-bottom:10px}
+.pick-list button{text-align:left;background:none;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;color:var(--fg)}
+.pick-list button:hover,.pick-list button:focus-visible{background:var(--raised)}
+.pick-list small{color:var(--muted);margin-left:8px}
+@media (max-width:820px){
+  .tab .full{display:none}.tab .short{display:inline}
+  .lg{grid-template-columns:1fr;gap:0}
+  .lg-nav{display:none}
+  .lg-select{display:block}
+  .lg-toolbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding-inline:16px}
+  .lg-toolbar::-webkit-scrollbar{display:none}
+  .lg-tool{flex:none}
+  .lg-editor{padding:16px;min-height:50vh}
+  .lg-status{margin-left:0;width:100%}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -215,7 +270,10 @@ let photos={};               // id -> data URI
 let pin=null; try{pin=sessionStorage.getItem('vpv-pin')}catch(_){}
 const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',modal:null,loading:true,loadErr:false,toast:''};
 
-const TABS=[['about','Об игре'],['lore','Лор игры'],['roles','Сетка ролей']];
+const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['roles','Сетка ролей','Роли']];
+const LEG_TAB=['legends','Легенды','Легенды'];
+const tabs=()=>pin?TABS.concat([LEG_TAB]):TABS;
+let LG=null, lgLoading=false, lgErr='', lgTimer=null, lgDirtyId=null, lgSavingN=0, lgRange=null, exportIds=new Set(), docxReady=null;
 const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=p=>p+Math.random().toString(36).slice(2,10);
 const dirty=()=>JSON.stringify(S)!==saved;
@@ -247,7 +305,7 @@ function render(){
   let o='';
   o+=`<header class="topbar gutter"><div class="col tb-row">
     <button class="brand" id="to-top" aria-label="Наверх">${SIGIL}<span class="brand-name">${h(S.hero.title)}</span></button>
-    <nav class="tabs" role="tablist">${TABS.map(([k,l])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab===k}">${l}</button>`).join('')}</nav>
+    <nav class="tabs" role="tablist" style="--n:${tabs().length}">${tabs().map(([k,l,sh])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab===k}"><span class="full">${l}</span><span class="short">${sh}</span></button>`).join('')}</nav>
     <div class="tb-actions">${isMaster()
       ?`<button class="icon-btn ${e?'on':''}" id="edit-toggle" aria-pressed="${e}">${ICON_PEN}<span class="lbl">${e?'Редактирую':'Редактировать'}</span></button><button class="icon-btn" id="logout" aria-label="Выйти из режима мастера">${ICON_OUT}<span class="lbl">Выйти</span></button>`
       :`<button class="icon-btn" id="login-open" aria-label="Вход для мастера">${ICON_LOCK}<span class="lbl">Мастер</span></button>`}</div>
@@ -267,7 +325,7 @@ function render(){
   if(e) o+=`<div class="edit-banner">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
-  else o+= ui.tab==='about'?renderAbout():ui.tab==='lore'?renderLore():renderRoles();
+  else o+= ui.tab==='legends'&&pin?renderLegends():ui.tab==='lore'?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
   o+='</main>';
   o+=`<footer class="col gutter">«${h(S.hero.title)}» · ролевая игра живого действия</footer>`;
 
@@ -276,8 +334,10 @@ function render(){
   if(ui.toast) o+=`<div class="toast" role="status">${h(ui.toast)}</div>`;
 
   const a=document.activeElement, aid=a&&a.id, sel=a&&('selectionStart' in a)?[a.selectionStart,a.selectionEnd]:null, y=window.scrollY;
+  const keepEd=document.getElementById('lg-editor'); const keepSel=keepEd?rangeToPath(keepEd):null;
   document.getElementById('root').innerHTML=o;
-  if(aid){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
+  if(keepEd&&keepEd.dataset.role===ui.legend&&ui.tab==='legends'){const ne=document.getElementById('lg-editor');if(ne){ne.replaceWith(keepEd);if(keepSel&&aid==='lg-editor'){keepEd.focus({preventScroll:true});pathToRange(keepEd,keepSel)}}}
+  if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   measure();
 }
@@ -329,7 +389,7 @@ function renderCard(r){
   const src=photoSrc(r.photo);
   const ph=src?`<img src="${h(src)}" alt="${h(r.name)}" loading="lazy">`:`<span class="initial">${h((r.name||'?').trim()[0]||'?')}</span>`;
   const st=r.player?`<span class="status taken">Игрок: ${h(r.player)}</span>`:`<span class="status free">Свободна</span>`;
-  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:'';
+  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда</button></div>`:'';
   return `<article class="card"><div class="portrait">${ph}</div><div class="card-body"><h3>${h(r.name)}</h3>${r.title?`<div class="rtitle">${h(r.title)}</div>`:''}${r.text?`<p>${h(r.text)}</p>`:''}${st}</div>${tools}</article>`;
 }
 
@@ -339,6 +399,14 @@ function renderModal(){
     <form id="login-form"><div class="field"><label for="m-pin">Код мастера</label><input id="m-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" required></div>
     <p class="err" id="m-err">${h(m.err||'')}</p>
     <div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Отмена</button><button type="submit" class="btn primary" id="m-login">Войти</button></div></form>`);
+  if(m.kind==='rolepick'){
+    const q=(m.q||'').toLowerCase();
+    const list=orderedRoles().filter(x=>!q||x.r.name.toLowerCase().includes(q));
+    return wrap(`<h2 id="m-h">Ссылка на роль</h2>
+    <div class="field"><label for="m-rq">Поиск</label><input id="m-rq" value="${h(m.q||'')}" placeholder="Начните вводить имя" autocomplete="off"></div>
+    <div class="pick-list">${list.map(x=>`<button data-pick="${x.r.id}">${h(x.r.name)}<small>${h(x.t?x.t.name:'')}</small></button>`).join('')||'<p class="empty">Ничего не найдено.</p>'}</div>
+    <div class="foot"><span class="grow"></span><button class="btn" id="m-cancel">Отмена</button></div>`);
+  }
   if(m.kind==='role'){
     const d=m.draft, src=photoSrc(d.photo);
     return wrap(`<h2 id="m-h">${m.isNew?'Новый персонаж':'Персонаж'}</h2>
@@ -369,6 +437,9 @@ function toast(msg){ui.toast=msg;render();setTimeout(()=>{ui.toast='';render()},
 
 document.addEventListener('input',ev=>{
   const t=ev.target;
+  if(t.id==='lg-editor'){scheduleLegendSave();return}
+  if(t.id==='lg-search'){ui.lgq=t.value;render();return}
+  if(t.id==='m-rq'){ui.modal.q=t.value;render();return}
   if(t.dataset.bind){setPath(t.dataset.bind,t.value);if(t.dataset.bind==='hero.title'){const b=document.querySelector('.brand-name');if(b)b.textContent=t.value}soft()}
   else if(t.dataset.lbind){const a=S.lore.find(x=>x.id===ui.lore);if(a){a[t.dataset.lbind]=t.value;if(t.dataset.lbind==='title'){const l=document.querySelector(`[data-lore="${a.id}"]`);if(l)l.textContent=t.value||'Без названия'}soft()}}
   else if(t.dataset.d&&ui.modal){ui.modal.draft[t.dataset.d]=t.value}
@@ -377,6 +448,8 @@ document.addEventListener('change',ev=>{
   const t=ev.target;
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
+  if(t.id==='lg-select') goLegend(t.value);
+  if(t.id==='lg-photo'&&t.files&&t.files[0]){const f=t.files[0];t.value='';insertPhoto(f)}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&ui.modal){ui.modal=null;render()}});
 
@@ -391,15 +464,24 @@ function applyFmt(id,kind){
 }
 
 document.addEventListener('click',async ev=>{
+  const rl=ev.target.closest('.role-link'); if(rl){ev.preventDefault();goLegend(rl.dataset.role);return}
   const t=ev.target.closest('button, .modal-bg'); if(!t) return;
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
-  if(ds.tab){ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(hero&&window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
+  if(ds.lg){goLegend(ds.lg);return}
+  if(ds.cmd){document.execCommand(ds.cmd,false,null);scheduleLegendSave();return}
+  if(ds.block){document.execCommand('formatBlock',false,'<'+ds.block.toLowerCase()+'>');scheduleLegendSave();return}
+  if(ds.lgact==='photo'){saveRange();document.getElementById('lg-photo').click();return}
+  if(ds.lgact==='link'){saveRange();ui.modal={kind:'rolepick',q:''};render();document.getElementById('m-rq')?.focus();return}
+  if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
+  if(t.id==='lg-export-one'){exportDocx(false);return}
+  if(t.id==='lg-export-all'){exportDocx(true);return}
+  if(ds.tab){if(ui.tab==='legends')flushLegend();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(hero&&window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
   if(t.id==='to-top'){window.scrollTo({top:0,behavior:'smooth'});return}
   if(ds.fmt){applyFmt(ds.for,ds.fmt);return}
   if(t.id==='login-open'){ui.modal={kind:'login'};render();document.getElementById('m-pin')?.focus();return}
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
-    pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
+    flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} LG=null;if(ui.tab==='legends')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
   if(ds.lore){ui.lore=ds.lore;ui.confirmLore=null;render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
@@ -469,6 +551,240 @@ function shrink(file,max){
   });
 }
 
+/* ---------------- legends (master only) ---------------- */
+function orderedRoles(){
+  const out=[];
+  S.teams.forEach(t=>S.roles.filter(r=>r.team===t.id).forEach(r=>out.push({r,t})));
+  S.roles.filter(r=>!S.teams.some(t=>t.id===r.team)).forEach(r=>out.push({r,t:null}));
+  return out;
+}
+const hasText=html=>/<img/i.test(html||'')||(html||'').replace(/<[^>]*>/g,'').replace(/&nbsp;|\s/g,'').length>0;
+function sanitize(html){
+  const tpl=document.createElement('template'); tpl.innerHTML=html||'';
+  const OK=new Set(['P','DIV','H2','H3','H4','B','STRONG','I','EM','U','S','STRIKE','UL','OL','LI','BR','BLOCKQUOTE','IMG','A']);
+  const DROP=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','META','LINK','TITLE','SVG','VIDEO','AUDIO','FORM','INPUT','BUTTON','TEXTAREA','SELECT']);
+  const strip=n=>[...n.attributes].forEach(a=>n.removeAttribute(a.name));
+  (function walk(node){
+    [...node.childNodes].forEach(n0=>{
+      let n=n0;
+      if(n.nodeType===3) return;
+      if(n.nodeType!==1){n.remove();return}
+      if(DROP.has(n.tagName)){n.remove();return}
+      if(n.tagName==='H1'){const x=document.createElement('h2');x.append(...n.childNodes);n.replaceWith(x);n=x}
+      if(!OK.has(n.tagName)){walk(n);n.replaceWith(...n.childNodes);return}
+      if(n.tagName==='IMG'){const src=n.getAttribute('src')||'';strip(n);if(!/^data:image\/(png|jpe?g|webp|gif);/i.test(src)){n.remove();return}n.setAttribute('src',src);return}
+      if(n.tagName==='A'){
+        const rid=n.getAttribute('data-role'); if(!rid){walk(n);n.replaceWith(...n.childNodes);return}
+        const r=S.roles.find(x=>x.id===rid), label=n.textContent; strip(n);
+        n.setAttribute('data-role',rid);n.setAttribute('contenteditable','false');n.className='role-link'+(r?'':' missing');
+        n.textContent=r?r.name:(label||'роль удалена');return}
+      strip(n);walk(n);
+    });
+  })(tpl.content);
+  return tpl.innerHTML;
+}
+function loadLegends(){
+  lgLoading=true;lgErr='';
+  sb.rpc('get_legends',{p_pin:pin}).then(({data,error})=>{
+    lgLoading=false;
+    if(error)lgErr='Не удалось загрузить легенды: '+rpcErr(error);
+    else if(data===null)lgErr='Код мастера больше не подходит. Выйдите и войдите заново.';
+    else LG=data||{};
+    render();
+  });
+}
+function renderLegends(){
+  if(!LG){if(!lgLoading&&!lgErr)loadLegends();return `<p class="empty">${h(lgErr||'Загружаю легенды…')}</p>`}
+  const list=orderedRoles();
+  if(!list.length) return `<div class="section-title"><h2>Легенды</h2></div><p class="empty">Сначала добавьте роли в «Сетку ролей». Для каждой роли здесь сразу появится своя легенда.</p>`;
+  if(!list.some(x=>x.r.id===ui.legend)) ui.legend=list[0].r.id;
+  const cur=list.find(x=>x.r.id===ui.legend), r=cur.r, q=(ui.lgq||'').toLowerCase();
+  const done=list.filter(x=>hasText(LG[x.r.id]?.html)).length;
+  let nav=`<input id="lg-search" class="lg-search" type="search" placeholder="Найти роль" value="${h(ui.lgq||'')}" autocomplete="off">`;
+  let lastT='—', sel='', navT=null;
+  list.forEach(x=>{
+    const tn=x.t?x.t.name:'Без команды';
+    if(tn!==lastT){sel+=(lastT==='—'?'':'</optgroup>')+`<optgroup label="${h(tn)}">`}
+    sel+=`<option value="${x.r.id}" ${x.r.id===r.id?'selected':''}>${h(x.r.name)}${hasText(LG[x.r.id]?.html)?'':' (пусто)'}</option>`;
+    if(q&&!x.r.name.toLowerCase().includes(q)){lastT=tn;return}
+    if(tn!==navT){nav+=`<div class="lg-cap">${h(tn)}</div>`;navT=tn}
+    nav+=`<button class="lg-link" data-lg="${x.r.id}" aria-current="${x.r.id===r.id}"><span class="lg-dot ${hasText(LG[x.r.id]?.html)?'full':''}"></span>${h(x.r.name)}</button>`;
+    lastT=tn;
+  });
+  sel+='</optgroup>';
+  const src=photoSrc(r.photo);
+  const meta=[cur.t?.name,r.title,r.player?'Игрок: '+r.player:'Роль свободна'].filter(Boolean).map(h).join(' · ');
+  const back=Object.keys(LG).filter(id=>id!==r.id&&(LG[id].html||'').includes(`data-role="${r.id}"`)).map(id=>S.roles.find(x=>x.id===id)).filter(Boolean);
+  return `<div class="section-title"><h2>Легенды</h2></div>
+  <p class="hint" style="margin:-10px 0 18px">Видно только мастерам. Написано ${done} из ${list.length}. Сохраняется автоматически.</p>
+  <div class="lg"><nav class="lg-nav" aria-label="Роли">${nav}</nav>
+  <div style="min-width:0">
+    <select id="lg-select" class="lg-select" aria-label="Выбрать роль">${sel}</select>
+    <div class="lg-head"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2>${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div>
+    <div class="lg-actions"><button class="btn small gold" id="lg-export-one">Скачать легенду (.docx)</button><button class="btn small" id="lg-export-all">Скачать все легенды</button><span class="lg-status" id="lg-status">${h(ui.lgStatus||'')}</span></div>
+    <div class="lg-toolbar" role="toolbar" aria-label="Форматирование">
+      <button class="lg-tool" data-cmd="bold" title="Жирный"><b>Ж</b></button><button class="lg-tool" data-cmd="italic" title="Курсив"><i>К</i></button><button class="lg-tool" data-cmd="underline" title="Подчеркнуть"><u>Ч</u></button>
+      <span class="lg-sep"></span>
+      <button class="lg-tool" data-block="H2" title="Заголовок">Заголовок</button><button class="lg-tool" data-block="H3" title="Подзаголовок">Подзаг.</button><button class="lg-tool" data-block="P" title="Обычный текст">Текст</button><button class="lg-tool" data-block="BLOCKQUOTE" title="Цитата">❝</button>
+      <span class="lg-sep"></span>
+      <button class="lg-tool" data-cmd="insertUnorderedList" title="Маркированный список">•</button><button class="lg-tool" data-cmd="insertOrderedList" title="Нумерованный список">1.</button><button class="lg-tool" data-cmd="removeFormat" title="Убрать оформление">⌫</button>
+      <span class="lg-sep"></span>
+      <button class="lg-tool wide" data-lgact="photo">+ Фото</button><button class="lg-tool wide" data-lgact="link">+ Ссылка на роль</button>
+      <input type="file" id="lg-photo" accept="image/*" hidden>
+    </div>
+    <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-ph="Начните писать легенду персонажа…">${sanitize(LG[r.id]?.html||'')}</div>
+    ${back.length?`<div class="lg-back">Упоминается в легендах: ${back.map(b=>`<a class="role-link" data-role="${b.id}" href="#legends">${h(b.name)}</a>`).join(' ')}</div>`:''}
+  </div></div>`;
+}
+function setStatus(m){ui.lgStatus=m;const el=document.getElementById('lg-status');if(el)el.textContent=m}
+function scheduleLegendSave(){
+  const ed=document.getElementById('lg-editor'); if(!ed) return;
+  lgDirtyId=ed.dataset.role; setStatus('Есть изменения…');
+  clearTimeout(lgTimer); lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},1200);
+}
+function flushLegend(){if(lgTimer){clearTimeout(lgTimer);lgTimer=null;saveLegend()}}
+async function saveLegend(){
+  const ed=document.getElementById('lg-editor'); const id=lgDirtyId; if(!id) return;
+  const html=(ed&&ed.dataset.role===id)?sanitize(ed.innerHTML):(LG[id]?.html||'');
+  lgDirtyId=null; LG[id]={html,updated_at:new Date().toISOString()};
+  lgSavingN++; setStatus('Сохраняю…');
+  const {data,error}=await sb.rpc('save_legend',{p_pin:pin,p_role_id:id,p_html:html});
+  lgSavingN--;
+  if(error) setStatus('Не сохранилось: '+rpcErr(error));
+  else if(!data) setStatus('Код мастера больше не подходит. Скопируйте текст, выйдите и войдите заново.');
+  else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
+    document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',hasText(html)))}
+}
+function goLegend(id){
+  if(!pin) return;
+  flushLegend(); ui.tab='legends'; ui.legend=id; ui.lgStatus=''; ui.modal=null;
+  try{history.replaceState(null,'','#legends')}catch(_){}
+  render();
+  const m=document.querySelector('main'); if(m&&m.getBoundingClientRect().top<0) window.scrollTo({top:window.scrollY+m.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});
+}
+// caret positions are stored as child-index paths: live Range objects collapse when the editor is re-attached
+function pathOf(n,root){const p=[];while(n&&n!==root){const par=n.parentNode;if(!par)return null;p.unshift([...par.childNodes].indexOf(n));n=par}return n===root?p:null}
+function nodeAt(p,root){let n=root;for(const i of p){n=n&&n.childNodes[i];}return n||null}
+function rangeToPath(ed){const s=getSelection();if(!s.rangeCount||!ed.contains(s.anchorNode))return null;const r=s.getRangeAt(0);const a=pathOf(r.startContainer,ed),b=pathOf(r.endContainer,ed);return a&&b?{a,ao:r.startOffset,b,bo:r.endOffset}:null}
+function pathToRange(ed,p){const s=getSelection();s.removeAllRanges();const r=document.createRange();
+  try{const a=nodeAt(p.a,ed),b=nodeAt(p.b,ed);if(!a||!b)throw 0;r.setStart(a,p.ao);r.setEnd(b,p.bo)}catch(_){r.selectNodeContents(ed);r.collapse(false)}
+  s.addRange(r)}
+function saveRange(){const ed=document.getElementById('lg-editor');lgRange=ed?rangeToPath(ed):null}
+function restoreRange(){
+  const ed=document.getElementById('lg-editor'); if(!ed) return false;
+  ed.focus({preventScroll:true});
+  if(lgRange) pathToRange(ed,lgRange); else {const s=getSelection(),r=document.createRange();r.selectNodeContents(ed);r.collapse(false);s.removeAllRanges();s.addRange(r)}
+  return true;
+}
+function insertAtSaved(html){
+  if(!restoreRange())return;
+  const sel=getSelection(), r=sel.getRangeAt(0); r.deleteContents();
+  const tpl=document.createElement('template'); tpl.innerHTML=html; const last=tpl.content.lastChild;
+  r.insertNode(tpl.content);
+  if(last){const nr=document.createRange();nr.setStartAfter(last);nr.collapse(true);sel.removeAllRanges();sel.addRange(nr)}
+  scheduleLegendSave();
+}
+async function insertPhoto(file){
+  setStatus('Вставляю фото…');
+  try{const d=await shrink(file,1000);insertAtSaved(`<img src="${d}" alt="">`)}
+  catch(e){setStatus(e.message||'Не получилось вставить фото.')}
+}
+document.addEventListener('mousedown',ev=>{if(ev.target.closest('.lg-tool'))ev.preventDefault()});
+document.addEventListener('focusin',ev=>{if(ev.target.id==='lg-editor'){try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(_){}}});
+document.addEventListener('paste',ev=>{
+  const ed=ev.target.closest&&ev.target.closest('#lg-editor'); if(!ed) return;
+  const cd=ev.clipboardData; if(!cd) return;
+  const img=[...cd.items].find(i=>i.kind==='file'&&i.type.startsWith('image/'));
+  if(img){ev.preventDefault();saveRange();insertPhoto(img.getAsFile());return}
+  const html=cd.getData('text/html');
+  if(html){ev.preventDefault();document.execCommand('insertHTML',false,sanitize(html));scheduleLegendSave()}
+});
+document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='s'&&ui.tab==='legends'){ev.preventDefault();flushLegend()}});
+
+/* ---------------- Word export ---------------- */
+function loadDocx(){
+  if(window.docx) return Promise.resolve();
+  if(!docxReady) docxReady=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';sc.onload=res;sc.onerror=()=>{docxReady=null;rej(new Error('lib'))};document.head.appendChild(sc)});
+  return docxReady;
+}
+function dataToBytes(d){const b=atob(d.slice(d.indexOf(',')+1));const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+function imgSize(d){return new Promise(res=>{const i=new Image();i.onload=()=>res({w:i.naturalWidth||400,h:i.naturalHeight||300});i.onerror=()=>res({w:400,h:300});i.src=d})}
+async function imageRun(D,d,maxW){const {w,h:hh}=await imgSize(d);const k=Math.min(1,maxW/w);return new D.ImageRun({data:dataToBytes(d),transformation:{width:Math.round(w*k),height:Math.round(hh*k)}})}
+async function htmlToParas(D,html,all){
+  const tpl=document.createElement('template'); tpl.innerHTML=sanitize(html);
+  const BLOCK=new Set(['P','DIV','H2','H3','H4','UL','OL','BLOCKQUOTE','IMG']);
+  const paras=[]; let buf=[];
+  const flush=()=>{if(buf.length){paras.push(new D.Paragraph({children:buf,spacing:{after:160}}));buf=[]}};
+  async function runs(node,fmt){
+    const out=[];
+    for(const n of node.childNodes){
+      if(n.nodeType===3){const tx=n.textContent.replace(/ /g,' ');if(tx)out.push(new D.TextRun({text:tx,...fmt}));continue}
+      if(n.nodeType!==1) continue;
+      const tg=n.tagName;
+      if(tg==='BR'){out.push(new D.TextRun({text:'',break:1}));continue}
+      if(tg==='IMG'){out.push(await imageRun(D,n.getAttribute('src'),430));continue}
+      if(tg==='A'){const rid=n.getAttribute('data-role');const tr=new D.TextRun({text:n.textContent,...fmt,color:'8A6A2B',underline:{}});
+        out.push(all&&exportIds.has(rid)?new D.InternalHyperlink({anchor:'role_'+rid,children:[tr]}):tr);continue}
+      const f={...fmt};
+      if(tg==='B'||tg==='STRONG')f.bold=true; if(tg==='I'||tg==='EM')f.italics=true; if(tg==='U')f.underline={}; if(tg==='S'||tg==='STRIKE')f.strike=true;
+      if(BLOCK.has(tg)&&out.length)out.push(new D.TextRun({text:'',break:1}));
+      out.push(...await runs(n,f));
+    }
+    return out;
+  }
+  for(const n of tpl.content.childNodes){
+    if(n.nodeType===3){if(n.textContent.trim())buf.push(new D.TextRun(n.textContent.replace(/ /g,' ')));continue}
+    if(n.nodeType!==1) continue;
+    const tg=n.tagName;
+    if(!BLOCK.has(tg)){buf.push(...await runs({childNodes:[n]},{}));continue}
+    flush();
+    if(tg==='H2'||tg==='H3'||tg==='H4') paras.push(new D.Paragraph({heading:tg==='H2'?D.HeadingLevel.HEADING_2:D.HeadingLevel.HEADING_3,children:await runs(n,{})}));
+    else if(tg==='UL'||tg==='OL'){let i=0;for(const li of n.children){i++;const ch=await runs(li,{});paras.push(tg==='UL'?new D.Paragraph({bullet:{level:0},children:ch}):new D.Paragraph({children:[new D.TextRun(i+'. '),...ch],indent:{left:360,hanging:360}}))}}
+    else if(tg==='BLOCKQUOTE') paras.push(new D.Paragraph({children:await runs(n,{italics:true}),indent:{left:567},spacing:{after:160},border:{left:{style:D.BorderStyle.SINGLE,size:12,color:'C9A65E',space:8}}}));
+    else if(tg==='IMG') paras.push(new D.Paragraph({children:[await imageRun(D,n.getAttribute('src'),430)],spacing:{after:160}}));
+    else{const ch=await runs(n,{});paras.push(new D.Paragraph({children:ch.length?ch:[new D.TextRun('')],spacing:{after:160}}))}
+  }
+  flush();
+  return paras;
+}
+async function roleSection(D,x,all){
+  const r=x.r, out=[], name=new D.TextRun(r.name);
+  out.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,pageBreakBefore:all,children:all?[new D.Bookmark({id:'role_'+r.id,children:[name]})]:[name]}));
+  const meta=[x.t?.name,r.title,r.player?'Игрок: '+r.player:''].filter(Boolean).join(' · ');
+  if(meta) out.push(new D.Paragraph({children:[new D.TextRun({text:meta,italics:true,color:'8A6A2B'})],spacing:{after:200}}));
+  const src=photoSrc(r.photo); if(src) out.push(new D.Paragraph({children:[await imageRun(D,src,170)],spacing:{after:200}}));
+  const html=LG[r.id]?.html||'';
+  if(hasText(html)) out.push(...await htmlToParas(D,html,all));
+  else out.push(new D.Paragraph({children:[new D.TextRun({text:'Легенда ещё не написана.',italics:true,color:'888888'})]}));
+  return out;
+}
+async function exportDocx(all){
+  flushLegend(); setStatus('Готовлю файл Word…');
+  try{
+    await loadDocx(); const D=window.docx;
+    const list=all?orderedRoles():orderedRoles().filter(x=>x.r.id===ui.legend);
+    exportIds=new Set(list.map(x=>x.r.id));
+    const ch=[];
+    if(all){
+      ch.push(new D.Paragraph({heading:D.HeadingLevel.TITLE,children:[new D.TextRun(S.hero.title)]}));
+      ch.push(new D.Paragraph({children:[new D.TextRun({text:'Легенды персонажей',italics:true,color:'8A6A2B',size:28})],spacing:{after:300}}));
+      let lastT=null;
+      list.forEach(x=>{const tn=x.t?x.t.name:'Без команды';
+        if(tn!==lastT){ch.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_3,children:[new D.TextRun(tn)]}));lastT=tn}
+        ch.push(new D.Paragraph({children:[new D.InternalHyperlink({anchor:'role_'+x.r.id,children:[new D.TextRun({text:x.r.name,color:'8A6A2B',underline:{}})]}),new D.TextRun({text:x.r.title?' · '+x.r.title:'',color:'777777'})]}))});
+    }
+    for(const x of list) ch.push(...await roleSection(D,x,all));
+    const doc=new D.Document({creator:S.hero.title,title:all?'Легенды':'Легенда: '+list[0].r.name,
+      styles:{default:{document:{run:{font:'Georgia',size:23}},title:{run:{font:'Georgia',size:52,color:'5A1E19'}},heading1:{run:{font:'Georgia',size:40,color:'5A1E19'},paragraph:{spacing:{after:120}}},heading2:{run:{font:'Georgia',size:30,color:'8A6A2B'},paragraph:{spacing:{before:240,after:120}}},heading3:{run:{font:'Georgia',size:26,bold:true},paragraph:{spacing:{before:200,after:80}}}}},
+      sections:[{properties:{page:{margin:{top:1134,bottom:1134,left:1134,right:1134}}},children:ch}]});
+    const blob=await D.Packer.toBlob(doc);
+    const fname=((all?'Легенды — '+S.hero.title:'Легенда — '+list[0].r.name).replace(/[\\/:*?"<>|]+/g,' ').trim())+'.docx';
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+    setStatus('Файл Word скачан');
+  }catch(e){console.error(e);setStatus('Не получилось собрать файл Word. Проверьте интернет и попробуйте ещё раз.')}
+}
+
 /* ---------------- save ---------------- */
 async function save(){
   ui.saving=true;ui.err='';render();
@@ -483,12 +799,12 @@ async function save(){
   }
   ui.saving=false;render();
 }
-window.addEventListener('beforeunload',ev=>{if(isMaster()&&dirty()){ev.preventDefault();ev.returnValue=''}});
+window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
-if(TABS.some(([k])=>k===hash))ui.tab=hash;
+if(tabs().some(([k])=>k===hash))ui.tab=hash;
 render();
 sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,error})=>{
   if(error){ui.loadErr=true}
