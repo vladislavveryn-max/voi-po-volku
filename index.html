@@ -247,7 +247,15 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 .lg-editor.reader{min-height:0!important}
 .reader{min-height:0;background:transparent;border:0;padding:4px 0 0;border-radius:0}
 .reader:focus{border:0}
-.rl-plain{color:var(--gold-hi);font-weight:600}
+.rl-plain{color:var(--gold-hi);font-weight:600;cursor:help;border-bottom:1px dotted var(--gold-line)}
+.hovercard{position:fixed;z-index:90;display:flex;gap:12px;align-items:center;max-width:min(300px,calc(100vw - 16px));background:var(--surface);
+  border:1px solid var(--gold-line);border-radius:10px;padding:10px 16px 10px 10px;box-shadow:0 12px 32px rgba(0,0,0,.55);pointer-events:none;
+  opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.hovercard.on{opacity:1;transform:none}
+.hovercard .hc-ph{width:60px;aspect-ratio:3/4;border-radius:5px;overflow:hidden;flex:none;border:1px solid var(--gold-line);background:radial-gradient(80% 60% at 50% 35%,#24252d,#121318);display:grid;place-items:center;font-family:var(--display);font-size:28px;color:rgba(201,166,94,.45)}
+.hovercard .hc-ph img{width:100%;height:100%;object-fit:cover}
+.hovercard .hc-name{font-family:var(--display);font-size:21px;line-height:1.1;color:var(--fg)}
+.hovercard .hc-meta{font-size:13px;color:var(--gold);font-style:italic;line-height:1.35;margin-top:3px}
 .reader-head{display:flex;gap:14px;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .pick-list{display:grid;gap:2px;max-height:50vh;overflow:auto;margin-bottom:10px}
 .pick-list button{text-align:left;background:none;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;color:var(--fg)}
@@ -315,6 +323,7 @@ const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" d
 
 /* ---------------- render ---------------- */
 function render(){
+  hideHC();
   const e=ui.edit;
   let o='';
   o+=`<header class="topbar gutter"><div class="col tb-row">
@@ -708,7 +717,7 @@ async function openPlayerLegend(rid,code){
 }
 function readerHtml(html){
   const tpl=document.createElement('template');tpl.innerHTML=sanitize(html);
-  tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.textContent=a.textContent;a.replaceWith(sp)});
+  tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.dataset.role=a.getAttribute('data-role');sp.tabIndex=0;sp.textContent=a.textContent;a.replaceWith(sp)});
   return tpl.innerHTML;
 }
 function setStatus(m){ui.lgStatus=m;const el=document.getElementById('lg-status');if(el)el.textContent=m}
@@ -775,6 +784,30 @@ document.addEventListener('paste',ev=>{
   if(html){ev.preventDefault();document.execCommand('insertHTML',false,sanitize(html));scheduleLegendSave()}
 });
 document.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='s'&&ui.tab==='legends'){ev.preventDefault();flushLegend()}});
+
+/* ---------------- character hover card ---------------- */
+let hcEl=null, hcFor=null;
+function showHC(el){
+  const r=S.roles.find(x=>x.id===el.dataset.role); if(!r){hideHC();return}
+  if(!hcEl){hcEl=document.createElement('div');hcEl.className='hovercard';hcEl.setAttribute('role','tooltip');document.body.appendChild(hcEl)}
+  const t=S.teams.find(x=>x.id===r.team), src=photoSrc(r.photo), meta=[r.title,t&&t.name].filter(Boolean).map(h).join('<br>');
+  hcEl.innerHTML=`<div class="hc-ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><div class="hc-name">${h(r.name)}</div>${meta?`<div class="hc-meta">${meta}</div>`:''}</div>`;
+  hcFor=el;
+  const b=el.getBoundingClientRect(), w=hcEl.offsetWidth, hh=hcEl.offsetHeight, vw=document.documentElement.clientWidth;
+  let top=b.top-hh-10; if(top<8) top=b.bottom+10;
+  let left=Math.min(Math.max(8,b.left+b.width/2-w/2),vw-w-8);
+  hcEl.style.top=top+'px'; hcEl.style.left=left+'px';
+  requestAnimationFrame(()=>hcEl&&hcEl.classList.add('on'));
+}
+function hideHC(){if(hcEl){hcEl.classList.remove('on')}hcFor=null}
+const HC_SEL='.rl-plain[data-role], .role-link[data-role]';
+document.addEventListener('mouseover',ev=>{const el=ev.target.closest&&ev.target.closest(HC_SEL);if(el&&el!==hcFor)showHC(el)});
+document.addEventListener('mouseout',ev=>{const el=ev.target.closest&&ev.target.closest(HC_SEL);if(el&&!el.contains(ev.relatedTarget))hideHC()});
+document.addEventListener('focusin',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain'))showHC(ev.target)});
+document.addEventListener('focusout',ev=>{if(ev.target.matches&&ev.target.matches('.rl-plain'))hideHC()});
+document.addEventListener('click',ev=>{const el=ev.target.closest&&ev.target.closest('.rl-plain[data-role]');if(el){hcFor===el&&hcEl&&hcEl.classList.contains('on')?hideHC():showHC(el)}else if(!ev.target.closest('.role-link'))hideHC()},true);
+document.addEventListener('scroll',hideHC,true);
+window.addEventListener('resize',hideHC);
 
 /* ---------------- Word export ---------------- */
 function loadDocx(){
