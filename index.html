@@ -237,6 +237,18 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 .role-link:hover{background:rgba(201,166,94,.2)}
 .role-link.missing{color:var(--muted);text-decoration:line-through;border-color:var(--line);background:none}
 .lg-back{margin-top:16px;font-size:14px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.lg-pin{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 14px;padding:10px 12px;border:1px dashed var(--gold-line);border-radius:8px;background:rgba(201,166,94,.04)}
+.lg-pin label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lg-pin input{width:130px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:17px;letter-spacing:.25em;text-align:center}
+.lg-pin input:focus{border-color:var(--gold-line);outline:none}
+.lg-pin .hint{flex-basis:100%}
+.lg-pinmark{margin-left:auto;font-size:10px;letter-spacing:.1em;color:var(--gold);border:1px solid var(--gold-line);border-radius:3px;padding:0 4px;line-height:1.5}
+.modal.wide{width:min(820px,100%)}
+.lg-editor.reader{min-height:0!important}
+.reader{min-height:0;background:transparent;border:0;padding:4px 0 0;border-radius:0}
+.reader:focus{border:0}
+.rl-plain{color:var(--gold-hi);font-weight:600}
+.reader-head{display:flex;gap:14px;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .pick-list{display:grid;gap:2px;max-height:50vh;overflow:auto;margin-bottom:10px}
 .pick-list button{text-align:left;background:none;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;color:var(--fg)}
 .pick-list button:hover,.pick-list button:focus-visible{background:var(--raised)}
@@ -273,6 +285,8 @@ const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',moda
 const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['roles','Сетка ролей','Роли']];
 const LEG_TAB=['legends','Легенды','Легенды'];
 const tabs=()=>pin?TABS.concat([LEG_TAB]):TABS;
+let PINNED=new Set(), PINS=null, pinsMissing=false, playerPins={};
+try{playerPins=JSON.parse(sessionStorage.getItem('vpv-ppins')||'{}')||{}}catch(_){}
 let LG=null, lgLoading=false, lgErr='', lgTimer=null, lgDirtyId=null, lgSavingN=0, lgRange=null, exportIds=new Set(), docxReady=null;
 const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=p=>p+Math.random().toString(36).slice(2,10);
@@ -389,7 +403,7 @@ function renderCard(r){
   const src=photoSrc(r.photo);
   const ph=src?`<img src="${h(src)}" alt="${h(r.name)}" loading="lazy">`:`<span class="initial">${h((r.name||'?').trim()[0]||'?')}</span>`;
   const st=r.player?`<span class="status taken">Игрок: ${h(r.player)}</span>`:`<span class="status free">Свободна</span>`;
-  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда</button></div>`:'';
+  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда</button></div>`:PINNED.has(r.id)?`<div class="card-tools"><button class="btn small gold" data-plg="${r.id}">Посмотреть легенду</button></div>`:'';
   return `<article class="card"><div class="portrait">${ph}</div><div class="card-body"><h3>${h(r.name)}</h3>${r.title?`<div class="rtitle">${h(r.title)}</div>`:''}${r.text?`<p>${h(r.text)}</p>`:''}${st}</div>${tools}</article>`;
 }
 
@@ -399,6 +413,22 @@ function renderModal(){
     <form id="login-form"><div class="field"><label for="m-pin">Код мастера</label><input id="m-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" required></div>
     <p class="err" id="m-err">${h(m.err||'')}</p>
     <div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Отмена</button><button type="submit" class="btn primary" id="m-login">Войти</button></div></form>`);
+  if(m.kind==='playerpin'){
+    const r=S.roles.find(x=>x.id===m.role)||{name:''};
+    return wrap(`<h2 id="m-h">Легенда: ${h(r.name)}</h2>
+    <form id="plg-form"><div class="field"><label for="p-pin">Пинкод от мастера</label><input id="p-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="8" required></div>
+    <p class="err" id="p-err">${h(m.err||'')}</p>
+    <div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Отмена</button><button type="submit" class="btn primary" ${m.busy?'disabled':''}>Открыть</button></div></form>`);
+  }
+  if(m.kind==='reader'){
+    const r=S.roles.find(x=>x.id===m.role)||{name:'',team:''}, t=S.teams.find(x=>x.id===r.team), src=photoSrc(r.photo);
+    const meta=[t&&t.name,r.title].filter(Boolean).map(h).join(' · ');
+    return `<div class="modal-bg" id="modal-bg"><div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="m-h">
+      <div class="reader-head"><div class="lg-head" style="margin:0"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2 id="m-h" style="margin:0">${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div></div>
+      <div class="lg-editor reader">${hasText(m.html)?readerHtml(m.html):'<p class="empty">Мастер ещё не написал эту легенду.</p>'}</div>
+      <div class="foot" style="margin-top:18px">${hasText(m.html)?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
+    </div></div>`;
+  }
   if(m.kind==='rolepick'){
     const q=(m.q||'').toLowerCase();
     const list=orderedRoles().filter(x=>!q||x.r.name.toLowerCase().includes(q));
@@ -440,6 +470,7 @@ document.addEventListener('input',ev=>{
   if(t.id==='lg-editor'){scheduleLegendSave();return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
   if(t.id==='m-rq'){ui.modal.q=t.value;render();return}
+  if(t.id==='lg-pin-in'){t.value=t.value.replace(/\D/g,'');(ui.pinDraft=ui.pinDraft||{})[ui.legend]=t.value;return}
   if(t.dataset.bind){setPath(t.dataset.bind,t.value);if(t.dataset.bind==='hero.title'){const b=document.querySelector('.brand-name');if(b)b.textContent=t.value}soft()}
   else if(t.dataset.lbind){const a=S.lore.find(x=>x.id===ui.lore);if(a){a[t.dataset.lbind]=t.value;if(t.dataset.lbind==='title'){const l=document.querySelector(`[data-lore="${a.id}"]`);if(l)l.textContent=t.value||'Без названия'}soft()}}
   else if(t.dataset.d&&ui.modal){ui.modal.draft[t.dataset.d]=t.value}
@@ -469,6 +500,11 @@ document.addEventListener('click',async ev=>{
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
   if(ds.lg){goLegend(ds.lg);return}
+  if(ds.plg){if(playerPins[ds.plg]){ui.modal={kind:'playerpin',role:ds.plg};openPlayerLegend(ds.plg,playerPins[ds.plg])}else{ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus()}return}
+  if(t.id==='rd-export'){const m=ui.modal;exportDocx(false,{role:m.role,html:m.html,status:x=>{const el=document.getElementById('rd-status');if(el)el.textContent=x}});return}
+  if(t.id==='lg-pin-save'){const v=(document.getElementById('lg-pin-in').value||'').trim();if(!/^\d{4,8}$/.test(v)){ui.pinMsg={id:ui.legend,text:'Код должен состоять из 4–8 цифр.'};render();return}setRolePin(ui.legend,v);return}
+  if(t.id==='lg-pin-gen'){const v=String(Math.floor(1000+Math.random()*9000));(ui.pinDraft=ui.pinDraft||{})[ui.legend]=v;ui.pinMsg={id:ui.legend,text:'Нажмите «Сохранить код», чтобы он заработал.'};render();return}
+  if(t.id==='lg-pin-del'){if(ui.confirmPinDel!==ui.legend){ui.confirmPinDel=ui.legend;ui.pinMsg={id:ui.legend,text:'Нажмите «Закрыть доступ» ещё раз для подтверждения.'};render();return}ui.confirmPinDel=null;setRolePin(ui.legend,'');return}
   if(ds.cmd){document.execCommand(ds.cmd,false,null);scheduleLegendSave();return}
   if(ds.block){document.execCommand('formatBlock',false,'<'+ds.block.toLowerCase()+'>');scheduleLegendSave();return}
   if(ds.lgact==='photo'){saveRange();document.getElementById('lg-photo').click();return}
@@ -513,6 +549,11 @@ document.addEventListener('click',async ev=>{
 function move(a,i,d){const j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]]}
 function rpcErr(error){const m=(error&&error.message)||'';if(/too_many_attempts/.test(m))return 'Слишком много неверных попыток. Подождите 15 минут.';if(error&&(error.code==='PGRST202'||/Could not find the function/i.test(m)))return 'Вход по коду ещё не настроен в базе.';return 'Нет связи с сервером. Попробуйте ещё раз.'}
 
+document.addEventListener('submit',ev=>{
+  if(ev.target.id!=='plg-form')return; ev.preventDefault();
+  const v=document.getElementById('p-pin').value.trim(); if(!v) return;
+  openPlayerLegend(ui.modal.role,v);
+});
 document.addEventListener('submit',async ev=>{
   if(ev.target.id!=='login-form')return; ev.preventDefault();
   const val=document.getElementById('m-pin').value.trim(), err=document.getElementById('m-err'), btn=document.getElementById('m-login');
@@ -585,6 +626,7 @@ function sanitize(html){
 }
 function loadLegends(){
   lgLoading=true;lgErr='';
+  sb.rpc('get_role_pins',{p_pin:pin}).then(({data,error})=>{if(error){PINS={};pinsMissing=true}else{PINS=data||{};pinsMissing=false}render()});
   sb.rpc('get_legends',{p_pin:pin}).then(({data,error})=>{
     lgLoading=false;
     if(error)lgErr='Не удалось загрузить легенды: '+rpcErr(error);
@@ -608,7 +650,7 @@ function renderLegends(){
     sel+=`<option value="${x.r.id}" ${x.r.id===r.id?'selected':''}>${h(x.r.name)}${hasText(LG[x.r.id]?.html)?'':' (пусто)'}</option>`;
     if(q&&!x.r.name.toLowerCase().includes(q)){lastT=tn;return}
     if(tn!==navT){nav+=`<div class="lg-cap">${h(tn)}</div>`;navT=tn}
-    nav+=`<button class="lg-link" data-lg="${x.r.id}" aria-current="${x.r.id===r.id}"><span class="lg-dot ${hasText(LG[x.r.id]?.html)?'full':''}"></span>${h(x.r.name)}</button>`;
+    nav+=`<button class="lg-link" data-lg="${x.r.id}" aria-current="${x.r.id===r.id}"><span class="lg-dot ${hasText(LG[x.r.id]?.html)?'full':''}"></span>${h(x.r.name)}${PINS&&PINS[x.r.id]?'<span class="lg-pinmark">PIN</span>':''}</button>`;
     lastT=tn;
   });
   sel+='</optgroup>';
@@ -621,6 +663,7 @@ function renderLegends(){
   <div style="min-width:0">
     <select id="lg-select" class="lg-select" aria-label="Выбрать роль">${sel}</select>
     <div class="lg-head"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2>${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div>
+    ${renderPinRow(r)}
     <div class="lg-actions"><button class="btn small gold" id="lg-export-one">Скачать легенду (.docx)</button><button class="btn small" id="lg-export-all">Скачать все легенды</button><span class="lg-status" id="lg-status">${h(ui.lgStatus||'')}</span></div>
     <div class="lg-toolbar" role="toolbar" aria-label="Форматирование">
       <button class="lg-tool" data-cmd="bold" title="Жирный"><b>Ж</b></button><button class="lg-tool" data-cmd="italic" title="Курсив"><i>К</i></button><button class="lg-tool" data-cmd="underline" title="Подчеркнуть"><u>Ч</u></button>
@@ -635,6 +678,39 @@ function renderLegends(){
     <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-ph="Начните писать легенду персонажа…">${sanitize(LG[r.id]?.html||'')}</div>
     ${back.length?`<div class="lg-back">Упоминается в легендах: ${back.map(b=>`<a class="role-link" data-role="${b.id}" href="#legends">${h(b.name)}</a>`).join(' ')}</div>`:''}
   </div></div>`;
+}
+function renderPinRow(r){
+  if(pinsMissing) return `<div class="lg-pin"><span class="hint">Пинкоды игроков заработают после настройки базы (файл voi-po-volku-player-pins.sql).</span></div>`;
+  const curPin=PINS?PINS[r.id]||'':'', val=(ui.pinDraft&&ui.pinDraft[r.id]!=null)?ui.pinDraft[r.id]:curPin;
+  const msg=ui.pinMsg&&ui.pinMsg.id===r.id?ui.pinMsg.text:(curPin?'Игрок открывает легенду в «Сетке ролей» кнопкой «Посмотреть легенду» и этим кодом.':'Пинкода нет: игрок не увидит кнопку легенды на своей карточке.');
+  return `<div class="lg-pin"><label for="lg-pin-in">Пинкод игрока</label>
+    <input id="lg-pin-in" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="4–8 цифр" value="${h(val)}">
+    <button class="btn small gold" id="lg-pin-save">Сохранить код</button><button class="btn small" id="lg-pin-gen">Случайный</button>${curPin?'<button class="btn small danger" id="lg-pin-del">Закрыть доступ</button>':''}
+    <span class="hint" id="lg-pin-msg">${h(msg)}</span></div>`;
+}
+async function setRolePin(rid,val){
+  ui.pinMsg={id:rid,text:'Сохраняю…'};render();
+  const {data,error}=await sb.rpc('set_role_pin',{p_pin:pin,p_role_id:rid,p_role_pin:val});
+  if(error){ui.pinMsg={id:rid,text:/bad_role_pin/.test(error.message||'')?'Код должен состоять из 4–8 цифр.':'Не сохранилось: '+rpcErr(error)}}
+  else if(!data){ui.pinMsg={id:rid,text:'Код мастера больше не подходит. Войдите заново.'}}
+  else{ if(val){PINS[rid]=val;PINNED.add(rid);ui.pinMsg={id:rid,text:'Пинкод сохранён. Сообщите его игроку.'}}else{delete PINS[rid];PINNED.delete(rid);ui.pinMsg={id:rid,text:'Доступ закрыт. Кнопка легенды пропала с карточки.'}}
+    if(ui.pinDraft) delete ui.pinDraft[rid]; }
+  render();
+}
+async function openPlayerLegend(rid,code){
+  const m=ui.modal; if(m){m.busy=true;m.err='Проверяю…';render()}
+  const {data,error}=await sb.rpc('get_player_legend',{p_role_id:rid,p_pin:code});
+  const st=data&&data.status;
+  if(error||!st){ui.modal={kind:'playerpin',role:rid,err:error?rpcErr(error):'Нет связи с сервером.'};render();return}
+  if(st==='ok'){playerPins[rid]=code;try{sessionStorage.setItem('vpv-ppins',JSON.stringify(playerPins))}catch(_){} ui.modal={kind:'reader',role:rid,html:data.html||''};render();return}
+  if(playerPins[rid]){delete playerPins[rid];try{sessionStorage.setItem('vpv-ppins',JSON.stringify(playerPins))}catch(_){}}
+  ui.modal={kind:'playerpin',role:rid,err:st==='bad'?'Неверный пинкод.':st==='locked'?'Слишком много неверных попыток. Подождите 15 минут.':'Легенда этой роли пока закрыта.'};
+  render();document.getElementById('p-pin')?.select();
+}
+function readerHtml(html){
+  const tpl=document.createElement('template');tpl.innerHTML=sanitize(html);
+  tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.textContent=a.textContent;a.replaceWith(sp)});
+  return tpl.innerHTML;
 }
 function setStatus(m){ui.lgStatus=m;const el=document.getElementById('lg-status');if(el)el.textContent=m}
 function scheduleLegendSave(){
@@ -747,22 +823,23 @@ async function htmlToParas(D,html,all){
   flush();
   return paras;
 }
-async function roleSection(D,x,all){
+async function roleSection(D,x,all,override){
   const r=x.r, out=[], name=new D.TextRun(r.name);
   out.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,pageBreakBefore:all,children:all?[new D.Bookmark({id:'role_'+r.id,children:[name]})]:[name]}));
   const meta=[x.t?.name,r.title,r.player?'Игрок: '+r.player:''].filter(Boolean).join(' · ');
   if(meta) out.push(new D.Paragraph({children:[new D.TextRun({text:meta,italics:true,color:'8A6A2B'})],spacing:{after:200}}));
   const src=photoSrc(r.photo); if(src) out.push(new D.Paragraph({children:[await imageRun(D,src,170)],spacing:{after:200}}));
-  const html=LG[r.id]?.html||'';
+  const html=override!=null?override:(LG&&LG[r.id]?.html)||'';
   if(hasText(html)) out.push(...await htmlToParas(D,html,all));
   else out.push(new D.Paragraph({children:[new D.TextRun({text:'Легенда ещё не написана.',italics:true,color:'888888'})]}));
   return out;
 }
-async function exportDocx(all){
-  flushLegend(); setStatus('Готовлю файл Word…');
+async function exportDocx(all,opt){
+  const st=opt&&opt.status||setStatus;
+  if(!opt) flushLegend(); st('Готовлю файл Word…');
   try{
     await loadDocx(); const D=window.docx;
-    const list=all?orderedRoles():orderedRoles().filter(x=>x.r.id===ui.legend);
+    const list=all?orderedRoles():orderedRoles().filter(x=>x.r.id===(opt?opt.role:ui.legend));
     exportIds=new Set(list.map(x=>x.r.id));
     const ch=[];
     if(all){
@@ -773,7 +850,7 @@ async function exportDocx(all){
         if(tn!==lastT){ch.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_3,children:[new D.TextRun(tn)]}));lastT=tn}
         ch.push(new D.Paragraph({children:[new D.InternalHyperlink({anchor:'role_'+x.r.id,children:[new D.TextRun({text:x.r.name,color:'8A6A2B',underline:{}})]}),new D.TextRun({text:x.r.title?' · '+x.r.title:'',color:'777777'})]}))});
     }
-    for(const x of list) ch.push(...await roleSection(D,x,all));
+    for(const x of list) ch.push(...await roleSection(D,x,all,opt?opt.html:null));
     const doc=new D.Document({creator:S.hero.title,title:all?'Легенды':'Легенда: '+list[0].r.name,
       styles:{default:{document:{run:{font:'Georgia',size:23}},title:{run:{font:'Georgia',size:52,color:'5A1E19'}},heading1:{run:{font:'Georgia',size:40,color:'5A1E19'},paragraph:{spacing:{after:120}}},heading2:{run:{font:'Georgia',size:30,color:'8A6A2B'},paragraph:{spacing:{before:240,after:120}}},heading3:{run:{font:'Georgia',size:26,bold:true},paragraph:{spacing:{before:200,after:80}}}}},
       sections:[{properties:{page:{margin:{top:1134,bottom:1134,left:1134,right:1134}}},children:ch}]});
@@ -781,8 +858,8 @@ async function exportDocx(all){
     const fname=((all?'Легенды — '+S.hero.title:'Легенда — '+list[0].r.name).replace(/[\\/:*?"<>|]+/g,' ').trim())+'.docx';
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;document.body.appendChild(a);a.click();
     setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
-    setStatus('Файл Word скачан');
-  }catch(e){console.error(e);setStatus('Не получилось собрать файл Word. Проверьте интернет и попробуйте ещё раз.')}
+    st('Файл Word скачан');
+  }catch(e){console.error(e);st('Не получилось собрать файл Word. Проверьте интернет и попробуйте ещё раз.')}
 }
 
 /* ---------------- save ---------------- */
@@ -810,6 +887,7 @@ sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,erro
   if(error){ui.loadErr=true}
   else if(data&&data.data){S=Object.assign({hero:{eyebrow:'',title:'',text:''},about:'',lore:[],teams:[],roles:[]},data.data);saved=JSON.stringify(S)}
   ui.loading=false;render();
+  sb.rpc('list_pinned_roles').then(({data,error})=>{if(!error&&Array.isArray(data)){PINNED=new Set(data);render()}});
   const ids=S.roles.map(r=>r.photo||'').filter(p=>p.startsWith('ph:')).map(p=>p.slice(3));
   if(ids.length) sb.from('role_photos').select('id,data').in('id',ids).then(({data})=>{(data||[]).forEach(p=>photos[p.id]=p.data);render()});
 });
