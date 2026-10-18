@@ -271,6 +271,7 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .reader{min-height:0;background:transparent;border:0;padding:4px 0 0;border-radius:0}
 .reader:focus{border:0}
 .rl-plain{color:var(--gold-hi);font-weight:600;cursor:help;border-bottom:1px dotted var(--gold-line)}
+.rl-plain.missing,.lore-ref.missing{color:var(--muted);text-decoration:line-through;cursor:default;border-bottom:0}
 .hovercard{position:fixed;z-index:90;display:flex;gap:12px;align-items:center;max-width:min(300px,calc(100vw - 16px));background:var(--surface);
   border:1px solid var(--gold-line);border-radius:10px;padding:10px 16px 10px 10px;box-shadow:0 12px 32px rgba(0,0,0,.55);pointer-events:none;
   opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
@@ -331,7 +332,12 @@ const ICON_LOCK=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stro
 const ICON_PEN=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg>`;
 const ICON_OUT=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h3M10 5l3 3-3 3M13 8H6"/></svg>`;
 
-function inline(s){return s.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')}
+const REF_RE=/\[\[(r|l):([\w-]+)(?:\|([^\]]*))?\]\]/g;
+function refHtml(k,id,lab){
+  if(k==='r'){const r=S.roles.find(x=>x.id===id);return r?`<span class="rl-plain" data-role="${id}" tabindex="0">${h(r.name)}</span>`:`<span class="rl-plain missing">${lab||'роль удалена'}</span>`}
+  const a=S.lore.find(x=>x.id===id);return a?`<a class="lore-ref" data-loreref="${id}" href="#lore">${h(a.title||'Без названия')}</a>`:`<span class="lore-ref missing">${lab||'статья удалена'}</span>`;
+}
+function inline(s){return s.replace(REF_RE,(m,k,id,lab)=>refHtml(k,id,lab)).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^\w"=])\*([^*<>]+?)\*/g,'$1<em>$2</em>')}
 function md(text){
   return h(text||'').split(/\n\s*\n/).map(b=>{
     b=b.trim(); if(!b) return '';
@@ -343,7 +349,7 @@ function md(text){
   }).join('');
 }
 function titleHtml(t){const i=t.indexOf(':');return i>0?h(t.slice(0,i))+'<span class="sep">:</span>'+h(t.slice(i+1)):h(t)}
-const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" data-for="${id}">Заголовок</button><button class="btn small" data-fmt="b" data-for="${id}"><b>Жирный</b></button><button class="btn small" data-fmt="i" data-for="${id}"><i>Курсив</i></button><button class="btn small" data-fmt="li" data-for="${id}">• Список</button></div>`;
+const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" data-for="${id}">Заголовок</button><button class="btn small" data-fmt="b" data-for="${id}"><b>Жирный</b></button><button class="btn small" data-fmt="i" data-for="${id}"><i>Курсив</i></button><button class="btn small" data-fmt="li" data-for="${id}">• Список</button><button class="btn small gold" data-mdlink="role" data-for="${id}">+ Персонаж</button><button class="btn small" data-mdlink="lore" data-for="${id}" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Статья лора</button></div>`;
 
 /* ---------------- render ---------------- */
 function render(){
@@ -410,7 +416,7 @@ function renderLore(){
       ${a.cover?'<button class="btn small" id="lore-cover-clear" style="justify-self:start">Убрать обложку</button>':''}
       <span class="hint">${h(ui.coverMsg||'Показывается над статьёй и фоном страницы.')}</span></div></div></div>
     <div class="field"><label for="f-ltitle">Заголовок статьи</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
-    <div class="field"><label for="f-lbody">Текст статьи</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea></div>
+    <div class="field"><label for="f-lbody">Текст статьи</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Ссылки выглядят как [[r:…|Имя]] и [[l:…|Статья]]. На странице они станут подсвеченными именами и названиями.</span></div>
     <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':'Удалить статью'}</button>`;
   else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
   return `<div class="lore"><nav class="lore-nav" aria-label="Статьи лора">${nav}</nav><div>${body}</div></div>`;
@@ -559,6 +565,9 @@ document.addEventListener('click',async ev=>{
   if(ds.block){document.execCommand('formatBlock',false,'<'+ds.block.toLowerCase()+'>');scheduleLegendSave();return}
   if(ds.lgact==='photo'){saveRange();document.getElementById('lg-photo').click();return}
   if(ds.lgact==='lorelink'){saveRange();ui.modal={kind:'lorepick',q:''};render();document.getElementById('m-lq')?.focus();return}
+  if(ds.lpick&&ui.modal&&ui.modal.target){const a=S.lore.find(x=>x.id===ds.lpick);insertToken(a?`[[l:${a.id}|${(a.title||'').replace(/[\]|]/g,'')}]]`:'');return}
+  if(ds.pick&&ui.modal&&ui.modal.target){const r=S.roles.find(x=>x.id===ds.pick);insertToken(r?`[[r:${r.id}|${r.name.replace(/[\]|]/g,'')}]]`:'');return}
+  if(ds.mdlink){const ta=document.getElementById(ds.for);if(!ta)return;ui.modal={kind:ds.mdlink==='role'?'rolepick':'lorepick',q:'',target:ds.for,selS:ta.selectionStart,selE:ta.selectionEnd};render();document.getElementById(ds.mdlink==='role'?'m-rq':'m-lq')?.focus();return}
   if(ds.lpick){const a=S.lore.find(x=>x.id===ds.lpick);ui.modal=null;render();if(a)insertAtSaved(`<a class="lore-ref" data-loreref="${a.id}" contenteditable="false">${h(a.title||'Без названия')}</a>&nbsp;`);return}
   if(ds.lgact==='link'){saveRange();ui.modal={kind:'rolepick',q:''};render();document.getElementById('m-rq')?.focus();return}
   if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
@@ -807,8 +816,16 @@ async function saveLegend(){
   else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
     document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',hasText(html)))}
 }
+function insertToken(tok){
+  const m=ui.modal; ui.modal=null; render();
+  const ta=document.getElementById(m.target); if(!ta||!tok) return;
+  const v=ta.value, a=Math.min(m.selS??v.length,v.length), b=Math.min(m.selE??a,v.length);
+  ta.value=v.slice(0,a)+tok+v.slice(b);
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+  ta.focus({preventScroll:true}); const c=a+tok.length; ta.setSelectionRange(c,c);
+}
 function loreExcerpt(md,n){
-  let t=(md||'').replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
+  let t=(md||'').replace(REF_RE,(m,k,id,lab)=>k==='r'?((S.roles.find(x=>x.id===id)||{}).name||lab||''):((S.lore.find(x=>x.id===id)||{}).title||lab||'')).replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
   if(t.length>n){t=t.slice(0,n);t=t.slice(0,Math.max(t.lastIndexOf(' '),n-15))+'…'}
   return t;
 }
