@@ -198,6 +198,20 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 }
 @media (max-width:360px){.grid{grid-template-columns:1fr}}
 
+/* lore covers + page background */
+#page-bg{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center;opacity:0;transition:opacity .5s;pointer-events:none}
+#page-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,14,17,.62) 0%,rgba(13,14,17,.86) 45%,rgba(13,14,17,.95) 100%)}
+#page-bg.on{opacity:1}
+body.has-bg main.col,body.has-bg footer.col{background:transparent}
+.lore-cover{position:relative;aspect-ratio:16/7;max-width:100%;border-radius:10px;overflow:hidden;border:1px solid var(--gold-line);margin-bottom:22px;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.lore-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.lore-cover::after{content:"";position:absolute;inset:8px;border:1px solid rgba(201,166,94,.25);border-radius:5px;pointer-events:none}
+.cover-pick{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.cover-pick .thumb{width:180px;aspect-ratio:16/7;border-radius:6px;overflow:hidden;border:1px dashed var(--gold-line);background:var(--bg);display:grid;place-items:center;color:var(--muted);font-size:13px;flex:none}
+.cover-pick .thumb img{width:100%;height:100%;object-fit:cover}
+.hovercard.lore .hc-ph img{width:100%;height:100%;object-fit:cover}
+@media (max-width:820px){.lore-cover{aspect-ratio:16/9;border-radius:8px}.cover-pick .thumb{width:100%}}
+
 /* legends (master only) */
 .tab .short{display:none}
 .lg{display:grid;grid-template-columns:270px minmax(0,1fr);gap:36px;align-items:start}
@@ -285,6 +299,7 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
 <body>
+<div id="page-bg" aria-hidden="true"></div>
 <div id="root"></div>
 <script>
 (function(){
@@ -370,7 +385,7 @@ function render(){
   if(keepEd&&keepEd.dataset.role===ui.legend&&ui.tab==='legends'){const ne=document.getElementById('lg-editor');if(ne){ne.replaceWith(keepEd);if(keepSel&&aid==='lg-editor'){keepEd.focus({preventScroll:true});pathToRange(keepEd,keepSel)}}}
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
-  measure();
+  measure(); updateBg();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -386,10 +401,14 @@ function renderLore(){
   if(ui.edit) nav+=`<div class="lore-item"><button class="btn small gold" id="lore-add" style="margin:8px 12px">+ Статья</button></div>`;
   let body;
   if(!a) body=`<p class="empty">${ui.edit?'Нажмите «+ Статья», чтобы добавить первую.':'Статьи лора скоро появятся.'}</p>`;
-  else if(ui.edit) body=`<div class="field"><label for="f-ltitle">Заголовок статьи</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
+  else if(ui.edit) body=`<div class="field"><span class="lbl">Заглавное изображение</span><div class="cover-pick"><div class="thumb">${photoSrc(a.cover)?`<img src="${h(photoSrc(a.cover))}" alt="">`:'Нет обложки'}</div>
+      <div style="display:grid;gap:8px"><label class="btn small gold" for="lore-cover-file" style="justify-self:start">${a.cover?'Заменить обложку':'Загрузить обложку'}</label><input type="file" id="lore-cover-file" accept="image/*" hidden>
+      ${a.cover?'<button class="btn small" id="lore-cover-clear" style="justify-self:start">Убрать обложку</button>':''}
+      <span class="hint">${h(ui.coverMsg||'Показывается над статьёй и фоном страницы.')}</span></div></div></div>
+    <div class="field"><label for="f-ltitle">Заголовок статьи</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
     <div class="field"><label for="f-lbody">Текст статьи</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea></div>
     <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':'Удалить статью'}</button>`;
-  else body=`<article class="lore-article prose"><h2>${h(a.title)}</h2>${md(a.body)}</article>`;
+  else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
   return `<div class="lore"><nav class="lore-nav" aria-label="Статьи лора">${nav}</nav><div>${body}</div></div>`;
 }
 
@@ -505,6 +524,7 @@ document.addEventListener('change',ev=>{
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='lg-select') goLegend(t.value);
+  if(t.id==='lore-cover-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadCover(f)}
   if(t.id==='lg-photo'&&t.files&&t.files[0]){const f=t.files[0];t.value='';insertPhoto(f)}
 });
 document.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&ui.modal){ui.modal=null;render()}});
@@ -547,8 +567,9 @@ document.addEventListener('click',async ev=>{
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
     flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} LG=null;if(ui.tab==='legends')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
-  if(ds.lore){ui.lore=ds.lore;ui.confirmLore=null;render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
+  if(ds.lore){ui.lore=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
+  if(t.id==='lore-cover-clear'){const a=S.lore.find(x=>x.id===ui.lore);if(a){delete a.cover;ui.coverMsg='Обложка убрана. Не забудьте сохранить.'}render();return}
   if(t.id==='lore-add'){const a={id:uid('l'),title:'Новая статья',body:''};S.lore.push(a);ui.lore=a.id;render();document.getElementById('f-ltitle')?.select();return}
   if(t.id==='lore-del'){if(ui.confirmLore===ui.lore){S.lore=S.lore.filter(x=>x.id!==ui.lore);ui.lore=null;ui.confirmLore=null}else ui.confirmLore=ui.lore;render();return}
   if(ds.lmove!==undefined){move(S.lore,+ds.lmove,+ds.dir);render();return}
@@ -595,6 +616,25 @@ document.addEventListener('submit',async ev=>{
 });
 
 /* ---------------- photos ---------------- */
+async function uploadCover(file){
+  const art=S.lore.find(x=>x.id===ui.lore); if(!art) return;
+  ui.coverMsg='Загружаю обложку…';render();
+  try{
+    const d=await shrink(file,1600), id=uid('c');
+    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    if(error) throw new Error(rpcErr(error));
+    if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
+    photos[id]=d; art.cover='ph:'+id; ui.coverMsg='Обложка загружена. Нажмите «Сохранить» внизу.';
+  }catch(e){ui.coverMsg=e.message||'Не получилось загрузить обложку.'}
+  render();
+}
+function updateBg(){
+  const el=document.getElementById('page-bg'); if(!el) return;
+  let src='';
+  if(ui.tab==='lore'&&!ui.loading){const a=S.lore.find(x=>x.id===ui.lore)||S.lore[0];src=a?photoSrc(a.cover):''}
+  if(el.dataset.src!==src){el.dataset.src=src;if(src){el.style.backgroundImage=`url("${src}")`;el.classList.add('on')}else{el.classList.remove('on')}}
+  document.body.classList.toggle('has-bg',!!src);
+}
 async function handlePhoto(file){
   if(!ui.modal)return;
   ui.modal.uploading=true;ui.modal.photoErr='';render();
@@ -831,7 +871,8 @@ function showHC(el){
     const a=S.lore.find(x=>x.id===el.dataset.loreref); if(!a){hideHC();return}
     hcEl.className='hovercard lore';
     const ex=loreExcerpt(a.body,170);
-    hcEl.innerHTML=`<div class="hc-ph">${LORE_ICON}</div><div><div class="hc-name">${h(a.title||'Без названия')}</div><div class="hc-meta">Лор игры</div>${ex?`<div class="hc-ex">${h(ex)}</div>`:''}</div>`;
+    const cv=photoSrc(a.cover);
+    hcEl.innerHTML=`<div class="hc-ph">${cv?`<img src="${h(cv)}" alt="">`:LORE_ICON}</div><div><div class="hc-name">${h(a.title||'Без названия')}</div><div class="hc-meta">Лор игры</div>${ex?`<div class="hc-ex">${h(ex)}</div>`:''}</div>`;
   }else{
   const r=S.roles.find(x=>x.id===el.dataset.role); if(!r){hideHC();return}
   hcEl.className='hovercard';
@@ -949,14 +990,15 @@ async function save(){
   else if(!data){ui.err='Код мастера больше не подходит. Выйдите и войдите заново.'}
   else{
     saved=JSON.stringify(S);
-    const keep=S.roles.map(r=>r.photo||'').filter(p=>p.startsWith('ph:')).map(p=>p.slice(3));
-    sb.rpc('delete_role_photos',{p_pin:pin,p_keep:keep});
+    sb.rpc('delete_role_photos',{p_pin:pin,p_keep:photoIds()});
     ui.saving=false;toast('Сохранено');return;
   }
   ui.saving=false;render();
 }
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
+
+function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.lore.map(a=>a.cover||'')).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
@@ -967,7 +1009,7 @@ sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,erro
   else if(data&&data.data){S=Object.assign({hero:{eyebrow:'',title:'',text:''},about:'',lore:[],teams:[],roles:[]},data.data);saved=JSON.stringify(S)}
   ui.loading=false;render();
   sb.rpc('list_pinned_roles').then(({data,error})=>{if(!error&&Array.isArray(data)){PINNED=new Set(data);render()}});
-  const ids=S.roles.map(r=>r.photo||'').filter(p=>p.startsWith('ph:')).map(p=>p.slice(3));
+  const ids=photoIds();
   if(ids.length) sb.from('role_photos').select('id,data').in('id',ids).then(({data})=>{(data||[]).forEach(p=>photos[p.id]=p.data);render()});
 });
 })();
