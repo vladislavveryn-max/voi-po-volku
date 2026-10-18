@@ -175,6 +175,7 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
   .tabs{order:3;width:100%;margin:0;display:grid;grid-template-columns:repeat(var(--n,3),1fr);border-top:1px solid var(--line)}
   .tab{padding:11px 4px;font-size:16px;text-align:center}
   .tab[aria-selected="true"]::after{left:18%;right:18%}
+  .tabs[style*="--n:5"] .tab{font-size:14px;padding:11px 1px;letter-spacing:.02em}
   .icon-btn .lbl{display:none}
   .icon-btn{padding:8px}
   .hero .col{padding-block:36px 32px}
@@ -329,7 +330,7 @@ let photos={};               // id -> data URI
 let pin=null; try{sessionStorage.removeItem('vpv-pin')}catch(_){}  // master code lives only until reload
 const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',modal:null,loading:true,loadErr:false,toast:''};
 
-const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['roles','Сетка ролей','Роли']];
+const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли']];
 const LEG_TAB=['legends','Легенды','Легенды'];
 const tabs=()=>pin?TABS.concat([LEG_TAB]):TABS;
 let PINNED=new Set(), PINS=null, pinsMissing=false;
@@ -395,7 +396,7 @@ function render(){
   if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
-  else o+= ui.tab==='legends'&&pin?renderLegends():ui.tab==='lore'?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
+  else o+= ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
   o+='</main>';
   o+=`<footer class="col gutter">«${h(S.hero.title)}» · ролевая игра живого действия</footer>`;
 
@@ -418,22 +419,26 @@ function renderAbout(){
   return `<div class="section-title"><h2>Об игре</h2></div><article class="prose">${md(S.about)||'<p class="empty">Скоро здесь появится информация об игре.</p>'}</article>`;
 }
 
+function SEC(){return ui.tab==='rules'
+  ?{k:'rules',c:'rule',pre:'u',cap:'Разделы',add:'+ Раздел',item:'раздела',newT:'Новый раздел',del:'Удалить раздел',empty:'Правила скоро появятся.',emptyEdit:'Нажмите «+ Раздел», чтобы добавить первый.',title:'Правила'}
+  :{k:'lore',c:'lore',pre:'l',cap:'Статьи',add:'+ Статья',item:'статьи',newT:'Новая статья',del:'Удалить статью',empty:'Статьи лора скоро появятся.',emptyEdit:'Нажмите «+ Статья», чтобы добавить первую.',title:'Лор игры'}}
 function renderLore(){
-  if(!S.lore.find(x=>x.id===ui.lore)) ui.lore=S.lore[0]?.id||null;
-  const a=S.lore.find(x=>x.id===ui.lore);
-  let nav='<div class="cap">Статьи</div>'+S.lore.map((x,i)=>`<div class="lore-item"><button class="lore-link" data-lore="${x.id}" aria-current="${x.id===ui.lore}">${h(x.title)||'Без названия'}</button>${ui.edit?`<button class="mv" data-lmove="${i}" data-dir="-1" aria-label="Выше">▲</button><button class="mv" data-lmove="${i}" data-dir="1" aria-label="Ниже">▼</button>`:''}</div>`).join('');
-  if(ui.edit) nav+=`<div class="lore-item"><button class="btn small gold" id="lore-add" style="margin:8px 12px">+ Статья</button></div>`;
+  const X=SEC(), L=S[X.k]=S[X.k]||[];
+  if(!L.find(x=>x.id===ui[X.c])) ui[X.c]=L[0]?.id||null;
+  const a=L.find(x=>x.id===ui[X.c]);
+  let nav=`<div class="cap">${X.cap}</div>`+L.map((x,i)=>`<div class="lore-item"><button class="lore-link" data-lore="${x.id}" aria-current="${x.id===ui[X.c]}">${h(x.title)||'Без названия'}</button>${ui.edit?`<button class="mv" data-lmove="${i}" data-dir="-1" aria-label="Выше">▲</button><button class="mv" data-lmove="${i}" data-dir="1" aria-label="Ниже">▼</button>`:''}</div>`).join('');
+  if(ui.edit) nav+=`<div class="lore-item"><button class="btn small gold" id="lore-add" style="margin:8px 12px">${X.add}</button></div>`;
   let body;
-  if(!a) body=`<p class="empty">${ui.edit?'Нажмите «+ Статья», чтобы добавить первую.':'Статьи лора скоро появятся.'}</p>`;
+  if(!a) body=`<p class="empty">${ui.edit?X.emptyEdit:X.empty}</p>`;
   else if(ui.edit) body=`<div class="field"><span class="lbl">Заглавное изображение</span><div class="cover-pick"><div class="thumb">${photoSrc(a.cover)?`<img src="${h(photoSrc(a.cover))}" alt="">`:'Нет обложки'}</div>
       <div style="display:grid;gap:8px"><label class="btn small gold" for="lore-cover-file" style="justify-self:start">${a.cover?'Заменить обложку':'Загрузить обложку'}</label><input type="file" id="lore-cover-file" accept="image/*" hidden>
       ${a.cover?'<button class="btn small" id="lore-cover-clear" style="justify-self:start">Убрать обложку</button>':''}
-      <span class="hint">${h(ui.coverMsg||'Показывается над статьёй и фоном страницы.')}</span></div></div></div>
-    <div class="field"><label for="f-ltitle">Заголовок статьи</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
-    <div class="field"><label for="f-lbody">Текст статьи</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Ссылки выглядят как [[r:…|Имя]] и [[l:…|Статья]]. На странице они станут подсвеченными именами и названиями.</span></div>
-    <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':'Удалить статью'}</button>`;
+      <span class="hint">${h(ui.coverMsg||'Показывается над текстом и фоном страницы.')}</span></div></div></div>
+    <div class="field"><label for="f-ltitle">Заголовок ${X.item}</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
+    <div class="field"><label for="f-lbody">Текст ${X.item}</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Ссылки выглядят как [[r:…|Имя]] и [[l:…|Статья]]. На странице они станут подсвеченными именами и названиями.</span></div>
+    <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':X.del}</button>`;
   else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
-  return `<div class="lore"><nav class="lore-nav" aria-label="Статьи лора">${nav}</nav><div>${body}</div></div>`;
+  return `<div class="lore"><nav class="lore-nav" aria-label="${X.cap}">${nav}</nav><div>${body}</div></div>`;
 }
 
 function plural(n,a,b,c){const m=n%10,k=n%100;return m===1&&k!==11?a:m>=2&&m<=4&&(k<10||k>=20)?b:c}
@@ -482,6 +487,7 @@ function renderModal(){
         ${row('bg','Фон всех страниц','Используется везде, где нет отдельного фона.')}
         ${row('bgAbout','Фон «Об игре»','Необязательно. Если не задан, берётся общий фон.')}
         ${row('bgLore','Фон «Лор игры»','Необязательно. Обложка открытой статьи всё равно главнее.')}
+        ${row('bgRules','Фон «Правил»','Необязательно. Обложка открытого раздела главнее.')}
         ${row('bgRoles','Фон «Сетки ролей»','Необязательно. Также используется на вкладке «Легенды».')}
       </div>
       <p class="err" style="margin-top:12px">${h(m.msg||'')}</p>
@@ -554,7 +560,7 @@ document.addEventListener('input',ev=>{
   if(t.id==='m-rq'||t.id==='m-lq'){ui.modal.q=t.value;render();return}
   if(t.id==='lg-pin-in'){t.value=t.value.replace(/\D/g,'');(ui.pinDraft=ui.pinDraft||{})[ui.legend]=t.value;return}
   if(t.dataset.bind){setPath(t.dataset.bind,t.value);if(t.dataset.bind==='hero.title'){const b=document.querySelector('.brand-name');if(b)b.textContent=t.value}soft()}
-  else if(t.dataset.lbind){const a=S.lore.find(x=>x.id===ui.lore);if(a){a[t.dataset.lbind]=t.value;if(t.dataset.lbind==='title'){const l=document.querySelector(`[data-lore="${a.id}"]`);if(l)l.textContent=t.value||'Без названия'}soft()}}
+  else if(t.dataset.lbind){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(a){a[t.dataset.lbind]=t.value;if(t.dataset.lbind==='title'){const l=document.querySelector(`[data-lore="${a.id}"]`);if(l)l.textContent=t.value||'Без названия'}soft()}}
   else if(t.dataset.d&&ui.modal){ui.modal.draft[t.dataset.d]=t.value}
 });
 document.addEventListener('change',ev=>{
@@ -609,14 +615,14 @@ document.addEventListener('click',async ev=>{
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
     flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} LG=null;if(ui.tab==='legends')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
-  if(ds.lore){ui.lore=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
+  if(ds.lore){ui[SEC().c]=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
   if(t.id==='brand-open'){ui.modal={kind:'brand'};render();return}
   if(ds.brandClear){if(S.brand)delete S.brand[ds.brandClear];ui.modal.msg='';render();applyFavicon();return}
-  if(t.id==='lore-cover-clear'){const a=S.lore.find(x=>x.id===ui.lore);if(a){delete a.cover;ui.coverMsg='Обложка убрана. Не забудьте сохранить.'}render();return}
-  if(t.id==='lore-add'){const a={id:uid('l'),title:'Новая статья',body:''};S.lore.push(a);ui.lore=a.id;render();document.getElementById('f-ltitle')?.select();return}
-  if(t.id==='lore-del'){if(ui.confirmLore===ui.lore){S.lore=S.lore.filter(x=>x.id!==ui.lore);ui.lore=null;ui.confirmLore=null}else ui.confirmLore=ui.lore;render();return}
-  if(ds.lmove!==undefined){move(S.lore,+ds.lmove,+ds.dir);render();return}
+  if(t.id==='lore-cover-clear'){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(a){delete a.cover;ui.coverMsg='Обложка убрана. Не забудьте сохранить.'}render();return}
+  if(t.id==='lore-add'){const X=SEC();const a={id:uid(X.pre),title:X.newT,body:''};(S[X.k]=S[X.k]||[]).push(a);ui[X.c]=a.id;render();document.getElementById('f-ltitle')?.select();return}
+  if(t.id==='lore-del'){const X=SEC();if(ui.confirmLore===ui[X.c]){S[X.k]=S[X.k].filter(x=>x.id!==ui[X.c]);ui[X.c]=null;ui.confirmLore=null}else ui.confirmLore=ui[X.c];render();return}
+  if(ds.lmove!==undefined){move(S[SEC().k],+ds.lmove,+ds.dir);render();return}
   if(ds.rmove){const team=S.roles.find(r=>r.id===ds.rmove).team;const idx=S.roles.map((r,i)=>r.team===team?i:-1).filter(i=>i>=0);const pos=idx.indexOf(S.roles.findIndex(r=>r.id===ds.rmove));const to=pos+(+ds.dir);if(to>=0&&to<idx.length){const a=idx[pos],b=idx[to];[S.roles[a],S.roles[b]]=[S.roles[b],S.roles[a]]}render();return}
   if(ds.roleAdd){ui.modal={kind:'role',isNew:true,draft:{id:uid('r'),team:ds.roleAdd,name:'',title:'',text:'',player:'',photo:''}};render();document.getElementById('m-name')?.focus();return}
   if(ds.roleEdit){ui.modal={kind:'role',isNew:false,draft:{...S.roles.find(x=>x.id===ds.roleEdit)}};render();return}
@@ -661,7 +667,7 @@ document.addEventListener('submit',async ev=>{
 
 /* ---------------- photos ---------------- */
 async function uploadCover(file){
-  const art=S.lore.find(x=>x.id===ui.lore); if(!art) return;
+  const art=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!art) return;
   ui.coverMsg='Загружаю обложку…';render();
   try{
     const d=await shrink(file,1600), id=uid('c');
@@ -699,6 +705,7 @@ function updateBg(){
   const B=S.brand||{};
   if(!ui.loading){
     if(ui.tab==='lore'){const a=S.lore.find(x=>x.id===ui.lore)||S.lore[0];src=(a&&photoSrc(a.cover))||photoSrc(B.bgLore)}
+    else if(ui.tab==='rules'){const R=S.rules||[];const a=R.find(x=>x.id===ui.rule)||R[0];src=(a&&photoSrc(a.cover))||photoSrc(B.bgRules)}
     else if(ui.tab==='about') src=photoSrc(B.bgAbout);
     else src=photoSrc(B.bgRoles);
     if(!src) src=photoSrc(B.bg);
@@ -1079,7 +1086,7 @@ async function save(){
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
-function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.lore.map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
@@ -1087,7 +1094,7 @@ if(tabs().some(([k])=>k===hash))ui.tab=hash;
 render();
 sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,error})=>{
   if(error){ui.loadErr=true}
-  else if(data&&data.data){S=Object.assign({hero:{eyebrow:'',title:'',text:''},about:'',lore:[],teams:[],roles:[]},data.data);saved=JSON.stringify(S)}
+  else if(data&&data.data){S=Object.assign({hero:{eyebrow:'',title:'',text:''},about:'',lore:[],rules:[],teams:[],roles:[]},data.data);saved=JSON.stringify(S)}
   ui.loading=false;render();
   sb.rpc('list_pinned_roles').then(({data,error})=>{if(!error&&Array.isArray(data)){PINNED=new Set(data);render()}});
   const ids=photoIds();
