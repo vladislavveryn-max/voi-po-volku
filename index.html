@@ -281,6 +281,8 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .map-log{list-style:none;margin:0;padding:0;max-height:320px;overflow:auto}
 .map-log li{font-size:13.5px;line-height:1.45;color:#cfc7b5;padding:6px 0;border-bottom:1px solid var(--line)}
 .map-log time{color:var(--gold);font-variant-numeric:tabular-nums;margin-right:4px}
+.split-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.split-k{min-width:22px;text-align:center;font-variant-numeric:tabular-nums}
 .map-setup{display:grid;gap:12px;padding:14px;margin-bottom:18px;border:1px dashed var(--gold-line);border-radius:10px;background:rgba(201,166,94,.04)}
 .ms-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .ms-in{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:15px;color:var(--fg);min-width:0}
@@ -595,6 +597,13 @@ function renderModal(){
       <div class="foot"><span class="hint" style="align-self:center">Изменения применятся у всех после «Сохранить» внизу экрана.</span><span class="grow"></span><button class="btn" id="m-cancel">Готово</button></div></div></div>`;
   }
   if(m.kind==='battle') return renderBattle(m);
+  if(m.kind==='merge'){
+    const A=MAP.state.tokens.find(x=>x.id===m.a), B=MAP.state.tokens.find(x=>x.id===m.b); if(!A||!B) return '';
+    return wrap(`<h2 id="m-h">Объединить отряды?</h2>
+      <div class="bt"><div class="bt-side"><span class="mc-face">${tokFace(A)}</span><div class="mc-name">${h(A.label)}</div><div class="hint">Сила ${A.str}</div></div><div class="bt-vs">+</div><div class="bt-side"><span class="mc-face">${tokFace(B)}</span><div class="mc-name">${h(B.label)}</div><div class="hint">Сила ${B.str}</div></div></div>
+      <p class="bt-res">Новая сила: ${Math.min(30,A.str+B.str)}</p><p class="hint" style="text-align:center;margin-top:0">Останется фишка «${h(B.label)}».</p>
+      <div class="foot"><button class="btn" id="merge-cancel">Отмена</button><span class="grow"></span><button class="btn" id="merge-no">Просто встать рядом</button><button class="btn primary" id="merge-yes">Объединить</button></div>`);
+  }
   if(m.kind==='playerpin'){
     const r=S.roles.find(x=>x.id===m.role)||{name:''};
     return wrap(`<h2 id="m-h">Легенда: ${h(r.name)}</h2>
@@ -707,12 +716,19 @@ document.addEventListener('click',async ev=>{
   if(t.id==='map-cancel-roll'){ui.mapRoll=null;render();return}
   if(t.id==='battle-roll'){const m=ui.modal,A=MAP.state.tokens.find(x=>x.id===m.att),D=MAP.state.tokens.find(x=>x.id===m.def);if(!A||!D){ui.modal=null;render();return}const a=d6(),d=d6();m.res={a,d,sa:A.str,sd:D.str,ta:a+A.str,td:d+D.str};render();return}
   if(t.id==='battle-done'){battleDone();return}
+  if(t.id==='merge-yes'||ds.mergewith){const a=ds.mergewith?ui.mapSel:ui.modal.a,b=ds.mergewith||ui.modal.b;ui.modal=null;const ns=clone(MAP.state),A=ns.tokens.find(x=>x.id===a),B=ns.tokens.find(x=>x.id===b);if(!A||!B){render();return}
+    B.str=Math.min(30,A.str+B.str);ns.tokens=ns.tokens.filter(x=>x.id!==a);ui.mapSel=B.id;commitMap(ns,`«${A.label}» и «${B.label}» объединились, сила ${B.str}`);return}
+  if(t.id==='merge-no'){const m=ui.modal;ui.modal=null;const ns=clone(MAP.state),A=ns.tokens.find(x=>x.id===m.a);if(!A){render();return}A.x=Math.min(1,m.pos.x+TOK*1.1);A.y=m.pos.y;commitMap(ns,m.n?`«${A.label}»: выпало ${m.n}, ход сделан`:`передвинул «${A.label}»`);return}
+  if(t.id==='merge-cancel'){ui.modal=null;render();return}
+  if(ds.split){ui.splitK=Math.max(1,(ui.splitK||1)+(+ds.split));const tk=MAP.state.tokens.find(x=>x.id===ui.mapSel);if(tk)ui.splitK=Math.min(ui.splitK,Math.max(1,tk.str-1));render();return}
+  if(t.id==='map-split'){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(!tk||tk.str<2)return;const k=Math.min(Math.max(1,ui.splitK||1),tk.str-1);tk.str-=k;
+    const nt={id:uid('k'),team:tk.team,label:(tk.label.replace(/ \(отряд\)$/,'')+' (отряд)').slice(0,40),str:k,x:Math.min(1,tk.x+TOK*1.3),y:tk.y};ns.tokens.push(nt);ui.splitK=1;ui.mapSel=nt.id;commitMap(ns,`от «${tk.label}» отделился отряд силой ${k}`);return}
   if(t.id==='battle-cancel'){ui.modal=null;toast('Фишка осталась на месте');render();return}
   if(t.id==='ms-add'){const team=document.getElementById('ms-team').value,tm=S.teams.find(x=>x.id===team);const label=(document.getElementById('ms-label').value.trim()||(tm?tm.name:'Фишка')).slice(0,40);const str=Math.min(9,Math.max(1,parseInt(document.getElementById('ms-str').value,10)||3));
-    const c=mapViewCenter(),ns=clone(MAP.state),tok={id:uid('k'),team,label,str,x:c.x,y:c.y};ns.tokens.push(tok);ui.mapSel=tok.id;commitMap(ns,`добавил фишку «${label}»`);return}
+    const c=freeSpot(mapViewCenter()),ns=clone(MAP.state),tok={id:uid('k'),team,label,str,x:c.x,y:c.y};ns.tokens.push(tok);ui.mapSel=tok.id;commitMap(ns,`добавил фишку «${label}»`);return}
   if(t.id==='ms-save-start'){S.map=Object.assign({},S.map,{start:clone(MAP.state.tokens)});toast('Запомнено. Нажмите «Сохранить» внизу.');render();return}
   if(t.id==='ms-reset'){if(!ui.confirmReset){ui.confirmReset=true;render();return}ui.confirmReset=false;ui.mapRoll=null;commitMap({tokens:clone((S.map||{}).start||[]),log:[]},'начал новую партию');return}
-  if(ds.tstr){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(tk){tk.str=Math.min(9,Math.max(1,tk.str+(+ds.tstr)));commitMap(ns,`сила «${tk.label}» теперь ${tk.str}`)}return}
+  if(ds.tstr){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(tk){tk.str=Math.min(30,Math.max(1,tk.str+(+ds.tstr)));commitMap(ns,`сила «${tk.label}» теперь ${tk.str}`)}return}
   if(t.id==='map-del-tok'){if(ui.confirmTokDel!==ui.mapSel){ui.confirmTokDel=ui.mapSel;render();return}const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);ns.tokens=ns.tokens.filter(x=>x.id!==ui.mapSel);ui.mapSel=null;ui.confirmTokDel=null;commitMap(ns,`убрал фишку «${tk?tk.label:''}»`);return}
   if(ds.lg){goLegend(ds.lg);return}
   if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
@@ -924,7 +940,7 @@ function renderMap(){
   if(ui.mapRoll){const r=ui.mapRoll.n*STEP*mapImg.w;o+=`<div class="reach" style="left:${ui.mapRoll.from.x*mapImg.w}px;top:${ui.mapRoll.from.y*mapImg.h}px;width:${2*r}px;height:${2*r}px"></div>`}
   o+=MAP.state.tokens.map(tokenHtml).join('');
   o+=`</div></div><div class="map-zoom"><button class="mz" data-mz="in" aria-label="Приблизить">+</button><button class="mz" data-mz="out" aria-label="Отдалить">−</button><button class="mz" data-mz="fit" aria-label="Вся карта">⤢</button></div></div>`;
-  o+=`<aside class="map-side">${renderMapPanel(sel)}${renderMapLog()}</aside></div>`;
+  o+=`<aside class="map-side">${renderMapPanel(sel)}${renderMapAdd()}${renderMapLog()}</aside></div>`;
   return o;
 }
 function renderMapSetup(){
@@ -933,9 +949,6 @@ function renderMapSetup(){
     <div class="cover-pick"><div class="thumb">${src?`<img src="${h(src)}" alt="">`:'Нет карты'}</div>
       <div style="display:grid;gap:8px"><label class="btn small gold" for="map-img-file" style="justify-self:start">${src?'Заменить карту':'Загрузить карту'}</label><input type="file" id="map-img-file" accept="image/*" hidden>
       <span class="hint">${h(ui.mapMsg||'После загрузки нажмите «Сохранить» внизу.')}</span></div></div>
-    <div class="ms-add"><select id="ms-team" class="ms-in"><option value="">Без команды</option>${S.teams.map(t=>`<option value="${t.id}">${h(t.name)}</option>`).join('')}</select>
-      <input id="ms-label" class="ms-in" placeholder="Подпись: Армия Севера" maxlength="40"><input id="ms-str" class="ms-in" type="number" min="1" max="9" value="3" aria-label="Сила" style="width:70px">
-      <button class="btn small gold" id="ms-add">+ Фишка</button></div>
     <div class="ms-add"><button class="btn small" id="ms-save-start">Запомнить как стартовую расстановку</button><button class="btn small danger" id="ms-reset">${ui.confirmReset?'Нажмите ещё раз: начать заново':'Начать новую партию'}</button>
       <span class="hint" style="align-self:center">Стартовая расстановка: ${start} ${plural(start,'фишка','фишки','фишек')}. В режиме мастера фишки двигаются без кубика.</span></div>
   </div>`;
@@ -951,7 +964,20 @@ function renderMapPanel(sel){
     o+=`<div class="die-row"><span class="die ${ui.mapRoll.fresh?'roll':''}">${DIE[ui.mapRoll.n]}</span><div><div class="mc-name" style="font-size:20px">Выпало ${ui.mapRoll.n}</div><p class="hint" style="margin:2px 0 0">Перетащите фишку в пределах круга.</p></div></div>
       <button class="btn small" id="map-cancel-roll" style="margin-top:10px">Отменить ход</button>`;
   }else o+=`<button class="btn primary" id="map-roll" style="width:100%">Бросить кубик</button>`;
+  if(!(ui.mapRoll&&ui.mapRoll.id===sel.id)){
+    const k=Math.min(Math.max(1,ui.splitK||1),Math.max(1,sel.str-1));
+    if(sel.str>=2) o+=`<div class="split-row"><span class="hint">Отделить отряд:</span><button class="btn small" data-split="-1" aria-label="Меньше">−</button><b class="split-k">${k}</b><button class="btn small" data-split="1" aria-label="Больше">+</button><button class="btn small gold" id="map-split">Отделить</button></div>`;
+    const W=mapImg.w,H=mapImg.h, near=MAP.state.tokens.filter(o2=>o2.id!==sel.id&&sel.team&&o2.team===sel.team&&Math.hypot((o2.x-sel.x)*W,(o2.y-sel.y)*H)<TOK*W*2.2);
+    near.forEach(o2=>{o+=`<button class="btn small" data-mergewith="${o2.id}" style="margin-top:8px;width:100%">Объединить с «${h(o2.label)}» → сила ${Math.min(30,sel.str+o2.str)}</button>`});
+  }
   return o+'</div>';
+}
+function renderMapAdd(){
+  return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:10px">Новая фишка</div>
+    <div style="display:grid;gap:8px"><select id="ms-team" class="ms-in"><option value="">Без команды</option>${S.teams.map(t=>`<option value="${t.id}">${h(t.name)}</option>`).join('')}</select>
+    <input id="ms-label" class="ms-in" placeholder="Подпись: Армия Севера" maxlength="40">
+    <div style="display:flex;gap:8px;align-items:center"><label for="ms-str" class="hint">Сила</label><input id="ms-str" class="ms-in" type="number" min="1" max="9" value="3" style="width:72px"><span style="flex:1"></span><button class="btn small gold" id="ms-add">+ Поставить на карту</button></div>
+    <span class="hint">Фишка появится в центре видимой части карты.</span></div></div>`;
 }
 function renderMapLog(){
   const L=(MAP.state.log||[]).slice(-15).reverse();
@@ -971,7 +997,9 @@ function finishMove(id,pos){
   t.x=Math.min(1,Math.max(0,pos.x)); t.y=Math.min(1,Math.max(0,pos.y));
   const W=mapImg.w,H=mapImg.h;
   const enemy=ns.tokens.find(o=>o.id!==id&&(o.team||o.id)!==(t.team||t.id)&&Math.hypot((o.x-t.x)*W,(o.y-t.y)*H)<TOK*W);
+  const friend=ns.tokens.find(o=>o.id!==id&&t.team&&o.team===t.team&&Math.hypot((o.x-t.x)*W,(o.y-t.y)*H)<TOK*W);
   ui.mapRoll=null;
+  if(friend){ui.modal={kind:'merge',a:id,b:friend.id,pos:{x:t.x,y:t.y},n};render();return}
   if(enemy&&!ui.edit){ui.modal={kind:'battle',att:id,def:enemy.id,pos:{x:t.x,y:t.y},from,n};render();return}
   commitMap(ns,ui.edit?`передвинул «${t.label}»`:`«${t.label}»: выпало ${n}, ход сделан`);
 }
@@ -1051,7 +1079,7 @@ function mapPointerEnd(ev,cancel){
   mapPts.delete(ev.pointerId);
   if(mapPts.size){if(mapDrag&&mapDrag.kind==='pinch'){const [a]=[...mapPts.values()];mapDrag={kind:'pan',sx:a.x,sy:a.y,tx:ui.mapView.tx,ty:ui.mapView.ty,moved:true}}return}
   mapBusy=false; const d=mapDrag; mapDrag=null; if(!d||cancel) return;
-  if(d.kind==='tap'||(d.kind==='tok'&&!d.moved)){ui.mapSel=d.id;ui.confirmTokDel=null;if(ui.mapRoll&&ui.mapRoll.id!==d.id)ui.mapRoll=null;render();return}
+  if(d.kind==='tap'||(d.kind==='tok'&&!d.moved)){ui.mapSel=d.id;ui.confirmTokDel=null;ui.splitK=1;if(ui.mapRoll&&ui.mapRoll.id!==d.id)ui.mapRoll=null;render();return}
   if(d.kind==='tok'&&d.moved&&d.pos) finishMove(d.id,d.pos);
 }
 document.addEventListener('pointerup',ev=>mapPointerEnd(ev,false));
@@ -1065,6 +1093,13 @@ async function uploadMapImage(file){
     photos[id]=d; S.map=Object.assign({},S.map,{image:'ph:'+id}); ui.mapMsg='Карта загружена. Нажмите «Сохранить» внизу.';
   }catch(e){ui.mapMsg=e.message||'Не получилось загрузить карту.'}
   render();
+}
+function freeSpot(c){
+  const W=mapImg.w||1,H=mapImg.h||1,busy=p=>MAP.state.tokens.some(t=>Math.hypot((t.x-p.x)*W,(t.y-p.y)*H)<TOK*W*1.3);
+  if(!busy(c)) return c;
+  for(let ring=1;ring<8;ring++){for(let k=0;k<8;k++){const a=k/8*Math.PI*2,p={x:c.x+Math.cos(a)*TOK*1.4*ring,y:c.y+Math.sin(a)*TOK*1.4*ring*W/H};
+    if(p.x>.02&&p.x<.98&&p.y>.02&&p.y<.98&&!busy(p)) return p}}
+  return c;
 }
 function mapViewCenter(){const st=document.getElementById('map-stage'),v=ui.mapView;if(!st||!v||!mapImg.w)return{x:.5,y:.4};return{x:Math.min(.95,Math.max(.05,(st.clientWidth/2-v.tx)/v.s/mapImg.w)),y:Math.min(.95,Math.max(.05,(st.clientHeight/2-v.ty)/v.s/mapImg.h))}}
 
