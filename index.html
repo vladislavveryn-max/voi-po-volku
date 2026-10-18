@@ -279,7 +279,7 @@ const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false}
 let S={hero:{eyebrow:'Ролевая игра живого действия',title:'Игра Престолов: Вой по волку',text:''},about:'',lore:[],teams:[],roles:[]};
 let saved=JSON.stringify(S);
 let photos={};               // id -> data URI
-let pin=null; try{pin=sessionStorage.getItem('vpv-pin')}catch(_){}
+let pin=null; try{sessionStorage.removeItem('vpv-pin')}catch(_){}  // master code lives only until reload
 const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',modal:null,loading:true,loadErr:false,toast:''};
 
 const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['roles','Сетка ролей','Роли']];
@@ -403,7 +403,7 @@ function renderCard(r){
   const src=photoSrc(r.photo);
   const ph=src?`<img src="${h(src)}" alt="${h(r.name)}" loading="lazy">`:`<span class="initial">${h((r.name||'?').trim()[0]||'?')}</span>`;
   const st=r.player?`<span class="status taken">Игрок: ${h(r.player)}</span>`:`<span class="status free">Свободна</span>`;
-  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда</button></div>`:PINNED.has(r.id)?`<div class="card-tools"><button class="btn small gold" data-plg="${r.id}">Посмотреть легенду</button></div>`:'';
+  const tools=ui.edit?`<div class="card-tools"><button class="btn small" data-role-edit="${r.id}">Изменить</button><button class="btn small" data-lg="${r.id}">Легенда (мастер)</button><button class="btn small" data-rmove="${r.id}" data-dir="-1" aria-label="Переместить левее">←</button><button class="btn small" data-rmove="${r.id}" data-dir="1" aria-label="Переместить правее">→</button></div>`:pin?`<div class="card-tools"><button class="btn small gold" data-lg="${r.id}">Легенда (мастер)</button></div>`:PINNED.has(r.id)?`<div class="card-tools"><button class="btn small gold" data-plg="${r.id}">Посмотреть легенду</button></div>`:'';
   return `<article class="card"><div class="portrait">${ph}</div><div class="card-body"><h3>${h(r.name)}</h3>${r.title?`<div class="rtitle">${h(r.title)}</div>`:''}${r.text?`<p>${h(r.text)}</p>`:''}${st}</div>${tools}</article>`;
 }
 
@@ -562,7 +562,7 @@ document.addEventListener('submit',async ev=>{
   btn.disabled=false;
   if(error){err.textContent=rpcErr(error);return}
   if(!data){err.textContent='Неверный код.';document.getElementById('m-pin').select();return}
-  pin=val;try{sessionStorage.setItem('vpv-pin',val)}catch(_){}
+  pin=val;
   ui.modal=null;ui.edit=true;toast('Вы вошли как мастер');
 });
 
