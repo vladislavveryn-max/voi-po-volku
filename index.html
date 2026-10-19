@@ -306,6 +306,29 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .lg-tabbar .ms-in{flex:1;min-width:160px}
 @media (max-width:820px){.lg-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.lg-tabs::-webkit-scrollbar{display:none}.lg-tab{flex:none}.lg-tab.add{margin-left:0}}
 
+/* legend images & backgrounds */
+.lg-editor img.img-s{width:30%}.lg-editor img.img-m{width:48%}.lg-editor img.img-l{width:75%}.lg-editor img.img-f{width:100%}
+.lg-editor img.al-c{margin-left:auto;margin-right:auto}
+.lg-editor img.al-l{float:left;margin:6px 20px 10px 0}
+.lg-editor img.al-r{float:right;margin:6px 0 10px 20px}
+.lg-editor img.img-f.al-l,.lg-editor img.img-f.al-r{float:none}
+.lg-editor::after{content:"";display:table;clear:both}
+.lg-editor img{cursor:pointer}
+.lg-editor.reader img{cursor:default}
+.lg-editor img.img-sel{outline:2px solid var(--gold);outline-offset:3px}
+.lg-editor.has-bg,.lg-editor.reader.has-bg{background-color:var(--surface);background-image:linear-gradient(rgba(13,14,17,var(--lgdim,.55)),rgba(13,14,17,var(--lgdim,.55))),var(--lgbg);background-size:auto,cover;background-position:center;background-repeat:no-repeat;text-shadow:0 1px 3px rgba(0,0,0,.85)}
+.lg-editor.has-bg.tile,.lg-editor.reader.has-bg.tile{background-size:auto,280px;background-repeat:repeat}
+.lg-editor.reader.has-bg{padding:24px 26px;border-radius:10px;border:1px solid var(--line);min-height:240px!important}
+.lg-bgrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.lg-bgrow input[type=range]{width:120px;accent-color:var(--gold)}
+.lg-bgrow .btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold-hi)}
+.img-bar{position:fixed;z-index:80;display:flex;gap:4px;flex-wrap:wrap;align-items:center;max-width:calc(100vw - 16px);background:var(--surface);border:1px solid var(--gold-line);border-radius:10px;padding:6px;box-shadow:0 10px 28px rgba(0,0,0,.55)}
+.img-bar .ib{background:var(--raised);border:1px solid var(--line);color:var(--fg);border-radius:6px;font-size:13px;padding:5px 9px;cursor:pointer;min-height:32px}
+.img-bar .ib[aria-pressed="true"]{border-color:var(--gold);color:var(--gold-hi)}
+.img-bar .ib.del{color:#eaa497}
+.img-bar .ib-sep{width:1px;align-self:stretch;background:var(--line);margin:2px}
+@media (max-width:820px){.lg-editor img.al-l,.lg-editor img.al-r{margin-bottom:8px}.lg-editor img.img-s{width:40%}.lg-editor img.img-m{width:55%}}
+
 /* branding */
 .brand-logo{flex:none;height:32px;width:auto;max-width:56px;object-fit:contain}
 .hero-mark.img{opacity:.09;height:auto;object-fit:contain;max-height:90%}
@@ -460,7 +483,7 @@ const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" d
 
 /* ---------------- render ---------------- */
 function render(){
-  hideHC();
+  hideHC(); hideImgBar();
   const e=ui.edit;
   let o='';
   o+=`<header class="topbar gutter"><div class="col tb-row">
@@ -500,6 +523,7 @@ function render(){
   const keepEd=document.getElementById('lg-editor'); const keepSel=keepEd?rangeToPath(keepEd):null;
   document.getElementById('root').innerHTML=o;
   if(keepEd&&keepEd.dataset.role===ui.legend&&ui.tab==='legends'&&(keepEd.dataset.tab||'main')===curLgTab(ui.legend)){const ne=document.getElementById('lg-editor');if(ne){ne.replaceWith(keepEd);if(keepSel&&aid==='lg-editor'){keepEd.focus({preventScroll:true});pathToRange(keepEd,keepSel)}}}
+  applyEdBg();
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   measure(); updateBg(); if(ui.tab==='map') afterMapRender();
@@ -628,7 +652,7 @@ function renderModal(){
     return `<div class="modal-bg" id="modal-bg"><div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="m-h">
       <div class="reader-head"><div class="lg-head" style="margin:0"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2 id="m-h" style="margin:0">${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div></div>
       ${(m.tabs||[]).length?`<div class="lg-tabs" role="tablist"><button class="lg-tab" data-rdtab="main" aria-selected="${(m.tab||'main')==='main'}">Легенда</button>${m.tabs.map(t=>`<button class="lg-tab" data-rdtab="${h(t.id)}" aria-selected="${m.tab===t.id}">${h(t.title||'Без названия')}</button>`).join('')}</div>`:''}
-      <div class="lg-editor reader">${(()=>{const cur=(m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).html||'':m.html;return hasText(cur)?readerHtml(cur):'<p class="empty">'+((m.tab&&m.tab!=='main')?'Здесь пока пусто.':'Мастер ещё не написал эту легенду.')+'</p>'})()}</div>
+      <div ${bgAttrs((m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).bg:m.bg,'lg-editor reader')}>${(()=>{const cur=(m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).html||'':m.html;return hasText(cur)?readerHtml(cur):'<p class="empty">'+((m.tab&&m.tab!=='main')?'Здесь пока пусто.':'Мастер ещё не написал эту легенду.')+'</p>'})()}</div>
       <div class="foot" style="margin-top:18px">${(hasText(m.html)||(m.tabs||[]).some(t=>hasText(t.html)))?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
     </div></div>`;
   }
@@ -684,6 +708,7 @@ document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='lg-editor'){scheduleLegendSave();return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
+  if(t.id==='lg-bg-dim'){const p=lgPage(lgDoc(ui.legend),curLgTab(ui.legend));if(p&&p.bg){p.bg.dim=(+t.value)/100;applyEdBg();lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},900)}return}
   if(t.id==='lg-tab-title'){const L=lgDoc(ui.legend),x=L.tabs.find(y=>y.id===ui.lgTab);if(x){x.title=t.value;const b=document.querySelector(`.lg-tab[data-lgtab="${ui.lgTab}"]`);if(b)b.lastChild.textContent=t.value||'Без названия';lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},1200)}return}
   if(t.id==='map-name'){try{localStorage.setItem('vpv-name',t.value.trim())}catch(_){}return}
   if(t.id==='lore-search'){(ui.lsq=ui.lsq||{})[SEC().k]=t.value;render();return}
@@ -699,6 +724,8 @@ document.addEventListener('change',ev=>{
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
+  if(t.id==='lg-bg-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';setStatus('Загружаю фон…');
+    shrink(f,1600).then(d=>legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p){const o=safeBg(p.bg);p.bg={src:d,dim:o?o.dim:.55,mode:o?o.mode:'cover'}}}),e=>setStatus(e.message||'Не получилось прочитать картинку.'))}
   if(t.dataset.brand&&t.files&&t.files[0]){const f=t.files[0],k=t.dataset.brand;t.value='';uploadBrand(k,f)}
   if(t.id==='map-img-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMapImage(f)}
   if(t.id==='lore-cover-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadCover(f)}
@@ -745,6 +772,8 @@ document.addEventListener('click',async ev=>{
   if(t.id==='map-del-tok'){if(ui.confirmTokDel!==ui.mapSel){ui.confirmTokDel=ui.mapSel;render();return}const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);ns.tokens=ns.tokens.filter(x=>x.id!==ui.mapSel);ui.mapSel=null;ui.confirmTokDel=null;commitMap(ns,`убрал фишку «${tk?tk.label:''}»`);return}
   if(ds.lgtab){flushLegend();ui.lgTab=ds.lgtab;ui.confirmTabDel=null;render();return}
   if(t.id==='lg-tab-add'){const nt={id:uid('t'),title:'Новая вкладка',html:'',hidden:true};legendMeta(L=>L.tabs.push(nt));ui.lgTab=nt.id;render();document.getElementById('lg-tab-title')?.select();return}
+  if(ds.lgbgmode){legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p&&p.bg)p.bg.mode=ds.lgbgmode});return}
+  if(t.id==='lg-bg-clear'){legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p)delete p.bg});return}
   if(t.id==='lg-tab-vis'){legendMeta(L=>{const x=L.tabs.find(y=>y.id===ui.lgTab);if(x)x.hidden=!x.hidden});return}
   if(ds.lgtabmove){legendMeta(L=>{const i=L.tabs.findIndex(y=>y.id===ui.lgTab);move(L.tabs,i,+ds.lgtabmove)});return}
   if(t.id==='lg-tab-del'){if(ui.confirmTabDel!==ui.lgTab){ui.confirmTabDel=ui.lgTab;render();return}const del=ui.lgTab;ui.confirmTabDel=null;if(lgTimer){clearTimeout(lgTimer);lgTimer=null}ui.lgTab='main';const L=lgDoc(ui.legend);L.tabs=L.tabs.filter(y=>y.id!==del);lgDirtyId=ui.legend;render();saveLegend();return}
@@ -893,8 +922,9 @@ function shrink(file,max,fmt){
   return new Promise((res,rej)=>{
     const img=new Image(),url=URL.createObjectURL(file);
     img.onload=()=>{const k=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
-      c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+      const cx=c.getContext('2d');cx.drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
       if(fmt==='png'){const d=c.toDataURL('image/png');if(d.length<380000){res(d);return}}
+      cx.globalCompositeOperation='destination-over';cx.fillStyle='#17181e';cx.fillRect(0,0,c.width,c.height);
       let q=.82,d=c.toDataURL('image/jpeg',q);while(d.length>380000&&q>.4){q-=.12;d=c.toDataURL('image/jpeg',q)}res(d)};
     img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Не получилось прочитать файл. Попробуйте JPG или PNG.'))};
     img.src=url;
@@ -1143,7 +1173,7 @@ function sanitize(html){
       if(DROP.has(n.tagName)){n.remove();return}
       if(n.tagName==='H1'){const x=document.createElement('h2');x.append(...n.childNodes);n.replaceWith(x);n=x}
       if(!OK.has(n.tagName)){walk(n);n.replaceWith(...n.childNodes);return}
-      if(n.tagName==='IMG'){const src=n.getAttribute('src')||'';strip(n);if(!/^data:image\/(png|jpe?g|webp|gif);/i.test(src)){n.remove();return}n.setAttribute('src',src);return}
+      if(n.tagName==='IMG'){const src=n.getAttribute('src')||'',cl=(n.getAttribute('class')||'').split(/\s+/).filter(c=>IMG_CLS.includes(c));strip(n);if(!/^data:image\/(png|jpe?g|webp|gif);/i.test(src)){n.remove();return}n.setAttribute('src',src);if(cl.length)n.setAttribute('class',cl.join(' '));return}
       if(n.tagName==='A'&&n.getAttribute('data-loreref')){
         const lid=n.getAttribute('data-loreref'), a=S.lore.find(x=>x.id===lid), label=n.textContent; strip(n);
         n.setAttribute('data-loreref',lid);n.setAttribute('contenteditable','false');n.className='lore-ref'+(a?'':' missing');
@@ -1165,7 +1195,7 @@ function loadLegends(){
     lgLoading=false;
     if(error)lgErr='Не удалось загрузить легенды: '+rpcErr(error);
     else if(data===null)lgErr='Код мастера больше не подходит. Выйдите и войдите заново.';
-    else LG=data||{};
+    else{LG=data||{};Object.values(LG).forEach(L=>{const sp=splitBg(L.html);L.html=sp.body;L.bg=sp.bg})}
     render();
   });
 }
@@ -1200,6 +1230,7 @@ function renderLegends(){
     ${renderPinRow(r)}
     <div class="lg-actions"><button class="btn small gold" id="lg-export-one">Скачать легенду (.docx)</button><button class="btn small" id="lg-export-all">Скачать все легенды</button><span class="lg-status" id="lg-status">${h(ui.lgStatus||'')}</span></div>
     ${renderLgTabs(r.id)}
+    ${renderLgBg(r.id)}
     <div class="lg-toolbar" role="toolbar" aria-label="Форматирование">
       <button class="lg-tool" data-cmd="bold" title="Жирный"><b>Ж</b></button><button class="lg-tool" data-cmd="italic" title="Курсив"><i>К</i></button><button class="lg-tool" data-cmd="underline" title="Подчеркнуть"><u>Ч</u></button>
       <span class="lg-sep"></span>
@@ -1214,6 +1245,75 @@ function renderLegends(){
     ${back.length?`<div class="lg-back">Упоминается в легендах: ${back.map(b=>`<a class="role-link" data-role="${b.id}" href="#legends">${h(b.name)}</a>`).join(' ')}</div>`:''}
   </div></div>`;
 }
+const IMG_CLS=['img-s','img-m','img-l','img-f','al-l','al-c','al-r'];
+const BG_RE=/^data:image\/(png|jpe?g|webp);base64,[A-Za-z0-9+/=]+$/;
+function safeBg(bg){return bg&&typeof bg.src==='string'&&BG_RE.test(bg.src)?{src:bg.src,dim:Math.min(.9,Math.max(0,+bg.dim||0)),mode:bg.mode==='tile'?'tile':'cover'}:null}
+function splitBg(html){
+  html=html||''; const m=html.match(/^<div data-lgbg="1"([^>]*)><\/div>/); if(!m) return {body:html,bg:null};
+  const at=n=>{const r=m[1].match(new RegExp(n+'="([^"]*)"'));return r?r[1]:''};
+  return {body:html.slice(m[0].length),bg:safeBg({src:at('data-src'),dim:parseFloat(at('data-dim')),mode:at('data-mode')})};
+}
+function joinBg(bg,body){const b=safeBg(bg);return (b?`<div data-lgbg="1" data-src="${b.src}" data-dim="${b.dim}" data-mode="${b.mode}"></div>`:'')+(body||'')}
+function bgAttrs(bg,base){const b=safeBg(bg);return b?`class="${base} has-bg${b.mode==='tile'?' tile':''}" style="--lgbg:url('${b.src}');--lgdim:${b.dim}"`:`class="${base}"`}
+function lgPage(L,tab){return (!tab||tab==='main')?L:((L&&L.tabs)||[]).find(x=>x.id===tab)}
+function applyEdBg(){
+  const ed=document.getElementById('lg-editor'); if(!ed||!LG) return;
+  const p=lgPage(LG[ed.dataset.role],ed.dataset.tab||'main'), b=safeBg(p&&p.bg);
+  ed.classList.toggle('has-bg',!!b); ed.classList.toggle('tile',!!(b&&b.mode==='tile'));
+  if(b){ed.style.setProperty('--lgbg',`url('${b.src}')`);ed.style.setProperty('--lgdim',b.dim)}else{ed.style.removeProperty('--lgbg');ed.style.removeProperty('--lgdim')}
+}
+function renderLgBg(id){
+  const p=lgPage(LG[id]||{},curLgTab(id))||{}, b=safeBg(p.bg);
+  return `<div class="lg-bgrow"><span class="hint">Фон под текстом:</span>
+    <label class="btn small gold" for="lg-bg-file">${b?'Заменить фон':'Загрузить фон'}</label><input type="file" id="lg-bg-file" accept="image/*" hidden>
+    ${b?`<label class="hint" for="lg-bg-dim">Затемнение</label><input type="range" id="lg-bg-dim" min="0" max="90" step="5" value="${Math.round(b.dim*100)}">
+    <button class="btn small" data-lgbgmode="cover" aria-pressed="${b.mode==='cover'}">Растянуть</button><button class="btn small" data-lgbgmode="tile" aria-pressed="${b.mode==='tile'}">Мозаика</button>
+    <button class="btn small" id="lg-bg-clear">Убрать фон</button>`:'<span class="hint">картинка ляжет под текст этой страницы, игрок её тоже увидит</span>'}</div>`;
+}
+let imgBar=null, imgCur=null;
+function hideImgBar(){if(imgBar){imgBar.remove();imgBar=null}if(imgCur){imgCur.classList.remove('img-sel');imgCur=null}}
+function showImgBar(img){
+  if(imgBar&&imgCur===img){updImgBar();return}
+  hideImgBar(); imgCur=img; img.classList.add('img-sel');
+  const sz=['img-s','img-m','img-l','img-f'].find(c=>img.classList.contains(c))||'img-f', al=['al-l','al-c','al-r'].find(c=>img.classList.contains(c))||'al-c';
+  const b=(attr,v,label,cur,title)=>`<button class="ib" data-${attr}="${v}" aria-pressed="${cur===v}" title="${title}">${label}</button>`;
+  imgBar=document.createElement('div'); imgBar.className='img-bar'; imgBar.setAttribute('role','toolbar'); imgBar.setAttribute('aria-label','Картинка');
+  imgBar.innerHTML=b('imgsz','img-s','S',sz,'Мелко')+b('imgsz','img-m','M',sz,'Средне')+b('imgsz','img-l','L',sz,'Крупно')+b('imgsz','img-f','Во всю ширину',sz,'Во всю ширину')
+    +'<span class="ib-sep"></span>'+b('imgal','al-l','⇤ Слева',al,'Слева, текст обтекает справа')+b('imgal','al-c','По центру',al,'По центру')+b('imgal','al-r','Справа ⇥',al,'Справа, текст обтекает слева')
+    +'<span class="ib-sep"></span><button class="ib del" data-imgdel="1" title="Удалить картинку">Удалить</button>';
+  document.body.appendChild(imgBar); updImgBar();
+}
+function updImgBar(){
+  if(!imgBar||!imgCur) return; const img=imgCur;
+  imgBar.querySelectorAll('.ib[data-imgsz]').forEach(x=>x.setAttribute('aria-pressed',img.classList.contains(x.dataset.imgsz)||(x.dataset.imgsz==='img-f'&&!['img-s','img-m','img-l'].some(c=>img.classList.contains(c)))));
+  imgBar.querySelectorAll('.ib[data-imgal]').forEach(x=>x.setAttribute('aria-pressed',img.classList.contains(x.dataset.imgal)||(x.dataset.imgal==='al-c'&&!['al-l','al-r'].some(c=>img.classList.contains(c)))));
+  const r=img.getBoundingClientRect(), bw=imgBar.offsetWidth, bh=imgBar.offsetHeight, vw=document.documentElement.clientWidth, tb=(document.querySelector('.topbar')||{offsetHeight:0}).offsetHeight;
+  let top=r.top-bh-8; if(top<tb+8) top=Math.min(r.bottom+8,window.innerHeight-bh-8);
+  imgBar.style.top=top+'px'; imgBar.style.left=Math.min(Math.max(8,r.left+r.width/2-bw/2),vw-bw-8)+'px';
+}
+document.addEventListener('mousedown',ev=>{if(ev.target.closest&&ev.target.closest('.img-bar'))ev.preventDefault()});
+document.addEventListener('click',ev=>{
+  const ib=ev.target.closest&&ev.target.closest('.img-bar .ib');
+  if(ib&&imgCur){const img=imgCur;
+    if(ib.dataset.imgdel){img.remove();hideImgBar();scheduleLegendSave();return}
+    if(ib.dataset.imgsz){['img-s','img-m','img-l','img-f'].forEach(c=>img.classList.remove(c));img.classList.add(ib.dataset.imgsz)}
+    if(ib.dataset.imgal){['al-l','al-c','al-r'].forEach(c=>img.classList.remove(c));img.classList.add(ib.dataset.imgal)}
+    scheduleLegendSave(); showImgBar(img); return}
+  const img=ev.target.closest&&ev.target.closest('#lg-editor img');
+  if(img){showImgBar(img);return}
+  if(!(ev.target.closest&&ev.target.closest('.img-bar'))) hideImgBar();
+},true);
+document.addEventListener('scroll',()=>{if(!imgBar||!imgCur)return;const r=imgCur.getBoundingClientRect();if(r.bottom<0||r.top>window.innerHeight)hideImgBar();else updImgBar()},true);
+window.addEventListener('resize',()=>{if(imgBar)updImgBar()});
+document.addEventListener('dragover',ev=>{if(ev.target.closest&&ev.target.closest('#lg-editor')&&[...((ev.dataTransfer||{}).types||[])].includes('Files'))ev.preventDefault()});
+document.addEventListener('drop',ev=>{
+  const ed=ev.target.closest&&ev.target.closest('#lg-editor'); if(!ed) return;
+  const f=[...((ev.dataTransfer||{}).files||[])].find(x=>x.type.startsWith('image/')); if(!f) return;
+  ev.preventDefault();
+  const r=document.caretRangeFromPoint?document.caretRangeFromPoint(ev.clientX,ev.clientY):null;
+  if(r&&ed.contains(r.startContainer)){const sl=getSelection();sl.removeAllRanges();sl.addRange(r)}
+  saveRange(); insertPhoto(f);
+});
 function curLgTab(id){const L=LG&&LG[id];if(ui.lgTab&&ui.lgTab!=='main'&&L&&(L.tabs||[]).some(t=>t.id===ui.lgTab))return ui.lgTab;return 'main'}
 const ICON_EYE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>`;
 const ICON_HIDE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2l12 12M6.6 3.7A6.6 6.6 0 0 1 8 3.5c4.1 0 6.5 4.5 6.5 4.5a11 11 0 0 1-1.9 2.4M4.2 5.1A11.3 11.3 0 0 0 1.5 8S3.9 12.5 8 12.5c1 0 1.9-.3 2.7-.7"/></svg>`;
@@ -1253,7 +1353,7 @@ async function openPlayerLegend(rid,code){
   const {data,error}=await sb.rpc('get_player_legend',{p_role_id:rid,p_pin:code});
   const st=data&&data.status;
   if(error||!st){ui.modal={kind:'playerpin',role:rid,err:error?rpcErr(error):'Нет связи с сервером.'};render();return}
-  if(st==='ok'){ui.modal={kind:'reader',role:rid,html:data.html||'',tabs:Array.isArray(data.tabs)?data.tabs:[],tab:'main'};render();return}
+  if(st==='ok'){const sp=splitBg(data.html||'');ui.modal={kind:'reader',role:rid,html:sp.body,bg:sp.bg,tabs:Array.isArray(data.tabs)?data.tabs:[],tab:'main'};render();return}
   ui.modal={kind:'playerpin',role:rid,err:st==='bad'?'Неверный пинкод.':st==='locked'?'Слишком много неверных попыток. Подождите 15 минут.':'Легенда этой роли пока закрыта.'};
   render();document.getElementById('p-pin')?.select();
 }
@@ -1287,7 +1387,7 @@ async function saveLegend(){
   const id=lgDirtyId; if(!id) return;
   captureEditor();
   const L=lgDoc(id); L.updated_at=new Date().toISOString(); lgDirtyId=null;
-  const html=L.html||'', tabs=clone(L.tabs||[]);
+  const html=joinBg(L.bg,L.html||''), tabs=clone(L.tabs||[]);
   lgSavingN++; setStatus('Сохраняю…');
   let {data,error}=await sb.rpc('save_legend_v2',{p_pin:pin,p_role_id:id,p_html:html,p_tabs:tabs});
   let noTabs=false;
@@ -1351,7 +1451,7 @@ function insertAtSaved(html){
 }
 async function insertPhoto(file){
   setStatus('Вставляю фото…');
-  try{const d=await shrink(file,1000);insertAtSaved(`<img src="${d}" alt="">`)}
+  try{const d=await shrink(file,1000,file.type==='image/png'||file.type==='image/webp'||file.type==='image/gif'?'png':undefined);insertAtSaved(`<img class="img-l al-c" src="${d}" alt="">`)}
   catch(e){setStatus(e.message||'Не получилось вставить фото.')}
 }
 document.addEventListener('mousedown',ev=>{if(ev.target.closest('.lg-tool'))ev.preventDefault()});
@@ -1409,6 +1509,7 @@ function loadDocx(){
 function dataToBytes(d){const b=atob(d.slice(d.indexOf(',')+1));const u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
 function imgSize(d){return new Promise(res=>{const i=new Image();i.onload=()=>res({w:i.naturalWidth||400,h:i.naturalHeight||300});i.onerror=()=>res({w:400,h:300});i.src=d})}
 async function imageRun(D,d,maxW){const {w,h:hh}=await imgSize(d);const k=Math.min(1,maxW/w);return new D.ImageRun({data:dataToBytes(d),transformation:{width:Math.round(w*k),height:Math.round(hh*k)}})}
+function imgW(n){const c=n.classList;return c.contains('img-s')?180:c.contains('img-m')?300:c.contains('img-l')?450:620}
 async function htmlToParas(D,html,all){
   const tpl=document.createElement('template'); tpl.innerHTML=sanitize(html);
   const BLOCK=new Set(['P','DIV','H2','H3','H4','UL','OL','BLOCKQUOTE','IMG']);
@@ -1421,7 +1522,7 @@ async function htmlToParas(D,html,all){
       if(n.nodeType!==1) continue;
       const tg=n.tagName;
       if(tg==='BR'){out.push(new D.TextRun({text:'',break:1}));continue}
-      if(tg==='IMG'){out.push(await imageRun(D,n.getAttribute('src'),430));continue}
+      if(tg==='IMG'){out.push(await imageRun(D,n.getAttribute('src'),imgW(n)));continue}
       if(tg==='A'&&n.getAttribute('data-loreref')){out.push(new D.TextRun({text:n.textContent,...fmt,italics:true,color:'4F6B7D'}));continue}
       if(tg==='A'){const rid=n.getAttribute('data-role');const tr=new D.TextRun({text:n.textContent,...fmt,color:'8A6A2B',underline:{}});
         out.push(all&&exportIds.has(rid)?new D.InternalHyperlink({anchor:'role_'+rid,children:[tr]}):tr);continue}
@@ -1441,7 +1542,7 @@ async function htmlToParas(D,html,all){
     if(tg==='H2'||tg==='H3'||tg==='H4') paras.push(new D.Paragraph({heading:tg==='H2'?D.HeadingLevel.HEADING_2:D.HeadingLevel.HEADING_3,children:await runs(n,{})}));
     else if(tg==='UL'||tg==='OL'){let i=0;for(const li of n.children){i++;const ch=await runs(li,{});paras.push(tg==='UL'?new D.Paragraph({bullet:{level:0},children:ch}):new D.Paragraph({children:[new D.TextRun(i+'. '),...ch],indent:{left:360,hanging:360}}))}}
     else if(tg==='BLOCKQUOTE') paras.push(new D.Paragraph({children:await runs(n,{italics:true}),indent:{left:567},spacing:{after:160},border:{left:{style:D.BorderStyle.SINGLE,size:12,color:'C9A65E',space:8}}}));
-    else if(tg==='IMG') paras.push(new D.Paragraph({children:[await imageRun(D,n.getAttribute('src'),430)],spacing:{after:160}}));
+    else if(tg==='IMG') paras.push(new D.Paragraph({children:[await imageRun(D,n.getAttribute('src'),imgW(n))],alignment:n.classList.contains('al-r')?D.AlignmentType.RIGHT:n.classList.contains('al-l')?D.AlignmentType.LEFT:D.AlignmentType.CENTER,spacing:{after:160}}));
     else{const ch=await runs(n,{});paras.push(new D.Paragraph({children:ch.length?ch:[new D.TextRun('')],spacing:{after:160}}))}
   }
   flush();
