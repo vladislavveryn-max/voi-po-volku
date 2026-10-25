@@ -329,6 +329,61 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .img-bar .ib-sep{width:1px;align-self:stretch;background:var(--line);margin:2px}
 @media (max-width:820px){.lg-editor img.al-l,.lg-editor img.al-r{margin-bottom:8px}.lg-editor img.img-s{width:40%}.lg-editor img.img-m{width:55%}}
 
+/* relationship graphs */
+.gr-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.gr-main{min-width:0}
+.gr-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.gr-bar .ms-in{flex:1;min-width:160px;max-width:300px}
+.gr-mode{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:14.5px}
+.gr-stage{position:relative;height:min(72vh,820px);border:1px solid var(--gold-line);border-radius:10px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;
+  background:radial-gradient(circle at 50% 40%,#16171c,#0d0e11 70%);background-image:radial-gradient(rgba(201,166,94,.09) 1px,transparent 1px),radial-gradient(circle at 50% 40%,#16171c,#0d0e11 70%);background-size:26px 26px,auto}
+.gr-stage:active{cursor:grabbing}
+.gr-stage.connecting .gn{cursor:crosshair}
+.gr-stage svg{display:block}
+.gn{cursor:pointer}
+.gn .sh>*{transition:stroke-width .12s}
+.gn:hover .sh>*{stroke-width:3}
+.gn.sel .sh>*{stroke:#fff;stroke-width:3.5}
+.gn.from .sh>*{stroke:#fff;stroke-width:3.5;stroke-dasharray:6 4;animation:grdash 1s linear infinite}
+@keyframes grdash{to{stroke-dashoffset:-20}}
+.gn.gone{opacity:.45}
+.ge{cursor:pointer}
+.ge.dim{opacity:.18}
+.ge:hover .ln{stroke-width:3.4}
+.gr-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--muted);font-style:italic;pointer-events:none;padding:20px;line-height:1.6}
+.gr-side .map-card{margin-bottom:14px}
+.gr-types{display:grid;gap:4px}
+.gr-trow{display:flex;align-items:center;gap:2px}
+.gr-type{flex:1;min-width:0;display:flex;align-items:center;gap:8px;text-align:left;background:none;border:1px solid transparent;border-radius:6px;padding:7px 10px;color:var(--fg);cursor:pointer;font-size:15px}
+.gr-type:hover{background:var(--raised)}
+.gr-type[aria-pressed="true"]{border-color:var(--gold);background:rgba(201,166,94,.1)}
+.sw{flex:none;width:14px;height:14px;border-radius:50%;display:inline-block}
+.gr-trow .mv{display:grid;place-items:center;width:28px;height:28px}
+.gr-plist{display:grid;gap:10px;max-height:46vh;overflow:auto;padding-right:2px}
+.gr-pgroup{display:grid;gap:2px}
+.gr-pgroup .gr-pi:not(:first-child){padding-left:22px}
+.gr-pi{display:flex;align-items:center;gap:9px;background:none;border:0;border-radius:6px;padding:5px 8px;color:var(--fg);cursor:pointer;text-align:left;font-size:14.5px}
+.gr-pi:hover{background:var(--raised)}
+.gr-pi .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gr-pimg{flex:none;width:28px;height:28px;border-radius:50%;overflow:hidden;border:1px solid var(--gold-line);display:grid;place-items:center;font-family:var(--display);font-size:15px;color:var(--gold);background:var(--bg)}
+.gr-pimg.t{border-radius:6px;border-color:rgba(147,170,187,.5)}
+.gr-pimg img{width:100%;height:100%;object-fit:cover}.gr-pimg.t img{object-fit:contain}
+.gr-pi .plus{color:var(--gold)}.gr-pi .ok{color:var(--ok)}
+.gr-pi.on .nm{color:var(--muted)}
+.gr-sel{margin-top:14px}
+.gr-elist{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:2px}
+.gr-eitem{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:6px 8px;color:var(--fg);cursor:pointer;font-size:14.5px}
+.gr-eitem:hover{background:var(--raised)}
+.gr-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.gr-colors{display:flex;gap:8px;flex-wrap:wrap}
+.gr-color{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.gr-color[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 2px rgba(0,0,0,.6)}
+.gr-check{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:#d6cebd;cursor:pointer}
+.gr-check input{margin-top:4px;accent-color:var(--gold)}
+@media (max-width:980px){.gr-layout{grid-template-columns:1fr}.gr-stage{height:62vh}}
+.tabs[style*="--n:7"] .tab{padding-inline:10px;font-size:16.5px}
+@media (max-width:820px){.tabs[style*="--n:7"]{display:flex;overflow-x:auto;scrollbar-width:none}.tabs[style*="--n:7"]::-webkit-scrollbar{display:none}.tabs[style*="--n:7"] .tab{flex:none;padding:11px 12px;font-size:14px}}
+
 /* branding */
 .brand-logo{flex:none;height:32px;width:auto;max-width:56px;object-fit:contain}
 .hero-mark.img{opacity:.09;height:auto;object-fit:contain;max-height:90%}
@@ -447,7 +502,8 @@ const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',moda
 
 const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли'],['map','Карта','Карта']];
 const LEG_TAB=['legends','Легенды','Легенды'];
-const tabs=()=>pin?TABS.concat([LEG_TAB]):TABS;
+const GR_TAB=['graphs','Графы','Графы'];
+const tabs=()=>pin?TABS.concat([LEG_TAB,GR_TAB]):TABS;
 let PINNED=new Set(), PINS=null, pinsMissing=false;
 try{sessionStorage.removeItem('vpv-ppins')}catch(_){}  // player codes are never remembered
 let LG=null, lgLoading=false, lgErr='', lgTimer=null, lgDirtyId=null, lgSavingN=0, lgRange=null, exportIds=new Set(), docxReady=null;
@@ -511,7 +567,7 @@ function render(){
   if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
-  else o+= ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='map'?renderMap():ui.tab==='roles'?renderRoles():renderAbout();
+  else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='map'?renderMap():ui.tab==='roles'?renderRoles():renderAbout();
   o+='</main>';
   o+=`<footer class="col gutter">«${h(S.hero.title)}» · ролевая игра живого действия</footer>`;
 
@@ -526,7 +582,7 @@ function render(){
   applyEdBg();
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
-  measure(); updateBg(); if(ui.tab==='map') afterMapRender();
+  measure(); updateBg(); if(ui.tab==='map') afterMapRender(); if(ui.tab==='graphs') afterGrRender();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -632,6 +688,7 @@ function renderModal(){
       <div class="foot"><span class="hint" style="align-self:center">Изменения применятся у всех после «Сохранить» внизу экрана.</span><span class="grow"></span><button class="btn" id="m-cancel">Готово</button></div></div></div>`;
   }
   if(m.kind==='battle') return renderBattle(m);
+  if(m.kind==='grtype') return renderGrTypeModal(m);
   if(m.kind==='merge'){
     const A=MAP.state.tokens.find(x=>x.id===m.a), B=MAP.state.tokens.find(x=>x.id===m.b); if(!A||!B) return '';
     return wrap(`<h2 id="m-h">Объединить отряды?</h2>
@@ -708,6 +765,10 @@ document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='lg-editor'){scheduleLegendSave();return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
+  if(t.id==='gr-q'){ui.grQ=t.value;render();return}
+  if(t.id==='gr-name'){const g=grCur();g.name=t.value;const b=document.querySelector(`[data-grg="${g.id}"]`);if(b)b.textContent=t.value||'Без названия';grSave();return}
+  if(t.id==='gr-note'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.note=t.value;grRedrawEdges();grSave()}return}
+  if(t.id==='m-gtname'){ui.modal.draft.name=t.value;return}
   if(t.id==='lg-bg-dim'){const p=lgPage(lgDoc(ui.legend),curLgTab(ui.legend));if(p&&p.bg){p.bg.dim=(+t.value)/100;applyEdBg();lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},900)}return}
   if(t.id==='lg-tab-title'){const L=lgDoc(ui.legend),x=L.tabs.find(y=>y.id===ui.lgTab);if(x){x.title=t.value;const b=document.querySelector(`.lg-tab[data-lgtab="${ui.lgTab}"]`);if(b)b.lastChild.textContent=t.value||'Без названия';lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},1200)}return}
   if(t.id==='map-name'){try{localStorage.setItem('vpv-name',t.value.trim())}catch(_){}return}
@@ -724,6 +785,8 @@ document.addEventListener('change',ev=>{
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
+  if(t.id==='gr-etype'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.type=t.value;grSave();render()}}
+  if(t.id==='m-gtdir'&&ui.modal) ui.modal.draft.dir=t.checked;
   if(t.id==='lg-bg-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';setStatus('Загружаю фон…');
     shrink(f,1600).then(d=>legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p){const o=safeBg(p.bg);p.bg={src:d,dim:o?o.dim:.55,mode:o?o.mode:'cover'}}}),e=>setStatus(e.message||'Не получилось прочитать картинку.'))}
   if(t.dataset.brand&&t.files&&t.files[0]){const f=t.files[0],k=t.dataset.brand;t.value='';uploadBrand(k,f)}
@@ -731,7 +794,9 @@ document.addEventListener('change',ev=>{
   if(t.id==='lore-cover-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadCover(f)}
   if(t.id==='lg-photo'&&t.files&&t.files[0]){const f=t.files[0];t.value='';insertPhoto(f)}
 });
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.mapRoll){ui.mapRoll=null;render()}}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.mapRoll){ui.mapRoll=null;render()}else if(ui.tab==='graphs'&&(ui.grType||ui.grFrom||ui.grSel)){ui.grType=null;ui.grFrom=null;ui.grSel=null;render()}}
+  else if((ev.key==='Delete'||ev.key==='Backspace')&&ui.tab==='graphs'&&ui.grSel&&!ui.modal&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')&&!(document.activeElement&&document.activeElement.isContentEditable)){
+    ev.preventDefault();const g=grCur();if(ui.grSel.k==='e')g.edges=g.edges.filter(e=>e.id!==ui.grSel.id);else{const id=ui.grSel.id;g.nodes=g.nodes.filter(n=>n.id!==id);g.edges=g.edges.filter(e=>e.from!==id&&e.to!==id)}ui.grSel=null;grSave();render()}});
 
 function applyFmt(id,kind){
   const ta=document.getElementById(id); if(!ta) return;
@@ -777,6 +842,29 @@ document.addEventListener('click',async ev=>{
   if(t.id==='lg-tab-vis'){legendMeta(L=>{const x=L.tabs.find(y=>y.id===ui.lgTab);if(x)x.hidden=!x.hidden});return}
   if(ds.lgtabmove){legendMeta(L=>{const i=L.tabs.findIndex(y=>y.id===ui.lgTab);move(L.tabs,i,+ds.lgtabmove)});return}
   if(t.id==='lg-tab-del'){if(ui.confirmTabDel!==ui.lgTab){ui.confirmTabDel=ui.lgTab;render();return}const del=ui.lgTab;ui.confirmTabDel=null;if(lgTimer){clearTimeout(lgTimer);lgTimer=null}ui.lgTab='main';const L=lgDoc(ui.legend);L.tabs=L.tabs.filter(y=>y.id!==del);lgDirtyId=ui.legend;render();saveLegend();return}
+  if(ds.grg){if(grTimer)grFlush();ui.grId=ds.grg;ui.grSel=null;ui.grFrom=null;ui.grConfirmDel=false;ui.grConfirmArr=false;render();return}
+  if(t.id==='gr-add-graph'){const g={id:uid('g'),name:'Новая схема',nodes:[],edges:[]};GR.graphs.push(g);ui.grId=g.id;ui.grSel=null;grSave();render();document.getElementById('gr-name')?.select();return}
+  if(t.id==='gr-del-graph'){if(!ui.grConfirmDel){ui.grConfirmDel=true;render();return}ui.grConfirmDel=false;GR.graphs=GR.graphs.filter(x=>x.id!==ui.grId);ui.grId=GR.graphs[0].id;ui.grSel=null;grSave();render();return}
+  if(ds.grtype){ui.grType=ui.grType===ds.grtype?null:ds.grtype;ui.grFrom=null;ui.grSel=null;render();return}
+  if(t.id==='gr-mode-off'){ui.grType=null;ui.grFrom=null;render();return}
+  if(ds.grvis){const s2=ui.grHidden=ui.grHidden||new Set();s2.has(ds.grvis)?s2.delete(ds.grvis):s2.add(ds.grvis);render();return}
+  if(t.id==='gr-type-add'){ui.modal={kind:'grtype',isNew:true,draft:{id:uid('y'),name:'',color:GR_COLORS[GR.types.length%GR_COLORS.length],dir:false}};render();document.getElementById('m-gtname')?.focus();return}
+  if(ds.grtedit){const x=grType(ds.grtedit);if(x){ui.modal={kind:'grtype',isNew:false,draft:{...x}};render()}return}
+  if(ds.grcolor&&ui.modal&&ui.modal.kind==='grtype'){ui.modal.draft.color=ds.grcolor;render();return}
+  if(t.id==='gr-type-save'){const m=ui.modal,d=m.draft;d.name=(document.getElementById('m-gtname').value||'').trim().slice(0,30);d.dir=document.getElementById('m-gtdir').checked;
+    if(!d.name){const f=document.getElementById('m-gtname');f.focus();f.placeholder='Введите название';return}
+    if(m.isNew)GR.types.push(d);else GR.types[GR.types.findIndex(x=>x.id===d.id)]=d;ui.modal=null;grSave();render();return}
+  if(t.id==='gr-type-del'){const m=ui.modal;if(!m.confirm){m.confirm=true;render();return}const id=m.draft.id;GR.types=GR.types.filter(x=>x.id!==id);GR.graphs.forEach(g=>g.edges=g.edges.filter(e=>e.type!==id));if(ui.grType===id)ui.grType=null;ui.modal=null;grSave();render();return}
+  if(ds.gradd){const g=grCur(),ex=g.nodes.find(n=>n.ref===ds.gradd);
+    if(ex){ui.grSel={k:'n',id:ex.id};const st=document.getElementById('gr-stage');if(st&&grView){grView.tx=st.clientWidth/2-ex.x*grView.s;grView.ty=st.clientHeight/2-ex.y*grView.s}render();return}
+    const p=grFreeSpot(g),n={id:uid('n'),ref:ds.gradd,x:p.x,y:p.y};g.nodes.push(n);ui.grSel={k:'n',id:n.id};grSave();render();return}
+  if(ds.gredge){ui.grSel={k:'e',id:ds.gredge};render();return}
+  if(t.id==='gr-node-del'){const g=grCur(),id=ui.grSel&&ui.grSel.id;g.nodes=g.nodes.filter(n=>n.id!==id);g.edges=g.edges.filter(e=>e.from!==id&&e.to!==id);ui.grSel=null;grSave();render();return}
+  if(t.id==='gr-edge-flip'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){[e.from,e.to]=[e.to,e.from];grSave();render()}return}
+  if(t.id==='gr-edge-del'){const g=grCur();g.edges=g.edges.filter(e=>!(ui.grSel&&e.id===ui.grSel.id));ui.grSel=null;grSave();render();return}
+  if(t.id==='gr-arrange'){if(!ui.grConfirmArr){ui.grConfirmArr=true;render();return}ui.grConfirmArr=false;grArrange(grCur());grView=null;grSave();render();return}
+  if(t.id==='gr-png'){grPng();return}
+  if(ds.grz){if(ds.grz==='fit'){grFit();grView.g=ui.grId;grApply()}else{const st=document.getElementById('gr-stage');grZoomAt(ds.grz==='in'?1.25:1/1.25,st.clientWidth/2,st.clientHeight/2)}return}
   if(ds.lg){goLegend(ds.lg);return}
   if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
   if(ds.rdtab&&ui.modal&&ui.modal.kind==='reader'){ui.modal.tab=ds.rdtab;render();return}
@@ -796,12 +884,12 @@ document.addEventListener('click',async ev=>{
   if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
   if(t.id==='lg-export-one'){exportDocx(false);return}
   if(t.id==='lg-export-all'){exportDocx(true);return}
-  if(ds.tab){if(ui.tab==='legends')flushLegend();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
+  if(ds.tab){if(ui.tab==='legends')flushLegend();if(grTimer)grFlush();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
   if(t.id==='to-top'){window.scrollTo({top:0,behavior:'smooth'});return}
   if(ds.fmt){applyFmt(ds.for,ds.fmt);return}
   if(t.id==='login-open'){ui.modal={kind:'login'};render();document.getElementById('m-pin')?.focus();return}
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
-    flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} LG=null;if(ui.tab==='legends')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
+    flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} if(grTimer)grFlush(); LG=null;GR=null;grView=null;if(ui.tab==='legends'||ui.tab==='graphs')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
   if(ds.lore){ui[SEC().c]=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
@@ -1151,6 +1239,221 @@ function freeSpot(c){
   return c;
 }
 function mapViewCenter(){const st=document.getElementById('map-stage'),v=ui.mapView;if(!st||!v||!mapImg.w)return{x:.5,y:.4};return{x:Math.min(.95,Math.max(.05,(st.clientWidth/2-v.tx)/v.s/mapImg.w)),y:Math.min(.95,Math.max(.05,(st.clientHeight/2-v.ty)/v.s/mapImg.h))}}
+
+/* ---------------- relationship graphs (master only) ---------------- */
+const GR_COLORS=['#c9a65e','#c0453a','#7fae6e','#8fb3d9','#a58bd6','#d26a8a','#e08a5a','#9b9485'];
+const GR_DEFAULT_TYPES=[['Родитель','#c9a65e',1],['Супруги','#d26a8a',0],['Брат / сестра','#8fb3d9',0],['Союзник','#7fae6e',0],['Враг','#c0453a',0],['Вассал','#a58bd6',1]];
+const GR_FONT='Lora, Georgia, serif';
+let GR=null, grTimer=null, grSaving=false, grView=null, grDrag=null; const grPts=new Map();
+function grParse(){
+  let g={}; try{g=JSON.parse((LG.__graph&&LG.__graph.html)||'{}')||{}}catch(_){g={}}
+  if(!Array.isArray(g.types)||!g.types.length) g.types=GR_DEFAULT_TYPES.map(([name,color,dir])=>({id:uid('y'),name,color,dir:!!dir}));
+  if(!Array.isArray(g.graphs)||!g.graphs.length) g.graphs=[{id:uid('g'),name:'Общая схема',nodes:[],edges:[]}];
+  g.graphs.forEach(x=>{x.nodes=Array.isArray(x.nodes)?x.nodes:[];x.edges=Array.isArray(x.edges)?x.edges:[]});
+  return g;
+}
+const grCur=()=>GR.graphs.find(x=>x.id===ui.grId)||GR.graphs[0];
+const grType=id=>GR.types.find(t=>t.id===id);
+const grIsTeam=n=>(n.ref||'').startsWith('t:');
+const grR=n=>grIsTeam(n)?38:32;
+const grSafeColor=c=>/^#[0-9a-fA-F]{6}$/.test(c||'')?c:'#9b9485';
+function grRef(ref){
+  const [k,id]=(ref||'').split(':');
+  if(k==='r'){const r=S.roles.find(x=>x.id===id);if(!r)return null;const t=S.teams.find(x=>x.id===r.team);return {kind:'r',id,name:r.name,sub:[r.title,t&&t.name].filter(Boolean).join(' · '),img:photoSrc(r.photo)}}
+  if(k==='t'){const t=S.teams.find(x=>x.id===id);if(!t)return null;return {kind:'t',id,name:t.name,sub:'Команда',img:photoSrc(t.icon)}}
+  return null;
+}
+function grSave(){clearTimeout(grTimer);grStatus('Есть изменения…');grTimer=setTimeout(grFlush,700)}
+async function grFlush(){
+  clearTimeout(grTimer); grTimer=null; if(!GR||!pin||!LG) return;
+  const json=JSON.stringify(GR); LG.__graph=Object.assign({},LG.__graph,{html:json});
+  grSaving=true; grStatus('Сохраняю…');
+  const {data,error}=await sb.rpc('save_legend',{p_pin:pin,p_role_id:'__graph',p_html:json});
+  grSaving=false;
+  grStatus(error?'Не сохранилось: '+rpcErr(error):!data?'Код мастера больше не подходит. Войдите заново.':'Сохранено');
+}
+function grStatus(m){ui.grStatus=m;const el=document.getElementById('gr-status');if(el)el.textContent=m}
+function grDefs(){return GR.types.map(t=>`<marker id="ar-${t.id}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${grSafeColor(t.color)}"/></marker>`).join('')}
+function grEdgesSvg(g,exp){
+  const pos=Object.fromEntries(g.nodes.map(n=>[n.id,n])), hid=ui.grHidden||new Set();
+  const vis=g.edges.filter(e=>pos[e.from]&&pos[e.to]&&grType(e.type)&&!hid.has(e.type));
+  const groups={}; vis.forEach(e=>{const k=[e.from,e.to].sort().join('|');(groups[k]=groups[k]||[]).push(e)});
+  const selN=!exp&&ui.grSel&&ui.grSel.k==='n'?ui.grSel.id:null, selE=!exp&&ui.grSel&&ui.grSel.k==='e'?ui.grSel.id:null;
+  let o='';
+  for(const k in groups){const arr=groups[k],[p,q]=k.split('|'),P=pos[p],Q=pos[q];
+    const dx=Q.x-P.x,dy=Q.y-P.y,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L;
+    arr.forEach((e,i)=>{
+      const t=grType(e.type),col=grSafeColor(t.color),A=pos[e.from],B=pos[e.to],off=(i-(arr.length-1)/2)*30;
+      const cx=(A.x+B.x)/2+nx*off*2, cy=(A.y+B.y)/2+ny*off*2;
+      const u=(x1,y1,x2,y2)=>{const l=Math.hypot(x2-x1,y2-y1)||1;return [(x2-x1)/l,(y2-y1)/l]};
+      const [ax,ay]=u(A.x,A.y,cx,cy),[bx,by]=u(B.x,B.y,cx,cy), rA=grR(A)+2, rB=grR(B)+(t.dir?5:2);
+      const sx=A.x+ax*rA, sy=A.y+ay*rA, ex=B.x+bx*rB, ey=B.y+by*rB, lx=.25*sx+.5*cx+.25*ex, ly=.25*sy+.5*cy+.25*ey;
+      const d=`M${sx.toFixed(1)},${sy.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`;
+      const dim=selN&&e.from!==selN&&e.to!==selN, sel=selE===e.id;
+      o+=`<g class="ge${sel?' sel':''}${dim?' dim':''}" data-ge="${e.id}">${exp?'':`<path class="hit" d="${d}" fill="none" stroke="transparent" stroke-width="16"/>`}<path class="ln" d="${d}" fill="none" stroke="${col}" stroke-width="${sel?3.6:2.2}" ${t.dir?`marker-end="url(#ar-${t.id})"`:''}/><text x="${lx.toFixed(1)}" y="${(ly-6).toFixed(1)}" text-anchor="middle" font-family="${GR_FONT}" font-size="12" fill="${col}" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${h(t.name)}${e.note?' *':''}</text></g>`;
+    });
+  }
+  return o;
+}
+function grNodesSvg(g,exp){
+  return g.nodes.map(n=>{
+    const info=grRef(n.ref), team=grIsTeam(n), R=grR(n), cls=['gn',team?'team':'role'];
+    if(!exp){if(ui.grSel&&ui.grSel.k==='n'&&ui.grSel.id===n.id)cls.push('sel');if(ui.grFrom===n.id)cls.push('from')}
+    if(!info) cls.push('gone');
+    const name=info?info.name:'(удалено)', stroke=team?'#93aabb':'#c9a65e';
+    const shape=team?`<rect x="${-R}" y="${-R}" width="${2*R}" height="${2*R}" rx="12" fill="#1f2027" stroke="${stroke}" stroke-width="2"/>`:`<circle r="${R}" fill="#1f2027" stroke="${stroke}" stroke-width="2"/>`;
+    const clip=team?`<rect x="${-R+3}" y="${-R+3}" width="${2*R-6}" height="${2*R-6}" rx="9"/>`:`<circle r="${R-3}"/>`;
+    const img=info&&info.img?`<image href="${h(info.img)}" x="${-R+3}" y="${-R+3}" width="${2*R-6}" height="${2*R-6}" clip-path="url(#gc-${n.id})" preserveAspectRatio="xMidYMid ${team?'meet':'slice'}"/>`
+      :`<text text-anchor="middle" dy="0.35em" font-family="Forum, Georgia, serif" font-size="28" fill="${stroke}" opacity=".7">${h((name||'?').trim()[0]||'?')}</text>`;
+    return `<g class="${cls.join(' ')}" data-gn="${n.id}" transform="translate(${n.x.toFixed(1)},${n.y.toFixed(1)})"><clipPath id="gc-${n.id}">${clip}</clipPath><g class="sh">${shape}</g>${img}<text class="gl" y="${R+17}" text-anchor="middle" font-family="${GR_FONT}" font-size="13" fill="#ebe4d4" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${h(name)}</text></g>`;
+  }).join('');
+}
+function renderGraphs(){
+  if(!LG){if(!lgLoading&&!lgErr)loadLegends();return `<p class="empty">${h(lgErr||'Загружаю…')}</p>`}
+  if(!GR) GR=grParse();
+  const g=grCur(); ui.grId=g.id;
+  let o=`<div class="section-title"><h2>Графы</h2></div><p class="hint" style="margin:-10px 0 14px">Видно только мастерам. Схемы связей между персонажами и командами, сохраняются автоматически.</p>`;
+  o+=`<div class="lg-tabs gr-tabs" role="tablist">${GR.graphs.map(x=>`<button class="lg-tab" data-grg="${x.id}" aria-selected="${x.id===g.id}">${h(x.name||'Без названия')}</button>`).join('')}<button class="lg-tab add" id="gr-add-graph">+ Схема</button></div>`;
+  const t=ui.grType&&grType(ui.grType);
+  const hint=t?(ui.grFrom?`Связь «${h(t.name)}»: теперь нажмите на второго${t.dir?' (к кому ведёт стрелка)':''}.`:`Связь «${h(t.name)}»: нажмите на первого${t.dir?' (от кого стрелка)':''}.`):'';
+  o+=`<div class="gr-layout"><div class="gr-main">
+    <div class="gr-bar"><input id="gr-name" class="ms-in" value="${h(g.name||'')}" maxlength="40" aria-label="Название схемы" placeholder="Название схемы">
+      <button class="btn small" id="gr-arrange">${ui.grConfirmArr?'Точно разложить?':'Разложить по командам'}</button><button class="btn small" id="gr-png">Скачать PNG</button>
+      ${GR.graphs.length>1?`<button class="btn small danger" id="gr-del-graph">${ui.grConfirmDel?'Точно удалить схему?':'Удалить схему'}</button>`:''}
+      <span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>
+    ${t?`<div class="gr-mode" style="--c:${grSafeColor(t.color)}"><span>${hint}</span><button class="btn small" id="gr-mode-off">Готово</button></div>`:''}
+    <div class="gr-stage${t?' connecting':''}" id="gr-stage"><svg id="gr-svg" width="100%" height="100%"><defs>${grDefs()}</defs><g id="gr-world"><g id="gr-edges">${grEdgesSvg(g)}</g><g id="gr-nodes">${grNodesSvg(g)}</g></g></svg>
+      ${g.nodes.length?'':'<div class="gr-empty">Добавьте персонажей и команды из списка «На схему»,<br>выберите тип связи и нажмите на двух участников.</div>'}
+      <div class="map-zoom"><button class="mz" data-grz="in" aria-label="Приблизить">+</button><button class="mz" data-grz="out" aria-label="Отдалить">−</button><button class="mz" data-grz="fit" aria-label="Показать всё">⤢</button></div></div>
+    ${grSelPanel(g)}
+  </div><aside class="gr-side">${grTypesPanel()}${grPalette(g)}</aside></div>`;
+  return o;
+}
+function grTypesPanel(){
+  const hid=ui.grHidden||new Set();
+  return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:4px">Связи</div><p class="hint" style="margin:0 0 10px">Выберите тип и нажмите на двух участников схемы.</p>
+    <div class="gr-types">${GR.types.map(t=>`<div class="gr-trow"><button class="gr-type" data-grtype="${t.id}" aria-pressed="${ui.grType===t.id}"><span class="sw" style="background:${grSafeColor(t.color)}"></span>${h(t.name)}${t.dir?' <span class="hint">→</span>':''}</button>
+      <button class="mv" data-grvis="${t.id}" title="${hid.has(t.id)?'Показать на схеме':'Скрыть на схеме'}" aria-label="${hid.has(t.id)?'Показать':'Скрыть'}">${hid.has(t.id)?ICON_HIDE:ICON_EYE}</button><button class="mv" data-grtedit="${t.id}" aria-label="Изменить тип">✎</button></div>`).join('')}</div>
+    <button class="btn small gold" id="gr-type-add" style="margin-top:8px">+ Тип связи</button></div>`;
+}
+function grPalette(g){
+  const q=(ui.grQ||'').trim().toLowerCase(), on=new Set(g.nodes.map(n=>n.ref)), match=s=>!q||(s||'').toLowerCase().includes(q);
+  const item=(ref,name,img,team)=>`<button class="gr-pi${on.has(ref)?' on':''}" data-gradd="${ref}"><span class="gr-pimg${team?' t':''}">${img?`<img src="${h(img)}" alt="">`:h((name||'?').trim()[0]||'?')}</span><span class="nm">${h(name)}</span>${on.has(ref)?'<span class="ok">✓</span>':'<span class="plus">+</span>'}</button>`;
+  let o='';
+  S.teams.forEach(t=>{const rs=S.roles.filter(r=>r.team===t.id&&match(r.name)); if(!match(t.name)&&!rs.length) return;
+    o+=`<div class="gr-pgroup">${item('t:'+t.id,t.name,photoSrc(t.icon),true)}${rs.map(r=>item('r:'+r.id,r.name,photoSrc(r.photo),false)).join('')}</div>`});
+  const lone=S.roles.filter(r=>!S.teams.some(t=>t.id===r.team)&&match(r.name));
+  if(lone.length) o+=`<div class="gr-pgroup">${lone.map(r=>item('r:'+r.id,r.name,photoSrc(r.photo),false)).join('')}</div>`;
+  return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:8px">На схему</div><input id="gr-q" class="lore-search" type="search" placeholder="Поиск" value="${h(ui.grQ||'')}" autocomplete="off" style="margin-bottom:8px">
+    <div class="gr-plist">${o||'<p class="hint">Ничего не найдено. Персонажи и команды берутся из «Сетки ролей».</p>'}</div></div>`;
+}
+function grSelPanel(g){
+  const s=ui.grSel; if(!s) return '';
+  if(s.k==='n'){const n=g.nodes.find(x=>x.id===s.id); if(!n) return '';
+    const info=grRef(n.ref)||{name:'(удалено)',sub:''}, es=g.edges.filter(e=>e.from===n.id||e.to===n.id);
+    const nm=id=>{const x=g.nodes.find(y=>y.id===id);const i=x&&grRef(x.ref);return i?i.name:'(удалено)'};
+    return `<div class="map-card gr-sel"><div class="mc-name">${h(info.name)}</div>${info.sub?`<div class="hint">${h(info.sub)}</div>`:''}
+      <ul class="gr-elist">${es.map(e=>{const t=grType(e.type)||{name:'?',color:'#999'};const out=e.from===n.id;
+        return `<li><button class="gr-eitem" data-gredge="${e.id}"><span class="sw" style="background:${grSafeColor(t.color)}"></span>${h(t.name)}: ${t.dir?(out?'→ ':'← '):''}${h(nm(out?e.to:e.from))}${e.note?` <span class="hint">— ${h(e.note)}</span>`:''}</button></li>`}).join('')||'<li class="hint">Связей пока нет.</li>'}</ul>
+      <div class="gr-acts">${n.ref.startsWith('r:')&&grRef(n.ref)?`<button class="btn small gold" data-lg="${n.ref.slice(2)}">Открыть легенду</button>`:''}<button class="btn small danger" id="gr-node-del">Убрать со схемы</button></div></div>`;
+  }
+  const e=g.edges.find(x=>x.id===s.id); if(!e) return '';
+  const nm=id=>{const x=g.nodes.find(y=>y.id===id);const i=x&&grRef(x.ref);return i?i.name:'(удалено)'}, t=grType(e.type)||{};
+  return `<div class="map-card gr-sel"><div class="hint" style="color:${grSafeColor(t.color)}">${h(t.name||'')}</div><div class="mc-name">${h(nm(e.from))} ${t.dir?'→':'—'} ${h(nm(e.to))}</div>
+    <div class="gr-acts" style="margin-top:10px"><select id="gr-etype" class="ms-in">${GR.types.map(x=>`<option value="${x.id}" ${x.id===e.type?'selected':''}>${h(x.name)}${x.dir?' →':''}</option>`).join('')}</select>
+      ${t.dir?'<button class="btn small" id="gr-edge-flip">Развернуть стрелку</button>':''}<button class="btn small danger" id="gr-edge-del">Удалить связь</button></div>
+    <div class="field" style="margin:12px 0 0"><label for="gr-note">Заметка к связи</label><input id="gr-note" value="${h(e.note||'')}" maxlength="140" placeholder="Например: тайный отец"></div></div>`;
+}
+function renderGrTypeModal(m){
+  const d=m.draft, used=GR&&!m.isNew?GR.graphs.reduce((a,g)=>a+g.edges.filter(e=>e.type===d.id).length,0):0;
+  return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">${m.isNew?'Новый тип связи':'Тип связи'}</h2>
+    <div class="field"><label for="m-gtname">Название</label><input id="m-gtname" value="${h(d.name)}" maxlength="30" placeholder="Например, Наставник"></div>
+    <div class="field"><span class="lbl">Цвет</span><div class="gr-colors">${GR_COLORS.map(c=>`<button class="gr-color" data-grcolor="${c}" style="background:${c}" aria-pressed="${d.color===c}" aria-label="Цвет ${c}"></button>`).join('')}</div></div>
+    <label class="gr-check"><input type="checkbox" id="m-gtdir" ${d.dir?'checked':''}> Со стрелкой (у связи есть направление: родитель → ребёнок, сюзерен → вассал)</label>
+    <div class="foot" style="margin-top:16px">${m.isNew?'':`<button class="btn danger" id="gr-type-del">${m.confirm?`Точно удалить${used?` (и ${used} ${plural(used,'связь','связи','связей')})`:''}?`:'Удалить тип'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="gr-type-save">Готово</button></div></div></div>`;
+}
+/* view */
+function grFit(){
+  const st=document.getElementById('gr-stage'); if(!st) return; const g=grCur();
+  if(!g.nodes.length){grView={s:1,tx:st.clientWidth/2,ty:st.clientHeight/2};return}
+  const xs=g.nodes.map(n=>n.x),ys=g.nodes.map(n=>n.y), minX=Math.min(...xs)-70,maxX=Math.max(...xs)+70,minY=Math.min(...ys)-60,maxY=Math.max(...ys)+80;
+  const s=Math.min(1.4,Math.max(.2,Math.min(st.clientWidth/(maxX-minX),st.clientHeight/(maxY-minY))));
+  grView={s,tx:st.clientWidth/2-(minX+maxX)/2*s,ty:st.clientHeight/2-(minY+maxY)/2*s};
+}
+function grApply(){const w=document.getElementById('gr-world');if(w&&grView)w.setAttribute('transform',`translate(${grView.tx.toFixed(1)},${grView.ty.toFixed(1)}) scale(${grView.s.toFixed(4)})`)}
+function grZoomAt(f,cx,cy){const v=grView;if(!v)return;const ns=Math.min(3,Math.max(.15,v.s*f)),k=ns/v.s;v.tx=cx-(cx-v.tx)*k;v.ty=cy-(cy-v.ty)*k;v.s=ns;grApply()}
+function afterGrRender(){
+  const st=document.getElementById('gr-stage'); if(!st) return;
+  if(!grView||grView.g!==ui.grId){grFit();grView.g=ui.grId}
+  grApply();
+  if(!st.dataset.wheel){st.dataset.wheel=1;st.addEventListener('wheel',ev=>{ev.preventDefault();const r=st.getBoundingClientRect();grZoomAt(ev.deltaY<0?1.15:1/1.15,ev.clientX-r.left,ev.clientY-r.top)},{passive:false})}
+}
+function grWorld(ev){const st=document.getElementById('gr-stage'),r=st.getBoundingClientRect();return {x:(ev.clientX-r.left-grView.tx)/grView.s,y:(ev.clientY-r.top-grView.ty)/grView.s}}
+function grRedrawEdges(){const el=document.getElementById('gr-edges');if(el)el.innerHTML=grEdgesSvg(grCur())}
+function grFreeSpot(g){
+  const st=document.getElementById('gr-stage'), v=grView||{s:1,tx:0,ty:0};
+  const c=st?{x:(st.clientWidth/2-v.tx)/v.s,y:(st.clientHeight/2-v.ty)/v.s}:{x:0,y:0};
+  const busy=p=>g.nodes.some(n=>Math.hypot(n.x-p.x,n.y-p.y)<150);
+  if(!busy(c)) return c;
+  for(let ring=1;ring<12;ring++)for(let k=0;k<ring*8;k++){const a=k/(ring*8)*Math.PI*2,p={x:c.x+Math.cos(a)*160*ring,y:c.y+Math.sin(a)*150*ring};if(!busy(p))return p}
+  return c;
+}
+function grNodeClick(id){
+  const g=grCur();
+  if(ui.grType){
+    if(!ui.grFrom||ui.grFrom===id){ui.grFrom=ui.grFrom===id?null:id;render();return}
+    const t=grType(ui.grType), a=ui.grFrom; ui.grFrom=null;
+    const dup=g.edges.some(e=>e.type===t.id&&((e.from===a&&e.to===id)||(!t.dir&&e.from===id&&e.to===a)));
+    if(dup){toast('Такая связь уже есть');render();return}
+    const e={id:uid('e'),from:a,to:id,type:t.id,note:''}; g.edges.push(e); grSave(); toast(`Связь «${t.name}» добавлена`); render(); return;
+  }
+  ui.grSel=(ui.grSel&&ui.grSel.k==='n'&&ui.grSel.id===id)?null:{k:'n',id}; render();
+}
+document.addEventListener('pointerdown',ev=>{
+  const st=ev.target.closest&&ev.target.closest('#gr-stage'); if(!st||!grView||ev.target.closest('.map-zoom')) return;
+  grPts.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  const node=ev.target.closest('.gn'), edge=ev.target.closest('.ge');
+  if(grPts.size===1&&node){const n=grCur().nodes.find(x=>x.id===node.dataset.gn);const w=grWorld(ev);grDrag={kind:'node',id:node.dataset.gn,el:node,dx:n.x-w.x,dy:n.y-w.y,sx:ev.clientX,sy:ev.clientY,moved:false}}
+  else if(grPts.size===1&&edge){grDrag={kind:'edge',id:edge.dataset.ge,sx:ev.clientX,sy:ev.clientY,tx:grView.tx,ty:grView.ty,moved:false}}
+  else if(grPts.size===1){grDrag={kind:'pan',sx:ev.clientX,sy:ev.clientY,tx:grView.tx,ty:grView.ty,moved:false}}
+  else if(grPts.size===2){const [a,b]=[...grPts.values()],r=st.getBoundingClientRect();grDrag={kind:'pinch',d:Math.hypot(a.x-b.x,a.y-b.y)||1,s:grView.s,mx:(((a.x+b.x)/2-r.left)-grView.tx)/grView.s,my:(((a.y+b.y)/2-r.top)-grView.ty)/grView.s}}
+  try{st.setPointerCapture(ev.pointerId)}catch(_){} ev.preventDefault();
+});
+document.addEventListener('pointermove',ev=>{
+  if(!grPts.has(ev.pointerId)||!grDrag) return;
+  grPts.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  const d=grDrag, far=Math.hypot(ev.clientX-(d.sx||0),ev.clientY-(d.sy||0))>4;
+  if(d.kind==='node'){if(!far&&!d.moved)return;d.moved=true;const n=grCur().nodes.find(x=>x.id===d.id);if(!n)return;const w=grWorld(ev);n.x=w.x+d.dx;n.y=w.y+d.dy;d.el.setAttribute('transform',`translate(${n.x.toFixed(1)},${n.y.toFixed(1)})`);grRedrawEdges();return}
+  if(d.kind==='pan'||d.kind==='edge'){if(far)d.moved=true;if(d.moved){grView.tx=d.tx+ev.clientX-d.sx;grView.ty=d.ty+ev.clientY-d.sy;grApply()}return}
+  if(d.kind==='pinch'&&grPts.size>=2){const st=document.getElementById('gr-stage'),r=st.getBoundingClientRect(),[a,b]=[...grPts.values()];
+    grView.s=Math.min(3,Math.max(.15,d.s*Math.hypot(a.x-b.x,a.y-b.y)/d.d));grView.tx=((a.x+b.x)/2-r.left)-d.mx*grView.s;grView.ty=((a.y+b.y)/2-r.top)-d.my*grView.s;grApply()}
+});
+function grPointerEnd(ev,cancel){
+  if(!grPts.has(ev.pointerId)) return; grPts.delete(ev.pointerId);
+  if(grPts.size){if(grDrag&&grDrag.kind==='pinch'){const [a]=[...grPts.values()];grDrag={kind:'pan',sx:a.x,sy:a.y,tx:grView.tx,ty:grView.ty,moved:true}}return}
+  const d=grDrag; grDrag=null; if(!d||cancel) return;
+  if(d.kind==='node'){if(d.moved)grSave();else grNodeClick(d.id);return}
+  if(d.kind==='edge'&&!d.moved){ui.grSel={k:'e',id:d.id};render();return}
+  if(d.kind==='pan'&&!d.moved&&(ui.grSel||ui.grFrom)){ui.grSel=null;ui.grFrom=null;render()}
+}
+document.addEventListener('pointerup',ev=>grPointerEnd(ev,false));
+document.addEventListener('pointercancel',ev=>grPointerEnd(ev,true));
+function grArrange(g){
+  const cols={}, key=n=>{if(grIsTeam(n))return n.ref.slice(2);const r=S.roles.find(x=>x.id===n.ref.slice(2));return r?r.team:''};
+  g.nodes.forEach(n=>{const k=key(n);const c=cols[k]=cols[k]||{t:null,r:[]};if(grIsTeam(n))c.t=n;else c.r.push(n)});
+  const order=S.teams.map(t=>t.id).filter(id=>cols[id]).concat(Object.keys(cols).filter(id=>!S.teams.some(t=>t.id===id)));
+  order.forEach((tid,ci)=>{const c=cols[tid],x=ci*210;let y=0;if(c.t){c.t.x=x;c.t.y=y;y+=160}c.r.forEach((n,ri)=>{n.x=x+(ri%2?45:-45);n.y=y+ri*120})});
+}
+function grPng(){
+  const g=grCur(); if(!g.nodes.length){toast('Схема пустая');return}
+  const xs=g.nodes.map(n=>n.x),ys=g.nodes.map(n=>n.y),pad=90, minX=Math.min(...xs)-pad,minY=Math.min(...ys)-pad-30, W=Math.max(...xs)-minX+pad, H=Math.max(...ys)-minY+pad+30;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="${minX} ${minY} ${W} ${H}"><rect x="${minX}" y="${minY}" width="${W}" height="${H}" fill="#0d0e11"/><text x="${minX+24}" y="${minY+40}" font-family="Forum, Georgia, serif" font-size="26" fill="#e3c482">${h(g.name||'Схема')}</text><defs>${grDefs()}</defs><g>${grEdgesSvg(g,true)}</g><g>${grNodesSvg(g,true)}</g></svg>`;
+  const img=new Image();
+  img.onload=()=>{const k=Math.min(2,8000/Math.max(W,H)),c=document.createElement('canvas');c.width=Math.round(W*k);c.height=Math.round(H*k);const cx=c.getContext('2d');cx.scale(k,k);cx.drawImage(img,0,0);
+    c.toBlob(b=>{if(!b){toast('Не получилось сохранить картинку');return}const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(g.name||'Схема').replace(/[\\/:*?"<>|]+/g,' ')+'.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)},'image/png')};
+  img.onerror=()=>toast('Не получилось сохранить картинку');
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
 
 /* ---------------- legends (master only) ---------------- */
 function orderedRoles(){
@@ -1605,7 +1908,7 @@ async function save(){
   }
   ui.saving=false;render();
 }
-window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN)){ev.preventDefault();ev.returnValue=''}});
+window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN||grTimer||grSaving)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
 function photoIds(){return S.roles.map(r=>r.photo||'').concat([(S.map||{}).image||''],S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
