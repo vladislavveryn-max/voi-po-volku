@@ -250,50 +250,13 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .icon-pick .thumb img{width:100%;height:100%;object-fit:contain}
 @media (max-width:820px){.team-icon{width:38px;height:38px}}
 
-/* map game */
-.map-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
-.map-wrap{position:relative;min-width:0}
-.map-stage{position:relative;overflow:hidden;height:min(78vh,920px);background:#0f1b26;border:1px solid var(--gold-line);border-radius:10px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
-.map-stage:active{cursor:grabbing}
-.map-inner{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
-.map-inner img{width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none}
+/* shared floating controls & cards */
+.mc-name{font-family:var(--display);font-size:23px;line-height:1.1}
+.ms-in{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:15px;color:var(--fg);min-width:0}
 .map-zoom{position:absolute;right:10px;top:10px;display:grid;gap:6px;z-index:5}
 .mz{width:38px;height:38px;border-radius:8px;background:rgba(13,14,17,.86);border:1px solid var(--gold-line);color:var(--fg);font-size:19px;cursor:pointer;line-height:1}
 .mz:hover{background:rgba(31,32,39,.95)}
-.tok{position:absolute;width:46px;height:46px;padding:0;border-radius:50%;transform:translate(-50%,-50%) scale(var(--inv,1));border:2px solid var(--gold);background:radial-gradient(circle at 50% 35%,#2c2d35,#111216);box-shadow:0 4px 12px rgba(0,0,0,.65);display:grid;place-items:center;cursor:pointer;touch-action:none;color:var(--gold-hi);z-index:2}
-.tok-face{display:grid;place-items:center;font-family:var(--display);font-size:21px;pointer-events:none}
-.tok-face img{width:34px;height:34px;object-fit:contain}
-.tok-str{position:absolute;right:-7px;bottom:-7px;min-width:21px;height:21px;padding:0 4px;border-radius:11px;background:var(--crimson);color:#fff;font:600 12px/21px var(--body);border:1px solid rgba(0,0,0,.5);pointer-events:none}
-.tok-name{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:5px;white-space:nowrap;font:12px/1.4 var(--body);color:var(--fg);background:rgba(13,14,17,.86);padding:1px 7px;border-radius:4px;pointer-events:none}
-.tok.sel{border-color:#fff;box-shadow:0 0 0 3px rgba(201,166,94,.65),0 4px 12px rgba(0,0,0,.65);z-index:3}
-.tok.armed{z-index:4;cursor:grab;animation:tokpulse 1.3s infinite}
-@keyframes tokpulse{0%,100%{box-shadow:0 0 0 0 rgba(227,196,130,.75),0 4px 12px rgba(0,0,0,.65)}50%{box-shadow:0 0 0 12px rgba(227,196,130,0),0 4px 12px rgba(0,0,0,.65)}}
-.reach{position:absolute;transform:translate(-50%,-50%);border-radius:50%;border:2px dashed rgba(227,196,130,.95);background:rgba(201,166,94,.14);pointer-events:none;z-index:1}
 .map-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
-.mc-head{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-.mc-face{width:50px;height:50px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;background:radial-gradient(circle at 50% 35%,#2c2d35,#111216);font-family:var(--display);font-size:22px;color:var(--gold-hi);flex:none}
-.mc-face img{width:36px;height:36px;object-fit:contain}
-.mc-name{font-family:var(--display);font-size:23px;line-height:1.1}
-.die-row{display:flex;gap:14px;align-items:center}
-.die{font-size:58px;line-height:1;color:var(--gold-hi);display:inline-block}
-.die.roll{animation:dieroll .55s ease-out}
-@keyframes dieroll{0%{transform:rotate(-260deg) scale(.3);opacity:0}100%{transform:none;opacity:1}}
-.map-log{list-style:none;margin:0;padding:0;max-height:320px;overflow:auto}
-.map-log li{font-size:13.5px;line-height:1.45;color:#cfc7b5;padding:6px 0;border-bottom:1px solid var(--line)}
-.map-log time{color:var(--gold);font-variant-numeric:tabular-nums;margin-right:4px}
-.split-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.split-k{min-width:22px;text-align:center;font-variant-numeric:tabular-nums}
-.map-setup{display:grid;gap:12px;padding:14px;margin-bottom:18px;border:1px dashed var(--gold-line);border-radius:10px;background:rgba(201,166,94,.04)}
-.ms-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.ms-in{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:15px;color:var(--fg);min-width:0}
-.bt{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start;text-align:center}
-.bt-side{display:grid;justify-items:center;gap:4px;padding:10px;border-radius:10px;border:1px solid transparent}
-.bt-side.win{border-color:var(--gold);background:rgba(201,166,94,.08)}
-.bt-vs{align-self:center;font-family:var(--display);color:var(--muted);font-size:18px}
-.bt-sum{font-variant-numeric:tabular-nums;color:var(--fg)}
-.bt-res{text-align:center;font-family:var(--display);font-size:24px;color:var(--gold-hi);margin:14px 0 4px}
-@media (max-width:900px){.map-layout{grid-template-columns:1fr}.map-stage{height:68vh}}
-@media (max-width:820px){.tabs[style*="--n:6"] .tab{font-size:13px;padding:11px 0;letter-spacing:0}}
 
 /* legend tabs */
 .lg-tabs{display:flex;gap:4px;flex-wrap:wrap;margin:4px 0 10px;border-bottom:1px solid var(--line)}
@@ -500,7 +463,7 @@ let photos={};               // id -> data URI
 let pin=null; try{sessionStorage.removeItem('vpv-pin')}catch(_){}  // master code lives only until reload
 const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',modal:null,loading:true,loadErr:false,toast:''};
 
-const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли'],['map','Карта','Карта']];
+const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли']];
 const LEG_TAB=['legends','Легенды','Легенды'];
 const GR_TAB=['graphs','Графы','Графы'];
 const tabs=()=>pin?TABS.concat([LEG_TAB,GR_TAB]):TABS;
@@ -567,7 +530,7 @@ function render(){
   if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
-  else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='map'?renderMap():ui.tab==='roles'?renderRoles():renderAbout();
+  else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
   o+='</main>';
   o+=`<footer class="col gutter">«${h(S.hero.title)}» · ролевая игра живого действия</footer>`;
 
@@ -582,7 +545,7 @@ function render(){
   applyEdBg();
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
-  measure(); updateBg(); if(ui.tab==='map') afterMapRender(); if(ui.tab==='graphs') afterGrRender();
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -687,15 +650,7 @@ function renderModal(){
       <p class="err" style="margin-top:12px">${h(m.msg||'')}</p>
       <div class="foot"><span class="hint" style="align-self:center">Изменения применятся у всех после «Сохранить» внизу экрана.</span><span class="grow"></span><button class="btn" id="m-cancel">Готово</button></div></div></div>`;
   }
-  if(m.kind==='battle') return renderBattle(m);
   if(m.kind==='grtype') return renderGrTypeModal(m);
-  if(m.kind==='merge'){
-    const A=MAP.state.tokens.find(x=>x.id===m.a), B=MAP.state.tokens.find(x=>x.id===m.b); if(!A||!B) return '';
-    return wrap(`<h2 id="m-h">Объединить отряды?</h2>
-      <div class="bt"><div class="bt-side"><span class="mc-face">${tokFace(A)}</span><div class="mc-name">${h(A.label)}</div><div class="hint">Сила ${A.str}</div></div><div class="bt-vs">+</div><div class="bt-side"><span class="mc-face">${tokFace(B)}</span><div class="mc-name">${h(B.label)}</div><div class="hint">Сила ${B.str}</div></div></div>
-      <p class="bt-res">Новая сила: ${Math.min(30,A.str+B.str)}</p><p class="hint" style="text-align:center;margin-top:0">Останется фишка «${h(B.label)}».</p>
-      <div class="foot"><button class="btn" id="merge-cancel">Отмена</button><span class="grow"></span><button class="btn" id="merge-no">Просто встать рядом</button><button class="btn primary" id="merge-yes">Объединить</button></div>`);
-  }
   if(m.kind==='playerpin'){
     const r=S.roles.find(x=>x.id===m.role)||{name:''};
     return wrap(`<h2 id="m-h">Легенда: ${h(r.name)}</h2>
@@ -771,7 +726,6 @@ document.addEventListener('input',ev=>{
   if(t.id==='m-gtname'){ui.modal.draft.name=t.value;return}
   if(t.id==='lg-bg-dim'){const p=lgPage(lgDoc(ui.legend),curLgTab(ui.legend));if(p&&p.bg){p.bg.dim=(+t.value)/100;applyEdBg();lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},900)}return}
   if(t.id==='lg-tab-title'){const L=lgDoc(ui.legend),x=L.tabs.find(y=>y.id===ui.lgTab);if(x){x.title=t.value;const b=document.querySelector(`.lg-tab[data-lgtab="${ui.lgTab}"]`);if(b)b.lastChild.textContent=t.value||'Без названия';lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},1200)}return}
-  if(t.id==='map-name'){try{localStorage.setItem('vpv-name',t.value.trim())}catch(_){}return}
   if(t.id==='lore-search'){(ui.lsq=ui.lsq||{})[SEC().k]=t.value;render();return}
   if(t.id==='m-rq'||t.id==='m-lq'){ui.modal.q=t.value;render();return}
   if(t.id==='lg-pin-in'){t.value=t.value.replace(/\D/g,'');(ui.pinDraft=ui.pinDraft||{})[ui.legend]=t.value;return}
@@ -790,11 +744,10 @@ document.addEventListener('change',ev=>{
   if(t.id==='lg-bg-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';setStatus('Загружаю фон…');
     shrink(f,1600).then(d=>legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p){const o=safeBg(p.bg);p.bg={src:d,dim:o?o.dim:.55,mode:o?o.mode:'cover'}}}),e=>setStatus(e.message||'Не получилось прочитать картинку.'))}
   if(t.dataset.brand&&t.files&&t.files[0]){const f=t.files[0],k=t.dataset.brand;t.value='';uploadBrand(k,f)}
-  if(t.id==='map-img-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMapImage(f)}
   if(t.id==='lore-cover-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadCover(f)}
   if(t.id==='lg-photo'&&t.files&&t.files[0]){const f=t.files[0];t.value='';insertPhoto(f)}
 });
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.mapRoll){ui.mapRoll=null;render()}else if(ui.tab==='graphs'&&(ui.grType||ui.grFrom||ui.grSel)){ui.grType=null;ui.grFrom=null;ui.grSel=null;render()}}
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if(ui.modal){ui.modal=null;render()}else if(ui.tab==='graphs'&&(ui.grType||ui.grFrom||ui.grSel)){ui.grType=null;ui.grFrom=null;ui.grSel=null;render()}}
   else if((ev.key==='Delete'||ev.key==='Backspace')&&ui.tab==='graphs'&&ui.grSel&&!ui.modal&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')&&!(document.activeElement&&document.activeElement.isContentEditable)){
     ev.preventDefault();const g=grCur();if(ui.grSel.k==='e')g.edges=g.edges.filter(e=>e.id!==ui.grSel.id);else{const id=ui.grSel.id;g.nodes=g.nodes.filter(n=>n.id!==id);g.edges=g.edges.filter(e=>e.from!==id&&e.to!==id)}ui.grSel=null;grSave();render()}});
 
@@ -816,25 +769,6 @@ document.addEventListener('click',async ev=>{
   const ds=t.dataset;
   if(ds.copy!==undefined){const v=ds.copy;const done=()=>toast('Контакт скопирован');
     try{navigator.clipboard.writeText(v).then(done,()=>{fallbackCopy(v);done()})}catch(_){fallbackCopy(v);done()}return}
-  if(ds.mz){if(ds.mz==='fit'){ui.mapView=null;afterMapRender()}else{const st=document.getElementById('map-stage');zoomAt(ds.mz==='in'?1.3:1/1.3,st.clientWidth/2,st.clientHeight/2)}return}
-  if(t.id==='map-roll'){const tk=MAP.state.tokens.find(x=>x.id===ui.mapSel);if(tk){ui.mapRoll={id:tk.id,n:d6(),from:{x:tk.x,y:tk.y},fresh:true};render();ui.mapRoll.fresh=false}return}
-  if(t.id==='map-cancel-roll'){ui.mapRoll=null;render();return}
-  if(t.id==='battle-roll'){const m=ui.modal,A=MAP.state.tokens.find(x=>x.id===m.att),D=MAP.state.tokens.find(x=>x.id===m.def);if(!A||!D){ui.modal=null;render();return}const a=d6(),d=d6();m.res={a,d,sa:A.str,sd:D.str,ta:a+A.str,td:d+D.str};render();return}
-  if(t.id==='battle-done'){battleDone();return}
-  if(t.id==='merge-yes'||ds.mergewith){const a=ds.mergewith?ui.mapSel:ui.modal.a,b=ds.mergewith||ui.modal.b;ui.modal=null;const ns=clone(MAP.state),A=ns.tokens.find(x=>x.id===a),B=ns.tokens.find(x=>x.id===b);if(!A||!B){render();return}
-    B.str=Math.min(30,A.str+B.str);ns.tokens=ns.tokens.filter(x=>x.id!==a);ui.mapSel=B.id;commitMap(ns,`«${A.label}» и «${B.label}» объединились, сила ${B.str}`);return}
-  if(t.id==='merge-no'){const m=ui.modal;ui.modal=null;const ns=clone(MAP.state),A=ns.tokens.find(x=>x.id===m.a);if(!A){render();return}A.x=Math.min(1,m.pos.x+TOK*1.1);A.y=m.pos.y;commitMap(ns,m.n?`«${A.label}»: выпало ${m.n}, ход сделан`:`передвинул «${A.label}»`);return}
-  if(t.id==='merge-cancel'){ui.modal=null;render();return}
-  if(ds.split){ui.splitK=Math.max(1,(ui.splitK||1)+(+ds.split));const tk=MAP.state.tokens.find(x=>x.id===ui.mapSel);if(tk)ui.splitK=Math.min(ui.splitK,Math.max(1,tk.str-1));render();return}
-  if(t.id==='map-split'){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(!tk||tk.str<2)return;const k=Math.min(Math.max(1,ui.splitK||1),tk.str-1);tk.str-=k;
-    const nt={id:uid('k'),team:tk.team,label:(tk.label.replace(/ \(отряд\)$/,'')+' (отряд)').slice(0,40),str:k,x:Math.min(1,tk.x+TOK*1.3),y:tk.y};ns.tokens.push(nt);ui.splitK=1;ui.mapSel=nt.id;commitMap(ns,`от «${tk.label}» отделился отряд силой ${k}`);return}
-  if(t.id==='battle-cancel'){ui.modal=null;toast('Фишка осталась на месте');render();return}
-  if(t.id==='ms-add'){const team=document.getElementById('ms-team').value,tm=S.teams.find(x=>x.id===team);const label=(document.getElementById('ms-label').value.trim()||(tm?tm.name:'Фишка')).slice(0,40);const str=Math.min(9,Math.max(1,parseInt(document.getElementById('ms-str').value,10)||3));
-    const c=freeSpot(mapViewCenter()),ns=clone(MAP.state),tok={id:uid('k'),team,label,str,x:c.x,y:c.y};ns.tokens.push(tok);ui.mapSel=tok.id;commitMap(ns,`добавил фишку «${label}»`);return}
-  if(t.id==='ms-save-start'){S.map=Object.assign({},S.map,{start:clone(MAP.state.tokens)});toast('Запомнено. Нажмите «Сохранить» внизу.');render();return}
-  if(t.id==='ms-reset'){if(!ui.confirmReset){ui.confirmReset=true;render();return}ui.confirmReset=false;ui.mapRoll=null;commitMap({tokens:clone((S.map||{}).start||[]),log:[]},'начал новую партию');return}
-  if(ds.tstr){const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);if(tk){tk.str=Math.min(30,Math.max(1,tk.str+(+ds.tstr)));commitMap(ns,`сила «${tk.label}» теперь ${tk.str}`)}return}
-  if(t.id==='map-del-tok'){if(ui.confirmTokDel!==ui.mapSel){ui.confirmTokDel=ui.mapSel;render();return}const ns=clone(MAP.state),tk=ns.tokens.find(x=>x.id===ui.mapSel);ns.tokens=ns.tokens.filter(x=>x.id!==ui.mapSel);ui.mapSel=null;ui.confirmTokDel=null;commitMap(ns,`убрал фишку «${tk?tk.label:''}»`);return}
   if(ds.lgtab){flushLegend();ui.lgTab=ds.lgtab;ui.confirmTabDel=null;render();return}
   if(t.id==='lg-tab-add'){const nt={id:uid('t'),title:'Новая вкладка',html:'',hidden:true};legendMeta(L=>L.tabs.push(nt));ui.lgTab=nt.id;render();document.getElementById('lg-tab-title')?.select();return}
   if(ds.lgbgmode){legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p&&p.bg)p.bg.mode=ds.lgbgmode});return}
@@ -1019,227 +953,7 @@ function shrink(file,max,fmt){
   });
 }
 
-/* ---------------- map game ---------------- */
-const MAP={state:{tokens:[],log:[]},version:0,loaded:false,missing:false,loading:false};
-let mapImg={src:'',w:0,h:0}, mapBusy=false, mapPollT=null, mapDrag=null;
-const mapPts=new Map();
-const STEP=0.06;   // reach per die pip, share of map width
-const TOK=0.045;   // contact distance for a battle, share of map width
-const DIE=['','⚀','⚁','⚂','⚃','⚄','⚅'];
-const d6=()=>1+Math.floor(Math.random()*6);
 const clone=o=>JSON.parse(JSON.stringify(o));
-function mapName(){try{return localStorage.getItem('vpv-name')||''}catch(_){return ''}}
-function loadMap(force){
-  if(MAP.loading) return; MAP.loading=true;
-  sb.from('map_state').select('state,version').eq('id',1).maybeSingle().then(({data,error})=>{
-    MAP.loading=false; MAP.loaded=true;
-    if(error||!data){MAP.missing=true;render();return}
-    MAP.missing=false;
-    if(force||data.version!==MAP.version){
-      const st=data.state||{}; MAP.state={tokens:Array.isArray(st.tokens)?st.tokens:[],log:Array.isArray(st.log)?st.log:[]}; MAP.version=data.version;
-      if(ui.mapRoll&&!MAP.state.tokens.some(t=>t.id===ui.mapRoll.id)) ui.mapRoll=null;
-      if(!mapBusy) render();
-    }
-  });
-}
-function mapPoll(){
-  if(mapPollT) return;
-  mapPollT=setInterval(()=>{
-    if(ui.tab!=='map'||document.hidden||mapBusy||ui.modal||MAP.missing) return;
-    sb.from('map_state').select('version').eq('id',1).maybeSingle().then(({data})=>{if(data&&data.version!==MAP.version)loadMap()});
-  },3000);
-}
-function ensureMapImg(){
-  const src=photoSrc((S.map||{}).image);
-  if(src===mapImg.src) return;
-  mapImg={src,w:0,h:0}; ui.mapView=null;
-  if(src){const im=new Image();im.onload=()=>{if(mapImg.src!==src)return;mapImg.w=im.naturalWidth;mapImg.h=im.naturalHeight;render()};im.src=src}
-}
-function tokFace(t){
-  const team=S.teams.find(x=>x.id===t.team), ic=team&&photoSrc(team.icon);
-  return ic?`<img src="${h(ic)}" alt="">`:h(((t.label||'?').trim()[0]||'?'));
-}
-function tokenHtml(t){
-  const cls=['tok']; if(t.id===ui.mapSel)cls.push('sel'); if(ui.mapRoll&&ui.mapRoll.id===t.id)cls.push('armed');
-  return `<button class="${cls.join(' ')}" data-tok="${t.id}" style="left:${t.x*mapImg.w}px;top:${t.y*mapImg.h}px" aria-label="${h(t.label)}, сила ${t.str}"><span class="tok-face">${tokFace(t)}</span><span class="tok-str">${t.str}</span><span class="tok-name">${h(t.label)}</span></button>`;
-}
-function renderMap(){
-  ensureMapImg(); if(!MAP.loaded) loadMap(); mapPoll();
-  const src=mapImg.src;
-  let o=`<div class="section-title"><h2>Карта</h2></div>
-  <p class="hint" style="margin:-10px 0 16px;max-width:70ch">Развлекательная игра для всех. Нажмите на фишку, бросьте кубик и перетащите её в пределах круга. Столкнулись с фишкой другой команды — начинается бой: кубик плюс сила фишки.</p>`;
-  if(ui.edit) o+=renderMapSetup();
-  if(MAP.missing) o+=`<p class="empty">Игра на карте ещё не подключена к базе (файл voi-po-volku-map.sql).</p>`;
-  if(!src) return o+`<p class="empty">${ui.edit?'Загрузите изображение карты выше.':'Мастер скоро загрузит карту.'}</p>`;
-  if(!mapImg.w) return o+'<p class="empty">Загружаю карту…</p>';
-  const sel=MAP.state.tokens.find(t=>t.id===ui.mapSel);
-  o+=`<div class="map-layout"><div class="map-wrap"><div class="map-stage" id="map-stage"><div class="map-inner" id="map-inner" style="width:${mapImg.w}px;height:${mapImg.h}px"><img src="${h(src)}" alt="Карта" draggable="false">`;
-  if(ui.mapRoll){const r=ui.mapRoll.n*STEP*mapImg.w;o+=`<div class="reach" style="left:${ui.mapRoll.from.x*mapImg.w}px;top:${ui.mapRoll.from.y*mapImg.h}px;width:${2*r}px;height:${2*r}px"></div>`}
-  o+=MAP.state.tokens.map(tokenHtml).join('');
-  o+=`</div></div><div class="map-zoom"><button class="mz" data-mz="in" aria-label="Приблизить">+</button><button class="mz" data-mz="out" aria-label="Отдалить">−</button><button class="mz" data-mz="fit" aria-label="Вся карта">⤢</button></div></div>`;
-  o+=`<aside class="map-side">${renderMapPanel(sel)}${renderMapAdd()}${renderMapLog()}</aside></div>`;
-  return o;
-}
-function renderMapSetup(){
-  const M=S.map||{}, src=photoSrc(M.image), start=(M.start||[]).length;
-  return `<div class="map-setup">
-    <div class="cover-pick"><div class="thumb">${src?`<img src="${h(src)}" alt="">`:'Нет карты'}</div>
-      <div style="display:grid;gap:8px"><label class="btn small gold" for="map-img-file" style="justify-self:start">${src?'Заменить карту':'Загрузить карту'}</label><input type="file" id="map-img-file" accept="image/*" hidden>
-      <span class="hint">${h(ui.mapMsg||'После загрузки нажмите «Сохранить» внизу.')}</span></div></div>
-    <div class="ms-add"><button class="btn small" id="ms-save-start">Запомнить как стартовую расстановку</button><button class="btn small danger" id="ms-reset">${ui.confirmReset?'Нажмите ещё раз: начать заново':'Начать новую партию'}</button>
-      <span class="hint" style="align-self:center">Стартовая расстановка: ${start} ${plural(start,'фишка','фишки','фишек')}. В режиме мастера фишки двигаются без кубика.</span></div>
-  </div>`;
-}
-function renderMapPanel(sel){
-  if(!sel) return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:6px">Ход</div><p class="hint" style="margin:0">Нажмите на фишку на карте, чтобы выбрать её.</p>
-    <div class="field" style="margin:14px 0 0"><label for="map-name">Ваше имя для журнала</label><input id="map-name" value="${h(mapName())}" maxlength="30" placeholder="Необязательно"></div></div>`;
-  const team=S.teams.find(x=>x.id===sel.team);
-  let o=`<div class="map-card"><div class="mc-head"><span class="mc-face">${tokFace(sel)}</span><div><div class="mc-name">${h(sel.label)}</div><div class="hint">Сила ${sel.str}${team?' · '+h(team.name):''}</div></div></div>`;
-  if(ui.edit){
-    o+=`<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="hint">Сила:</span><button class="btn small" data-tstr="-1">−1</button><button class="btn small" data-tstr="1">+1</button><span class="grow" style="flex:1"></span><button class="btn small danger" id="map-del-tok">${ui.confirmTokDel===sel.id?'Точно убрать?':'Убрать фишку'}</button></div>`;
-  }else if(ui.mapRoll&&ui.mapRoll.id===sel.id){
-    o+=`<div class="die-row"><span class="die ${ui.mapRoll.fresh?'roll':''}">${DIE[ui.mapRoll.n]}</span><div><div class="mc-name" style="font-size:20px">Выпало ${ui.mapRoll.n}</div><p class="hint" style="margin:2px 0 0">Перетащите фишку в пределах круга.</p></div></div>
-      <button class="btn small" id="map-cancel-roll" style="margin-top:10px">Отменить ход</button>`;
-  }else o+=`<button class="btn primary" id="map-roll" style="width:100%">Бросить кубик</button>`;
-  if(!(ui.mapRoll&&ui.mapRoll.id===sel.id)){
-    const k=Math.min(Math.max(1,ui.splitK||1),Math.max(1,sel.str-1));
-    if(sel.str>=2) o+=`<div class="split-row"><span class="hint">Отделить отряд:</span><button class="btn small" data-split="-1" aria-label="Меньше">−</button><b class="split-k">${k}</b><button class="btn small" data-split="1" aria-label="Больше">+</button><button class="btn small gold" id="map-split">Отделить</button></div>`;
-    const W=mapImg.w,H=mapImg.h, near=MAP.state.tokens.filter(o2=>o2.id!==sel.id&&sel.team&&o2.team===sel.team&&Math.hypot((o2.x-sel.x)*W,(o2.y-sel.y)*H)<TOK*W*2.2);
-    near.forEach(o2=>{o+=`<button class="btn small" data-mergewith="${o2.id}" style="margin-top:8px;width:100%">Объединить с «${h(o2.label)}» → сила ${Math.min(30,sel.str+o2.str)}</button>`});
-  }
-  return o+'</div>';
-}
-function renderMapAdd(){
-  return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:10px">Новая фишка</div>
-    <div style="display:grid;gap:8px"><select id="ms-team" class="ms-in"><option value="">Без команды</option>${S.teams.map(t=>`<option value="${t.id}">${h(t.name)}</option>`).join('')}</select>
-    <input id="ms-label" class="ms-in" placeholder="Подпись: Армия Севера" maxlength="40">
-    <div style="display:flex;gap:8px;align-items:center"><label for="ms-str" class="hint">Сила</label><input id="ms-str" class="ms-in" type="number" min="1" max="9" value="3" style="width:72px"><span style="flex:1"></span><button class="btn small gold" id="ms-add">+ Поставить на карту</button></div>
-    <span class="hint">Фишка появится в центре видимой части карты.</span></div></div>`;
-}
-function renderMapLog(){
-  const L=(MAP.state.log||[]).slice(-15).reverse();
-  return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:8px">Журнал</div>${L.length?`<ul class="map-log">${L.map(e=>{const d=new Date(e.t);return `<li><time>${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}</time> ${h(e.text)}</li>`}).join('')}</ul>`:'<p class="hint" style="margin:0">Ходов пока не было.</p>'}</div>`;
-}
-async function commitMap(ns,text){
-  if(text){const who=ui.edit?'Мастер':mapName();ns.log=(ns.log||[]).concat([{t:Date.now(),text:(who?who+': ':'')+text}]).slice(-40)}
-  const prevV=MAP.version; MAP.state=ns; render();
-  const {data,error}=await sb.rpc('update_map',{p_state:ns,p_version:prevV});
-  if(error){toast(error.code==='PGRST202'||/Could not find/i.test(error.message||'')?'Игра на карте ещё не подключена к базе.':'Ход не сохранился. Проверьте интернет.');loadMap(true);return false}
-  if(data===-1){toast('Кто-то успел сходить раньше. Расстановка обновлена.');loadMap(true);return false}
-  MAP.version=data; return true;
-}
-function finishMove(id,pos){
-  const ns=clone(MAP.state), t=ns.tokens.find(x=>x.id===id); if(!t) return;
-  const from=ui.mapRoll?ui.mapRoll.from:{x:t.x,y:t.y}, n=ui.mapRoll?ui.mapRoll.n:0;
-  t.x=Math.min(1,Math.max(0,pos.x)); t.y=Math.min(1,Math.max(0,pos.y));
-  const W=mapImg.w,H=mapImg.h;
-  const enemy=ns.tokens.find(o=>o.id!==id&&(o.team||o.id)!==(t.team||t.id)&&Math.hypot((o.x-t.x)*W,(o.y-t.y)*H)<TOK*W);
-  const friend=ns.tokens.find(o=>o.id!==id&&t.team&&o.team===t.team&&Math.hypot((o.x-t.x)*W,(o.y-t.y)*H)<TOK*W);
-  ui.mapRoll=null;
-  if(friend){ui.modal={kind:'merge',a:id,b:friend.id,pos:{x:t.x,y:t.y},n};render();return}
-  if(enemy&&!ui.edit){ui.modal={kind:'battle',att:id,def:enemy.id,pos:{x:t.x,y:t.y},from,n};render();return}
-  commitMap(ns,ui.edit?`передвинул «${t.label}»`:`«${t.label}»: выпало ${n}, ход сделан`);
-}
-function battleDone(){
-  const m=ui.modal, r=m.res, ns=clone(MAP.state);
-  const A=ns.tokens.find(x=>x.id===m.att), D=ns.tokens.find(x=>x.id===m.def); ui.modal=null;
-  if(!A||!D){render();return}
-  let out;
-  if(r.ta>r.td){
-    D.str-=1; A.x=m.pos.x; A.y=m.pos.y;
-    const W=mapImg.w,H=mapImg.h; let dx=(D.x-m.from.x)*W, dy=(D.y-m.from.y)*H; const len=Math.hypot(dx,dy)||1;
-    D.x=Math.min(1,Math.max(0,D.x+dx/len*TOK*1.4)); D.y=Math.min(1,Math.max(0,D.y+dy/len*TOK*1.4*W/H));
-    out=`Победа «${A.label}», «${D.label}» теряет 1 силу и отступает`;
-  }else if(r.td>r.ta){A.str-=1;A.x=m.from.x;A.y=m.from.y;out=`«${D.label}» отбивается, «${A.label}» теряет 1 силу и возвращается`}
-  else{A.x=m.from.x;A.y=m.from.y;out='Ничья, атакующий возвращается'}
-  const dead=ns.tokens.filter(x=>x.str<=0).map(x=>`«${x.label}» разбит`);
-  ns.tokens=ns.tokens.filter(x=>x.str>0);
-  commitMap(ns,`Бой: «${A.label}» ${r.a}+${r.sa}=${r.ta} против «${D.label}» ${r.d}+${r.sd}=${r.td}. ${out}.${dead.length?' '+dead.join(', ')+'.':''}`);
-}
-function renderBattle(m){
-  const A=MAP.state.tokens.find(x=>x.id===m.att), D=MAP.state.tokens.find(x=>x.id===m.def);
-  if(!A||!D) return '';
-  const side=(t,roll,sum,win)=>`<div class="bt-side ${win?'win':''}"><span class="mc-face">${tokFace(t)}</span><div class="mc-name">${h(t.label)}</div><div class="hint">Сила ${t.str}</div>${roll?`<div class="die roll">${DIE[roll]}</div><div class="bt-sum">${roll} + ${t.str} = ${sum}</div>`:''}</div>`;
-  const r=m.res;
-  return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">Бой!</h2>
-    <div class="bt">${side(A,r&&r.a,r&&r.ta,r&&r.ta>r.td)}<div class="bt-vs">против</div>${side(D,r&&r.d,r&&r.td,r&&r.td>r.ta)}</div>
-    ${r?`<p class="bt-res">${r.ta>r.td?`Побеждает «${h(A.label)}»`:r.td>r.ta?`Побеждает «${h(D.label)}»`:'Ничья'}</p>`:'<p class="hint" style="text-align:center">Каждая сторона бросает кубик и прибавляет силу фишки.</p>'}
-    <div class="foot">${r?'<span class="grow"></span><button class="btn primary" id="battle-done">Готово</button>':'<button class="btn" id="battle-cancel">Отступить</button><span class="grow"></span><button class="btn primary" id="battle-roll">Бросить кубики</button>'}</div></div></div>`;
-}
-/* pan & zoom */
-function mapFit(){const st=document.getElementById('map-stage');return st&&mapImg.w?st.clientWidth/mapImg.w:1}
-function clampView(){
-  const st=document.getElementById('map-stage'), v=ui.mapView; if(!st||!v) return;
-  const fit=mapFit(); v.s=Math.min(Math.max(v.s,fit*0.6),fit*6);
-  const W=mapImg.w*v.s,H=mapImg.h*v.s,cw=st.clientWidth,ch=st.clientHeight,m=80;
-  v.tx=W<cw?(cw-W)/2:Math.min(m,Math.max(cw-W-m,v.tx));
-  v.ty=H<ch?(ch-H)/2:Math.min(m,Math.max(ch-H-m,v.ty));
-}
-function applyView(){const inner=document.getElementById('map-inner'),v=ui.mapView;if(!inner||!v)return;inner.style.transform=`translate(${v.tx}px,${v.ty}px) scale(${v.s})`;inner.style.setProperty('--inv',1/v.s)}
-function zoomAt(f,cx,cy){const v=ui.mapView;if(!v)return;const fit=mapFit();const ns=Math.min(Math.max(v.s*f,fit*0.6),fit*6),k=ns/v.s;v.tx=cx-(cx-v.tx)*k;v.ty=cy-(cy-v.ty)*k;v.s=ns;clampView();applyView()}
-function afterMapRender(){
-  const st=document.getElementById('map-stage'); if(!st) return;
-  if(!ui.mapView){const fit=mapFit();ui.mapView={s:fit,tx:0,ty:0}}
-  clampView(); applyView();
-  if(!st.dataset.wheel){st.dataset.wheel=1;st.addEventListener('wheel',ev=>{ev.preventDefault();const r=st.getBoundingClientRect();zoomAt(ev.deltaY<0?1.15:1/1.15,ev.clientX-r.left,ev.clientY-r.top)},{passive:false})}
-}
-function mapPoint(ev){const st=document.getElementById('map-stage'),r=st.getBoundingClientRect(),v=ui.mapView;return{x:(ev.clientX-r.left-v.tx)/v.s,y:(ev.clientY-r.top-v.ty)/v.s}}
-document.addEventListener('pointerdown',ev=>{
-  const st=ev.target.closest&&ev.target.closest('#map-stage'); if(!st||!ui.mapView) return;
-  mapPts.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-  const tokEl=ev.target.closest('.tok');
-  if(mapPts.size===1&&tokEl){
-    const id=tokEl.dataset.tok, can=ui.edit||(ui.mapRoll&&ui.mapRoll.id===id);
-    mapDrag={kind:can?'tok':'tap',id,el:tokEl,sx:ev.clientX,sy:ev.clientY,moved:false};
-  }else if(mapPts.size===1){mapDrag={kind:'pan',sx:ev.clientX,sy:ev.clientY,tx:ui.mapView.tx,ty:ui.mapView.ty,moved:false}}
-  else if(mapPts.size===2){const [a,b]=[...mapPts.values()],r=st.getBoundingClientRect();mapDrag={kind:'pinch',d:Math.hypot(a.x-b.x,a.y-b.y)||1,s:ui.mapView.s,mx:(((a.x+b.x)/2-r.left)-ui.mapView.tx)/ui.mapView.s,my:(((a.y+b.y)/2-r.top)-ui.mapView.ty)/ui.mapView.s}}
-  mapBusy=true; try{st.setPointerCapture(ev.pointerId)}catch(_){} ev.preventDefault();
-});
-document.addEventListener('pointermove',ev=>{
-  if(!mapPts.has(ev.pointerId)||!mapDrag) return;
-  mapPts.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
-  const v=ui.mapView, d=mapDrag, far=Math.hypot(ev.clientX-(d.sx||0),ev.clientY-(d.sy||0))>5;
-  if(d.kind==='tap'&&far){mapDrag={kind:'pan',sx:ev.clientX,sy:ev.clientY,tx:v.tx,ty:v.ty,moved:true};return}
-  if(d.kind==='pan'){v.tx=d.tx+ev.clientX-d.sx;v.ty=d.ty+ev.clientY-d.sy;if(far)d.moved=true;clampView();applyView();return}
-  if(d.kind==='pinch'&&mapPts.size>=2){const st=document.getElementById('map-stage'),r=st.getBoundingClientRect(),[a,b]=[...mapPts.values()];
-    const fit=mapFit();v.s=Math.min(Math.max(d.s*Math.hypot(a.x-b.x,a.y-b.y)/d.d,fit*0.6),fit*6);
-    v.tx=((a.x+b.x)/2-r.left)-d.mx*v.s;v.ty=((a.y+b.y)/2-r.top)-d.my*v.s;clampView();applyView();return}
-  if(d.kind==='tok'){
-    let p=mapPoint(ev);
-    if(!ui.edit&&ui.mapRoll){const c={x:ui.mapRoll.from.x*mapImg.w,y:ui.mapRoll.from.y*mapImg.h},R=ui.mapRoll.n*STEP*mapImg.w,dx=p.x-c.x,dy=p.y-c.y,L=Math.hypot(dx,dy);if(L>R){p={x:c.x+dx/L*R,y:c.y+dy/L*R}}}
-    p.x=Math.min(mapImg.w,Math.max(0,p.x));p.y=Math.min(mapImg.h,Math.max(0,p.y));
-    d.el.style.left=p.x+'px';d.el.style.top=p.y+'px';d.pos={x:p.x/mapImg.w,y:p.y/mapImg.h};if(far)d.moved=true;
-  }
-});
-function mapPointerEnd(ev,cancel){
-  if(!mapPts.has(ev.pointerId)) return;
-  mapPts.delete(ev.pointerId);
-  if(mapPts.size){if(mapDrag&&mapDrag.kind==='pinch'){const [a]=[...mapPts.values()];mapDrag={kind:'pan',sx:a.x,sy:a.y,tx:ui.mapView.tx,ty:ui.mapView.ty,moved:true}}return}
-  mapBusy=false; const d=mapDrag; mapDrag=null; if(!d||cancel) return;
-  if(d.kind==='tap'||(d.kind==='tok'&&!d.moved)){ui.mapSel=d.id;ui.confirmTokDel=null;ui.splitK=1;if(ui.mapRoll&&ui.mapRoll.id!==d.id)ui.mapRoll=null;render();return}
-  if(d.kind==='tok'&&d.moved&&d.pos) finishMove(d.id,d.pos);
-}
-document.addEventListener('pointerup',ev=>mapPointerEnd(ev,false));
-document.addEventListener('pointercancel',ev=>mapPointerEnd(ev,true));
-async function uploadMapImage(file){
-  ui.mapMsg='Загружаю карту…';render();
-  try{
-    const d=await shrink(file,2400), id=uid('m');
-    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
-    if(error) throw new Error(rpcErr(error)); if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
-    photos[id]=d; S.map=Object.assign({},S.map,{image:'ph:'+id}); ui.mapMsg='Карта загружена. Нажмите «Сохранить» внизу.';
-  }catch(e){ui.mapMsg=e.message||'Не получилось загрузить карту.'}
-  render();
-}
-function freeSpot(c){
-  const W=mapImg.w||1,H=mapImg.h||1,busy=p=>MAP.state.tokens.some(t=>Math.hypot((t.x-p.x)*W,(t.y-p.y)*H)<TOK*W*1.3);
-  if(!busy(c)) return c;
-  for(let ring=1;ring<8;ring++){for(let k=0;k<8;k++){const a=k/8*Math.PI*2,p={x:c.x+Math.cos(a)*TOK*1.4*ring,y:c.y+Math.sin(a)*TOK*1.4*ring*W/H};
-    if(p.x>.02&&p.x<.98&&p.y>.02&&p.y<.98&&!busy(p)) return p}}
-  return c;
-}
-function mapViewCenter(){const st=document.getElementById('map-stage'),v=ui.mapView;if(!st||!v||!mapImg.w)return{x:.5,y:.4};return{x:Math.min(.95,Math.max(.05,(st.clientWidth/2-v.tx)/v.s/mapImg.w)),y:Math.min(.95,Math.max(.05,(st.clientHeight/2-v.ty)/v.s/mapImg.h))}}
-
 /* ---------------- relationship graphs (master only) ---------------- */
 const GR_COLORS=['#c9a65e','#c0453a','#7fae6e','#8fb3d9','#a58bd6','#d26a8a','#e08a5a','#9b9485'];
 const GR_DEFAULT_TYPES=[['Родитель','#c9a65e',1],['Супруги','#d26a8a',0],['Брат / сестра','#8fb3d9',0],['Союзник','#7fae6e',0],['Враг','#c0453a',0],['Вассал','#a58bd6',1]];
@@ -1911,7 +1625,7 @@ async function save(){
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN||grTimer||grSaving)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
-function photoIds(){return S.roles.map(r=>r.photo||'').concat([(S.map||{}).image||''],S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
