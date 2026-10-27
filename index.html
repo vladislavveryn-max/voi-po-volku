@@ -292,6 +292,51 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .img-bar .ib-sep{width:1px;align-self:stretch;background:var(--line);margin:2px}
 @media (max-width:820px){.lg-editor img.al-l,.lg-editor img.al-r{margin-bottom:8px}.lg-editor img.img-s{width:40%}.lg-editor img.img-m{width:55%}}
 
+/* dramaturgy analysis */
+.an-stats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--muted);margin:4px 0 10px}
+.an-stats b{color:var(--fg);font-weight:600}
+.an-good ul,.an-list{margin:4px 0 0;padding-left:18px;font-size:14.5px;color:#d6cebd}
+.an-good li{margin-bottom:3px}
+.an-good li::marker{content:"✓  ";color:var(--ok)}
+.rec-h{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:10px 0 6px}
+.rec{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:8px;background:var(--bg);margin-bottom:8px}
+.rec.p-high{border-left-color:#d9822b}.rec.p-mid{border-left-color:var(--gold)}.rec.p-low{border-left-color:#5d6a77}
+.rec.st-done,.rec.st-hidden{opacity:.55}
+.rec summary{list-style:none;cursor:pointer;padding:10px 12px;display:grid;gap:5px}
+.rec summary::-webkit-details-marker{display:none}
+.rec-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rec-cat{font-family:var(--display);font-size:17px;color:var(--fg);margin-right:4px}
+.chip{font-size:11px;letter-spacing:.04em;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.chip.k-fact{color:#e7b27a;border-color:rgba(217,130,43,.5)}.chip.k-risk{color:var(--gold-hi);border-color:var(--gold-line)}.chip.k-data{color:#9fb4c6;border-color:rgba(147,170,187,.45)}
+.chip.ok{color:var(--ok);border-color:rgba(138,172,119,.45)}
+.rec-obs{font-size:14.5px;line-height:1.45;color:#d6cebd}
+.rec summary::after{content:"Подробнее ▾";font-size:12px;color:var(--muted)}
+.rec[open] summary::after{content:"Свернуть ▴"}
+.rec-body{padding:0 12px 12px;font-size:14.5px;line-height:1.5;color:#d6cebd}
+.rec-body p{margin:0 0 8px}
+.rec-body ul{margin:0 0 8px;padding-left:18px}
+.rec-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.rec-more{font-size:13px;margin:4px 0 0}
+.linkbtn{background:none;border:0;padding:0;color:var(--gold-hi);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer;font:inherit;text-align:left}
+.gr-net{margin-top:14px}
+.gr-net-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.seg{display:flex;gap:4px}
+.chip-btn{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted);cursor:pointer}
+.chip-btn[aria-pressed="true"]{color:var(--bg);background:var(--gold);border-color:var(--gold)}
+.an-table{overflow-x:auto}
+.an-table table{border-collapse:collapse;font-size:13.5px;width:100%;min-width:520px}
+.an-table th,.an-table td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.an-table th{color:var(--muted);font-weight:400;font-size:12px}
+.an-cfg{margin-top:14px;font-size:14px}
+.an-cfg summary{cursor:pointer;color:var(--muted)}
+.an-cfg-row{display:flex;flex-wrap:wrap;gap:10px 18px;margin-top:8px}
+.an-cfg input{width:64px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 8px;color:var(--fg)}
+.gr-eprops{display:grid;gap:8px;margin-top:12px}
+.gr-sel-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.gr-sel-row .ms-in{flex:1;min-width:180px}
+.gr-two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.gr-two{grid-template-columns:1fr}}
+
 /* relationship graphs */
 .gr-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
 .gr-main{min-width:0}
@@ -722,6 +767,7 @@ document.addEventListener('input',ev=>{
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
   if(t.id==='gr-q'){ui.grQ=t.value;render();return}
   if(t.id==='gr-name'){const g=grCur();g.name=t.value;const b=document.querySelector(`[data-grg="${g.id}"]`);if(b)b.textContent=t.value||'Без названия';grSave();return}
+  if(/^gr-goal-/.test(t.id)){const n=grCur().nodes.find(x=>ui.grSel&&x.id===ui.grSel.id);if(n){const k={'gr-goal-pub':'pub','gr-goal-per':'per','gr-goal-sec':'sec','gr-goal-fear':'fear'}[t.id];GR.chars=GR.chars||{};const c=GR.chars[n.ref]=GR.chars[n.ref]||{};c[k]=t.value.slice(0,1500);grSave()}return}
   if(t.id==='gr-note'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.note=t.value;grRedrawEdges();grSave()}return}
   if(t.id==='m-gtname'){ui.modal.draft.name=t.value;return}
   if(t.id==='lg-bg-dim'){const p=lgPage(lgDoc(ui.legend),curLgTab(ui.legend));if(p&&p.bg){p.bg.dim=(+t.value)/100;applyEdBg();lgDirtyId=ui.legend;setStatus('Есть изменения…');clearTimeout(lgTimer);lgTimer=setTimeout(()=>{lgTimer=null;saveLegend()},900)}return}
@@ -739,6 +785,8 @@ document.addEventListener('change',ev=>{
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
+  if(['gr-e-secret','gr-e-conflict','gr-e-dep','gr-e-trust'].includes(t.id)){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){if(t.id==='gr-e-secret')e.secret=t.checked;if(t.id==='gr-e-conflict')e.conflict=t.checked;if(t.id==='gr-e-dep')e.dep=t.value;if(t.id==='gr-e-trust')e.trust=t.value;grSave();render()}}
+  if(['gr-cfg-low','gr-cfg-closed','gr-cfg-broker'].includes(t.id)){GR.cfg=GR.cfg||{};const k=t.id.slice(7);const v=parseInt(t.value,10);if(v>0||(k==='low'&&v===0))GR.cfg[k]=v;else delete GR.cfg[k];grSave();render()}
   if(t.id==='gr-etype'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.type=t.value;grSave();render()}}
   if(t.id==='m-gtdir'&&ui.modal) ui.modal.draft.dir=t.checked;
   if(t.id==='lg-bg-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';setStatus('Загружаю фон…');
@@ -785,7 +833,7 @@ document.addEventListener('click',async ev=>{
   if(t.id==='gr-type-add'){ui.modal={kind:'grtype',isNew:true,draft:{id:uid('y'),name:'',color:GR_COLORS[GR.types.length%GR_COLORS.length],dir:false}};render();document.getElementById('m-gtname')?.focus();return}
   if(ds.grtedit){const x=grType(ds.grtedit);if(x){ui.modal={kind:'grtype',isNew:false,draft:{...x}};render()}return}
   if(ds.grcolor&&ui.modal&&ui.modal.kind==='grtype'){ui.modal.draft.color=ds.grcolor;render();return}
-  if(t.id==='gr-type-save'){const m=ui.modal,d=m.draft;d.name=(document.getElementById('m-gtname').value||'').trim().slice(0,30);d.dir=document.getElementById('m-gtdir').checked;
+  if(t.id==='gr-type-save'){const m=ui.modal,d=m.draft;d.name=(document.getElementById('m-gtname').value||'').trim().slice(0,30);d.dir=document.getElementById('m-gtdir').checked;d.cat=document.getElementById('m-gtcat').value;d.val=document.getElementById('m-gtval').value;
     if(!d.name){const f=document.getElementById('m-gtname');f.focus();f.placeholder='Введите название';return}
     if(m.isNew)GR.types.push(d);else GR.types[GR.types.findIndex(x=>x.id===d.id)]=d;ui.modal=null;grSave();render();return}
   if(t.id==='gr-type-del'){const m=ui.modal;if(!m.confirm){m.confirm=true;render();return}const id=m.draft.id;GR.types=GR.types.filter(x=>x.id!==id);GR.graphs.forEach(g=>g.edges=g.edges.filter(e=>e.type!==id));if(ui.grType===id)ui.grType=null;ui.modal=null;grSave();render();return}
@@ -793,6 +841,14 @@ document.addEventListener('click',async ev=>{
     if(ex){ui.grSel={k:'n',id:ex.id};const st=document.getElementById('gr-stage');if(st&&grView){grView.tx=st.clientWidth/2-ex.x*grView.s;grView.ty=st.clientHeight/2-ex.y*grView.s}render();return}
     const p=grFreeSpot(g),n={id:uid('n'),ref:ds.gradd,x:p.x,y:p.y};g.nodes.push(n);ui.grSel={k:'n',id:n.id};grSave();render();return}
   if(ds.gredge){ui.grSel={k:'e',id:ds.gredge};render();return}
+  if(ds.grptab){ui.grPTab=ds.grptab;render();return}
+  if(t.id==='gr-net-toggle'){ui.grNet=!ui.grNet;render();if(ui.grNet)document.querySelector('.gr-net')?.scrollIntoView({block:'nearest',behavior:'smooth'});return}
+  if(ds.grscope){GR.cfg=GR.cfg||{};GR.cfg.scope=ds.grscope;grSave();render();return}
+  if(ds.grgo){grGo(ds.grgo);return}
+  if(ds.gredgego){const [gid,eid]=ds.gredgego.split('|');if(GR.graphs.some(x=>x.id===gid&&x.edges.some(e=>e.id===eid))){if(ui.grId!==gid){ui.grId=gid;grView=null}ui.grSel={k:'e',id:eid};render();document.getElementById('gr-stage')?.scrollIntoView({block:'nearest',behavior:'smooth'})}return}
+  if(ds.grrec){GR.recState=GR.recState||{};const cur=GR.recState[ds.grrec];if(cur===ds.st)delete GR.recState[ds.grrec];else GR.recState[ds.grrec]=ds.st;grSave();render();return}
+  if(ds.grall){ui.grAllRecs=ui.grAllRecs||{};ui.grAllRecs[ds.grall]=!ui.grAllRecs[ds.grall];render();return}
+  if(ds.grshowhid){ui.grShowHidden=!ui.grShowHidden;render();return}
   if(t.id==='gr-node-del'){const g=grCur(),id=ui.grSel&&ui.grSel.id;g.nodes=g.nodes.filter(n=>n.id!==id);g.edges=g.edges.filter(e=>e.from!==id&&e.to!==id);ui.grSel=null;grSave();render();return}
   if(t.id==='gr-edge-flip'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){[e.from,e.to]=[e.to,e.from];grSave();render()}return}
   if(t.id==='gr-edge-del'){const g=grCur();g.edges=g.edges.filter(e=>!(ui.grSel&&e.id===ui.grSel.id));ui.grSel=null;grSave();render();return}
@@ -1004,12 +1060,12 @@ function grEdgesSvg(g,exp){
       const sx=A.x+ax*rA, sy=A.y+ay*rA, ex=B.x+bx*rB, ey=B.y+by*rB, lx=.25*sx+.5*cx+.25*ex, ly=.25*sy+.5*cy+.25*ey;
       const d=`M${sx.toFixed(1)},${sy.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`;
       const dim=selN&&e.from!==selN&&e.to!==selN, sel=selE===e.id;
-      o+=`<g class="ge${sel?' sel':''}${dim?' dim':''}" data-ge="${e.id}">${exp?'':`<path class="hit" d="${d}" fill="none" stroke="transparent" stroke-width="16"/>`}<path class="ln" d="${d}" fill="none" stroke="${col}" stroke-width="${sel?3.6:2.2}" ${t.dir?`marker-end="url(#ar-${t.id})"`:''}/><text x="${lx.toFixed(1)}" y="${(ly-6).toFixed(1)}" text-anchor="middle" font-family="${GR_FONT}" font-size="12" fill="${col}" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${h(t.name)}${e.note?' *':''}</text></g>`;
+      o+=`<g class="ge${sel?' sel':''}${dim?' dim':''}" data-ge="${e.id}">${exp?'':`<path class="hit" d="${d}" fill="none" stroke="transparent" stroke-width="16"/>`}<path class="ln" d="${d}" fill="none" stroke="${col}" stroke-width="${sel?3.6:2.2}" ${e.secret?'stroke-dasharray="6 5"':''} ${t.dir?`marker-end="url(#ar-${t.id})"`:''}/><text x="${lx.toFixed(1)}" y="${(ly-6).toFixed(1)}" text-anchor="middle" font-family="${GR_FONT}" font-size="12" fill="${col}" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${e.secret?'тайно: ':''}${h(t.name)}${e.conflict?' ⚡':''}${e.note?' *':''}</text></g>`;
     });
   }
   return o;
 }
-function grNodesSvg(g,exp){
+function grNodesSvg(g,exp,marks){
   return g.nodes.map(n=>{
     const info=grRef(n.ref), team=grIsTeam(n), R=grR(n), cls=['gn',team?'team':'role'];
     if(!exp){if(ui.grSel&&ui.grSel.k==='n'&&ui.grSel.id===n.id)cls.push('sel');if(ui.grFrom===n.id)cls.push('from')}
@@ -1019,27 +1075,30 @@ function grNodesSvg(g,exp){
     const clip=team?`<rect x="${-R+3}" y="${-R+3}" width="${2*R-6}" height="${2*R-6}" rx="9"/>`:`<circle r="${R-3}"/>`;
     const img=info&&info.img?`<image href="${h(info.img)}" x="${-R+3}" y="${-R+3}" width="${2*R-6}" height="${2*R-6}" clip-path="url(#gc-${n.id})" preserveAspectRatio="xMidYMid ${team?'meet':'slice'}"/>`
       :`<text text-anchor="middle" dy="0.35em" font-family="Forum, Georgia, serif" font-size="28" fill="${stroke}" opacity=".7">${h((name||'?').trim()[0]||'?')}</text>`;
-    return `<g class="${cls.join(' ')}" data-gn="${n.id}" transform="translate(${n.x.toFixed(1)},${n.y.toFixed(1)})"><clipPath id="gc-${n.id}">${clip}</clipPath><g class="sh">${shape}</g>${img}<text class="gl" y="${R+17}" text-anchor="middle" font-family="${GR_FONT}" font-size="13" fill="#ebe4d4" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${h(name)}</text></g>`;
+    return `<g class="${cls.join(' ')}" data-gn="${n.id}" transform="translate(${n.x.toFixed(1)},${n.y.toFixed(1)})"><clipPath id="gc-${n.id}">${clip}</clipPath><g class="sh">${shape}</g>${img}<text class="gl" y="${R+17}" text-anchor="middle" font-family="${GR_FONT}" font-size="13" fill="#ebe4d4" stroke="#0d0e11" stroke-width="4" paint-order="stroke">${h(name)}</text>${marks&&marks.has(n.id)?`<circle class="mark" cx="${(R*.72).toFixed(1)}" cy="${(-R*.72).toFixed(1)}" r="7" fill="#d9822b" stroke="#0d0e11" stroke-width="2"><title>Есть рекомендации высокого приоритета</title></circle>`:''}</g>`;
   }).join('');
 }
 function renderGraphs(){
   if(!LG){if(!lgLoading&&!lgErr)loadLegends();return `<p class="empty">${h(lgErr||'Загружаю…')}</p>`}
   if(!GR) GR=grParse();
   const g=grCur(); ui.grId=g.id;
+  const ctx=grCtx();
+  const marks=new Set(); if(ui.grNet) g.nodes.forEach(n=>{if(!n.ref.startsWith('r:'))return;const a=ctx.char(n.ref);if(a&&a.recs.some(r=>r.prio==='high'&&!(GR.recState||{})[r.id]))marks.add(n.id)});
   let o=`<div class="section-title"><h2>Графы</h2></div><p class="hint" style="margin:-10px 0 14px">Видно только мастерам. Схемы связей между персонажами и командами, сохраняются автоматически.</p>`;
   o+=`<div class="lg-tabs gr-tabs" role="tablist">${GR.graphs.map(x=>`<button class="lg-tab" data-grg="${x.id}" aria-selected="${x.id===g.id}">${h(x.name||'Без названия')}</button>`).join('')}<button class="lg-tab add" id="gr-add-graph">+ Схема</button></div>`;
   const t=ui.grType&&grType(ui.grType);
   const hint=t?(ui.grFrom?`Связь «${h(t.name)}»: теперь нажмите на второго${t.dir?' (к кому ведёт стрелка)':''}.`:`Связь «${h(t.name)}»: нажмите на первого${t.dir?' (от кого стрелка)':''}.`):'';
   o+=`<div class="gr-layout"><div class="gr-main">
     <div class="gr-bar"><input id="gr-name" class="ms-in" value="${h(g.name||'')}" maxlength="40" aria-label="Название схемы" placeholder="Название схемы">
-      <button class="btn small" id="gr-arrange">${ui.grConfirmArr?'Точно разложить?':'Разложить по командам'}</button><button class="btn small" id="gr-png">Скачать PNG</button>
+      <button class="btn small" id="gr-arrange">${ui.grConfirmArr?'Точно разложить?':'Разложить по командам'}</button><button class="btn small" id="gr-png">Скачать PNG</button><button class="btn small ${ui.grNet?'gold':''}" id="gr-net-toggle" aria-pressed="${!!ui.grNet}">Анализ сети</button>
       ${GR.graphs.length>1?`<button class="btn small danger" id="gr-del-graph">${ui.grConfirmDel?'Точно удалить схему?':'Удалить схему'}</button>`:''}
       <span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>
     ${t?`<div class="gr-mode" style="--c:${grSafeColor(t.color)}"><span>${hint}</span><button class="btn small" id="gr-mode-off">Готово</button></div>`:''}
-    <div class="gr-stage${t?' connecting':''}" id="gr-stage"><svg id="gr-svg" width="100%" height="100%"><defs>${grDefs()}</defs><g id="gr-world"><g id="gr-edges">${grEdgesSvg(g)}</g><g id="gr-nodes">${grNodesSvg(g)}</g></g></svg>
+    <div class="gr-stage${t?' connecting':''}" id="gr-stage"><svg id="gr-svg" width="100%" height="100%"><defs>${grDefs()}</defs><g id="gr-world"><g id="gr-edges">${grEdgesSvg(g)}</g><g id="gr-nodes">${grNodesSvg(g,false,marks)}</g></g></svg>
       ${g.nodes.length?'':'<div class="gr-empty">Добавьте персонажей и команды из списка «На схему»,<br>выберите тип связи и нажмите на двух участников.</div>'}
       <div class="map-zoom"><button class="mz" data-grz="in" aria-label="Приблизить">+</button><button class="mz" data-grz="out" aria-label="Отдалить">−</button><button class="mz" data-grz="fit" aria-label="Показать всё">⤢</button></div></div>
-    ${grSelPanel(g)}
+    ${grSelPanel(g,ctx)}
+    ${ui.grNet?grNetPanel(ctx):''}
   </div><aside class="gr-side">${grTypesPanel()}${grPalette(g)}</aside></div>`;
   return o;
 }
@@ -1061,28 +1120,43 @@ function grPalette(g){
   return `<div class="map-card"><div class="mc-name" style="font-size:20px;margin-bottom:8px">На схему</div><input id="gr-q" class="lore-search" type="search" placeholder="Поиск" value="${h(ui.grQ||'')}" autocomplete="off" style="margin-bottom:8px">
     <div class="gr-plist">${o||'<p class="hint">Ничего не найдено. Персонажи и команды берутся из «Сетки ролей».</p>'}</div></div>`;
 }
-function grSelPanel(g){
+function grSelPanel(g,ctx){
   const s=ui.grSel; if(!s) return '';
   if(s.k==='n'){const n=g.nodes.find(x=>x.id===s.id); if(!n) return '';
     const info=grRef(n.ref)||{name:'(удалено)',sub:''}, es=g.edges.filter(e=>e.from===n.id||e.to===n.id);
     const nm=id=>{const x=g.nodes.find(y=>y.id===id);const i=x&&grRef(x.ref);return i?i.name:'(удалено)'};
-    return `<div class="map-card gr-sel"><div class="mc-name">${h(info.name)}</div>${info.sub?`<div class="hint">${h(info.sub)}</div>`:''}
+    const tab=ui.grPTab||'an', isRole=n.ref.startsWith('r:');
+    const tabs=`<div class="lg-tabs" role="tablist" style="margin-top:10px"><button class="lg-tab" data-grptab="an" aria-selected="${tab==='an'}">Анализ</button><button class="lg-tab" data-grptab="rel" aria-selected="${tab==='rel'}">Связи (${es.length})</button>${isRole?`<button class="lg-tab" data-grptab="goals" aria-selected="${tab==='goals'}">Цели и мотивы</button>`:''}</div>`;
+    const acts=`<div class="gr-acts">${isRole&&grRef(n.ref)?`<button class="btn small gold" data-lg="${n.ref.slice(2)}">Открыть легенду</button>`:''}<button class="btn small danger" id="gr-node-del">Убрать со схемы</button></div>`;
+    if(tab==='an'||(tab==='goals'&&!isRole)) return `<div class="map-card gr-sel"><div class="mc-name">${h(info.name)}</div>${info.sub?`<div class="hint">${h(info.sub)}</div>`:''}${tabs}${grCharPanel(ctx,n)}${acts}</div>`;
+    if(tab==='goals') return `<div class="map-card gr-sel"><div class="mc-name">${h(info.name)}</div>${info.sub?`<div class="hint">${h(info.sub)}</div>`:''}${tabs}${grGoalsPanel(n.ref)}${acts}</div>`;
+    return `<div class="map-card gr-sel"><div class="mc-name">${h(info.name)}</div>${info.sub?`<div class="hint">${h(info.sub)}</div>`:''}${tabs}
       <ul class="gr-elist">${es.map(e=>{const t=grType(e.type)||{name:'?',color:'#999'};const out=e.from===n.id;
         return `<li><button class="gr-eitem" data-gredge="${e.id}"><span class="sw" style="background:${grSafeColor(t.color)}"></span>${h(t.name)}: ${t.dir?(out?'→ ':'← '):''}${h(nm(out?e.to:e.from))}${e.note?` <span class="hint">— ${h(e.note)}</span>`:''}</button></li>`}).join('')||'<li class="hint">Связей пока нет.</li>'}</ul>
-      <div class="gr-acts">${n.ref.startsWith('r:')&&grRef(n.ref)?`<button class="btn small gold" data-lg="${n.ref.slice(2)}">Открыть легенду</button>`:''}<button class="btn small danger" id="gr-node-del">Убрать со схемы</button></div></div>`;
+      ${acts}</div>`;
   }
   const e=g.edges.find(x=>x.id===s.id); if(!e) return '';
   const nm=id=>{const x=g.nodes.find(y=>y.id===id);const i=x&&grRef(x.ref);return i?i.name:'(удалено)'}, t=grType(e.type)||{};
   return `<div class="map-card gr-sel"><div class="hint" style="color:${grSafeColor(t.color)}">${h(t.name||'')}</div><div class="mc-name">${h(nm(e.from))} ${t.dir?'→':'—'} ${h(nm(e.to))}</div>
     <div class="gr-acts" style="margin-top:10px"><select id="gr-etype" class="ms-in">${GR.types.map(x=>`<option value="${x.id}" ${x.id===e.type?'selected':''}>${h(x.name)}${x.dir?' →':''}</option>`).join('')}</select>
       ${t.dir?'<button class="btn small" id="gr-edge-flip">Развернуть стрелку</button>':''}<button class="btn small danger" id="gr-edge-del">Удалить связь</button></div>
-    <div class="field" style="margin:12px 0 0"><label for="gr-note">Заметка к связи</label><input id="gr-note" value="${h(e.note||'')}" maxlength="140" placeholder="Например: тайный отец"></div></div>`;
+    <div class="field" style="margin:12px 0 0"><label for="gr-note">Описание связи</label><input id="gr-note" value="${h(e.note||'')}" maxlength="200" placeholder="Например: тайный отец; поможет, только если получит землю"></div>
+    <div class="gr-eprops">
+      <label class="gr-check"><input type="checkbox" id="gr-e-secret" ${e.secret?'checked':''}> Тайная связь (о ней знают не все)</label>
+      <label class="gr-check"><input type="checkbox" id="gr-e-conflict" ${e.conflict?'checked':''}> Конфликт интересов (даже если отношения хорошие)</label>
+      <label class="gr-sel-row">Зависимость <select id="gr-e-dep" class="ms-in"><option value="">не указана</option><option value="ab" ${e.dep==='ab'?'selected':''}>${h(nm(e.from))} зависит от ${h(nm(e.to))}</option><option value="ba" ${e.dep==='ba'?'selected':''}>${h(nm(e.to))} зависит от ${h(nm(e.from))}</option><option value="both" ${e.dep==='both'?'selected':''}>взаимная</option><option value="none" ${e.dep==='none'?'selected':''}>нет зависимости</option></select></label>
+      <label class="gr-sel-row">Доверие <select id="gr-e-trust" class="ms-in"><option value="">не указано</option><option value="high" ${e.trust==='high'?'selected':''}>высокое</option><option value="mid" ${e.trust==='mid'?'selected':''}>среднее</option><option value="low" ${e.trust==='low'?'selected':''}>низкое</option></select></label>
+      <p class="hint" style="margin:0">Эти поля нужны для анализа: зависимость, доверие и тайность нельзя вывести из типа связи.</p>
+    </div></div>`;
 }
 function renderGrTypeModal(m){
   const d=m.draft, used=GR&&!m.isNew?GR.graphs.reduce((a,g)=>a+g.edges.filter(e=>e.type===d.id).length,0):0;
   return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">${m.isNew?'Новый тип связи':'Тип связи'}</h2>
     <div class="field"><label for="m-gtname">Название</label><input id="m-gtname" value="${h(d.name)}" maxlength="30" placeholder="Например, Наставник"></div>
     <div class="field"><span class="lbl">Цвет</span><div class="gr-colors">${GR_COLORS.map(c=>`<button class="gr-color" data-grcolor="${c}" style="background:${c}" aria-pressed="${d.color===c}" aria-label="Цвет ${c}"></button>`).join('')}</div></div>
+    <div class="gr-two"><div class="field"><label for="m-gtcat">Категория</label><select id="m-gtcat">${GR_CATS.map(([k,v])=>`<option value="${k}" ${grMeta(d).cat===k?'selected':''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label for="m-gtval">Характер</label><select id="m-gtval">${GR_VALS.map(([k,v])=>`<option value="${k}" ${grMeta(d).val===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
+    <p class="hint" style="margin:-6px 0 12px">Нужны для анализа. Характер описывает тип в целом: у отдельной связи можно отметить конфликт интересов.</p>
     <label class="gr-check"><input type="checkbox" id="m-gtdir" ${d.dir?'checked':''}> Со стрелкой (у связи есть направление: родитель → ребёнок, сюзерен → вассал)</label>
     <div class="foot" style="margin-top:16px">${m.isNew?'':`<button class="btn danger" id="gr-type-del">${m.confirm?`Точно удалить${used?` (и ${used} ${plural(used,'связь','связи','связей')})`:''}?`:'Удалить тип'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="gr-type-save">Готово</button></div></div></div>`;
 }
@@ -1168,6 +1242,304 @@ function grPng(){
   img.onerror=()=>toast('Не получилось сохранить картинку');
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
 }
+
+/* ---------------- dramaturgy analysis (master only) ----------------
+   Level A: deterministic graph analysis (no AI). Level B: GR_CONTENT_ANALYZERS is the extension point
+   for content analysis of goals/descriptions; the built-in analyzer only compares goal keywords and labels
+   its output as a hypothesis. No external AI service is called. */
+const GR_CATS=[['political','Политика'],['economic','Экономика'],['family','Семья'],['romance','Романтика'],['friend','Дружба'],['secret','Тайна, долг, обязательство'],['past','Прошлое: обида, благодарность, вина']];
+const GR_VALS=[['coop','Сотрудничество'],['neutral','Нейтрально'],['conflict','Противостояние']];
+const GR_PERSONAL=new Set(['family','romance','friend','secret','past']);
+const catName=c=>(GR_CATS.find(x=>x[0]===c)||['',''])[1];
+function grMeta(t){
+  if(!t) return {cat:'political',val:'neutral'};
+  const n=(t.name||'').toLowerCase();
+  const cat=t.cat||(/любов|супруг|жен[аы]?\b|муж|роман|страст|невест|жених/.test(n)?'romance':/родит|брат|сестр|сын|доч|отец|мать|кузен|дяд|тёт|тет|бастард|родн/.test(n)?'family':/друг|товарищ|побратим/.test(n)?'friend':/долг|торг|деньг|кредит|плат|купец|контракт/.test(n)?'economic':/тайн|шантаж|обязат|клятв|секрет/.test(n)?'secret':/обид|благодар|вин[аы]|прошл|мест|спас/.test(n)?'past':'political');
+  const val=t.val||(/враг|сопер|ненав|кровн|мест|конкур|вражд|против/.test(n)?'conflict':/союз|друг|сюзер|вассал|покров|служ|клятв|супруг|любов|наставн|побратим/.test(n)?'coop':'neutral');
+  return {cat,val};
+}
+const grName=ref=>{const i=grRef(ref);return i?i.name:'(удалено)'};
+function grFac(ref){if(ref.startsWith('t:'))return ref.slice(2);const r=S.roles.find(x=>'r:'+x.id===ref);return r&&r.team&&S.teams.some(t=>t.id===r.team)?r.team:'solo:'+ref}
+function grFacName(f){if(f.startsWith('solo:'))return grName(f.slice(5))+' (без фракции)';const t=S.teams.find(x=>x.id===f);return t?t.name:'?'}
+function grNet(){
+  const scope=(GR.cfg||{}).scope||'all', gs=scope==='cur'?[grCur()]:GR.graphs;
+  const V=[],vi=new Map(),E=[], addV=ref=>{if(!vi.has(ref)){vi.set(ref,V.length);V.push(ref)}};
+  gs.forEach(g=>{const byId=Object.fromEntries(g.nodes.map(n=>[n.id,n.ref]));
+    g.nodes.forEach(n=>{if(grRef(n.ref))addV(n.ref)});
+    g.edges.forEach(e=>{const a=byId[e.from],b=byId[e.to],t=grType(e.type);if(!a||!b||a===b||!t||!grRef(a)||!grRef(b))return;E.push({gid:g.id,e,a,b,t,m:grMeta(t)})})});
+  const adj=V.map(()=>new Set()); E.forEach(x=>{const i=vi.get(x.a),j=vi.get(x.b);adj[i].add(j);adj[j].add(i)});
+  return {V,vi,E,adj};
+}
+function grBetween(net){
+  const n=net.V.length,CB=new Array(n).fill(0);
+  for(let s=0;s<n;s++){const stack=[],P=Array.from({length:n},()=>[]),sig=new Array(n).fill(0),d=new Array(n).fill(-1);sig[s]=1;d[s]=0;const Q=[s];let qi=0;
+    while(qi<Q.length){const v=Q[qi++];stack.push(v);for(const w of net.adj[v]){if(d[w]<0){d[w]=d[v]+1;Q.push(w)}if(d[w]===d[v]+1){sig[w]+=sig[v];P[w].push(v)}}}
+    const del=new Array(n).fill(0);while(stack.length){const w=stack.pop();for(const v of P[w])del[v]+=sig[v]/sig[w]*(1+del[w]);if(w!==s)CB[w]+=del[w]}}
+  const norm=n>2?(n-1)*(n-2):1; return CB.map(x=>x/norm);
+}
+function grCut(net){
+  const n=net.V.length,disc=new Array(n).fill(-1),low=new Array(n).fill(0),ap=new Set(),br=[];let time=0;
+  const dfs=(u,p)=>{disc[u]=low[u]=time++;let ch=0;for(const v of net.adj[u]){if(disc[v]<0){ch++;dfs(v,u);low[u]=Math.min(low[u],low[v]);if(p>=0&&low[v]>=disc[u])ap.add(u);if(low[v]>disc[u])br.push([u,v])}else if(v!==p)low[u]=Math.min(low[u],disc[v])}if(p<0&&ch>1)ap.add(u)};
+  for(let i=0;i<n;i++)if(disc[i]<0)dfs(i,-1);
+  return {ap,br};
+}
+function grComps(net,skipV,skipE){
+  const n=net.V.length,seen=new Array(n).fill(false),out=[];
+  for(let i=0;i<n;i++){if(seen[i]||i===skipV)continue;const c=[],Q=[i];seen[i]=true;
+    while(Q.length){const v=Q.pop();c.push(v);for(const w of net.adj[v]){if(w===skipV||seen[w])continue;if(skipE&&((v===skipE[0]&&w===skipE[1])||(v===skipE[1]&&w===skipE[0])))continue;seen[w]=true;Q.push(w)}}
+    out.push(c)}
+  return out;
+}
+const grIsBond=x=>x.m.val!=='conflict'&&(x.m.val==='coop'||['family','romance','friend'].includes(x.m.cat));
+const grIsConf=x=>x.m.val==='conflict'||!!x.e.conflict;
+const grEdgeTxt=x=>`${grName(x.a)} ${x.t.dir?'→':'—'} ${h(x.t.name)} ${x.t.dir?'→':'—'} ${grName(x.b)}`;
+const grBasisE=x=>({txt:`${grName(x.a)} — ${x.t.name}${x.t.dir?' →':''} — ${grName(x.b)}${x.e.note?' («'+x.e.note+'»)':''}`,gid:x.gid,eid:x.e.id});
+const GR_STOP=new Set(['чтобы','котор','своег','свою','своей','своим','хочет','хочу','стать','получ','после','перед','может','будет','очень','всего','также','когда','тольк','нужно','тоже','проти','среди','своих','этого','этому','через','всегд','никог','сдела','найти','чтоб','любой','любым','добит']);
+function grStems(txt){const out=new Set();(txt||'').toLowerCase().replace(/ё/g,'е').split(/[^a-zа-я]+/).forEach(w=>{if(w.length<4)return;const s=w.length===4?w:w.slice(0,Math.min(w.length-1,6));if(!GR_STOP.has(s.slice(0,5))&&!GR_STOP.has(s))out.add(s)});return out}
+function grGoals(ref){const c=(GR.chars||{})[ref]||{};return {pub:c.pub||'',per:c.per||'',sec:c.sec||'',fear:c.fear||''}}
+const grHasGoals=ref=>{const g=grGoals(ref);return !!(g.pub.trim()||g.per.trim()||g.sec.trim())};
+function grCfg(net,deg){
+  const c=GR.cfg||{}, roles=net.V.map((r,i)=>i).filter(i=>net.V[i].startsWith('r:')), avg=roles.length?roles.reduce((a,i)=>a+deg[i],0)/roles.length:0;
+  const autoLow=avg>=3?Math.max(1,Math.floor(avg*0.35)):0, autoBroker=net.V.length>=20?8:net.V.length>=10?12:20;
+  return {low:c.low>=0&&c.low!==undefined&&c.low!==''?c.low:autoLow,autoLow,closed:c.closed>0?c.closed:20,broker:c.broker>0?c.broker:autoBroker,autoBroker,avg};
+}
+/* built-in content analyzer: goal keyword overlaps (always labelled as hypothesis) */
+const GR_CONTENT_ANALYZERS=[function goalOverlap(ctx,P,me){
+  if(!grHasGoals(P)) return [];
+  const g=grGoals(P), mine=grStems([g.pub,g.per,g.sec,g.fear].join(' ')), res=[];
+  ctx.net.V.forEach(R=>{if(R===P||!R.startsWith('r:')||!grHasGoals(R))return;const o=grGoals(R),theirs=grStems([o.pub,o.per,o.sec,o.fear].join(' '));
+    const common=[...mine].filter(s=>theirs.has(s)); if(common.length) res.push({R,common})});
+  res.sort((a,b)=>b.common.length-a.common.length);
+  return res.slice(0,2).map(({R,common})=>({id:'goals:'+P+':'+R,cat:'Пересечение целей',prio:'low',kind:'risk',hyp:true,
+    obs:`В целях персонажа и у «${grName(R)}» встречаются одни и те же слова: ${common.slice(0,4).map(s=>'«'+s+'…»').join(', ')}.`,
+    why:'Это предположение по совпадению слов, а не установленный факт. Если интересы действительно пересекаются, это готовый повод для переговоров.',
+    rec:me.nb.has(R)?'Они уже связаны. Проверьте, совпадают эти интересы или противоречат, и отразите это в связи (например, «Конфликт интересов»).':'Проверьте, совпадают интересы или противоречат. Противоречие даёт конфликт, совпадение даёт союз на условиях.',
+    cands:[{ref:R,why:'цели упоминают то же самое'}],basis:[{txt:`Цели «${grName(P)}» и «${grName(R)}»`,ref:R}]}));
+}];
+function grCtx(){
+  const net=grNet(), n=net.V.length, deg=net.adj.map(s=>s.size), bc=grBetween(net), cut=grCut(net);
+  const ctx={net,deg,bc,cut,cfg:grCfg(net,deg)};
+  ctx.char=ref=>ctx._c&&ctx._c[ref]?ctx._c[ref]:((ctx._c=ctx._c||{})[ref]=grAnalyzeChar(ctx,ref));
+  return ctx;
+}
+function grDep(x,P){const d=x.e.dep;if(!d)return 0;if(d==='both')return 3;const fromP=(d==='ab'&&x.a===P)||(d==='ba'&&x.b===P);return fromP?1:2} // 1: P depends, 2: other depends on P, 3: mutual
+function grAnalyzeChar(ctx,P){
+  const {net,deg,bc}=ctx, p=net.vi.get(P); if(p==null) return null;
+  const my=net.E.filter(x=>x.a===P||x.b===P), oth=x=>x.a===P?x.b:x.a, fac=grFac(P);
+  const nb=new Set(my.map(oth)), bonds=my.filter(grIsBond), confs=my.filter(grIsConf), enemiesE=my.filter(x=>x.m.val==='conflict');
+  const allies=new Set(bonds.map(oth)), enemies=new Set(enemiesE.map(oth)), secret=my.filter(x=>x.e.secret);
+  const depKnown=my.some(x=>x.e.dep), depOut=my.filter(x=>[1,3].includes(grDep(x,P))), depIn=my.filter(x=>[2,3].includes(grDep(x,P)));
+  const intra=my.filter(x=>grFac(oth(x))===fac), inter=my.filter(x=>grFac(oth(x))!==fac);
+  const cats={}; my.forEach(x=>cats[x.m.cat]=(cats[x.m.cat]||0)+1);
+  const roles=net.V.filter(r=>r.startsWith('r:')&&r!==P), notLinked=r=>!nb.has(r);
+  const linkOf=(a,b)=>net.E.filter(x=>(x.a===a&&x.b===b)||(x.a===b&&x.b===a));
+  const fof=new Map(); nb.forEach(N=>net.adj[net.vi.get(N)].forEach(j=>{const R=net.V[j];if(R!==P&&!nb.has(R)&&R.startsWith('r:')&&!fof.has(R))fof.set(R,N)}));
+  const me={nb}, recs=[], strengths=[], add=r=>{r.cands=(r.cands||[]).filter((c,i,a)=>c.ref!==P&&a.findIndex(y=>y.ref===c.ref)===i).slice(0,3);recs.push(r)};
+  const dg=deg[p];
+  // dilemmas: two bonded neighbours who are in conflict with each other
+  const dil=[]; const al=[...allies];
+  for(let i=0;i<al.length;i++)for(let j=i+1;j<al.length;j++){const c=linkOf(al[i],al[j]).find(grIsConf);if(c)dil.push([al[i],al[j],c])}
+  // cross-pressure: an ally who has a bond with one of P's enemies
+  const cross=[]; allies.forEach(A=>enemies.forEach(X=>{const b=linkOf(A,X).find(grIsBond);if(b)cross.push([A,X,b])}));
+  const stats={dg,coop:my.filter(x=>x.m.val==='coop').length,conf:confs.length,neu:my.filter(x=>x.m.val==='neutral'&&!x.e.conflict).length,intra:intra.length,inter:inter.length,depOut:depOut.length,depIn:depIn.length,depKnown,secret:secret.length,bc:bc[p],cats};
+  if(!P.startsWith('r:')) return {stats,recs,strengths};
+  if(dg===0){
+    const same=roles.filter(r=>grFac(r)===fac).map(r=>({ref:r,why:'из той же фракции: естественный первый контакт'}));
+    const hubs=roles.map(r=>[r,deg[net.vi.get(r)]]).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([r])=>({ref:r,why:'много связей: быстро введёт в игру'}));
+    add({id:'iso:'+P,cat:'Связи',prio:'mid',kind:'fact',obs:'Персонаж ни с кем не связан на схемах.',why:'Если изоляция не задумана (гость, отшельник, приезжает позже), игроку не к кому идти в начале игры.',rec:'Начните с одной связи, которая даёт повод заговорить: общий интерес, долг или старый счёт.',cands:same.concat(hubs),basis:[]});
+  } else {
+    // 3.1 allies
+    if(!allies.size){
+      const eoe=[]; enemies.forEach(X=>net.E.forEach(x=>{if((x.a===X||x.b===X)&&x.m.val==='conflict'){const Y=x.a===X?x.b:x.a;if(Y!==P&&Y.startsWith('r:')&&notLinked(Y))eoe.push({ref:Y,why:`тоже противостоит «${grName(X)}»: «враг моего врага»`})}}));
+      const same=roles.filter(r=>grFac(r)===fac&&notLinked(r)).map(r=>({ref:r,why:'из той же фракции, связи пока нет'}));
+      add({id:'noally:'+P,cat:'Союзы и сотрудничество',prio:enemies.size>=2?'high':'mid',kind:'fact',
+        obs:enemies.size?`Есть противники (${enemies.size}), но нет ни союзников, ни близких людей.`:'Нет ни союзников, ни близких людей.',
+        why:'Персонажу не с кем договариваться: остаётся только сопротивляться или ждать.',rec:'Подумайте о ком-то, кому выгодна его победа хотя бы в одном вопросе: общий противник, общая выгода, общий долг.',
+        cands:eoe.concat(same),basis:enemiesE.map(grBasisE)});
+    } else if(allies.size>=2&&!bonds.some(x=>x.e.conflict)&&!dil.length&&!cross.length){
+      const busy=[...allies].map(r=>[r,deg[net.vi.get(r)]]).sort((a,b)=>b[1]-a[1]).map(([r])=>({ref:r,why:'у него свои связи и интересы, которые могут потребовать своего'}));
+      add({id:'allyagree:'+P,cat:'Союзы и сотрудничество',prio:'mid',kind:'risk',obs:`Союзников и близких: ${allies.size}. Ни в одной из этих связей не отмечен конфликт интересов.`,
+        why:'Союз без условий не требует переговоров: игроки быстро договорятся и перестанут взаимодействовать.',
+        rec:'Добавьте ситуацию, в которой союзник помогает только на определённых условиях. Отметьте у связи «Конфликт интересов» и опишите условие в заметке.',cands:busy,basis:bonds.map(grBasisE)});
+    } else strengths.push(bonds.some(x=>x.e.conflict)?'Союз с условиями: в близкой связи отмечен конфликт интересов.':`Есть союзники и близкие (${allies.size}).`);
+    // 3.2 conflict
+    if(!confs.length){
+      const c1=[...fof].filter(([R])=>grFac(R)!==fac).map(([R,N])=>({ref:R,why:`из другой фракции и уже связан с «${grName(N)}»: конфликт затронет общий круг`}));
+      const c2=[...allies].filter(r=>r.startsWith('r:')).map(r=>({ref:r,why:'друг с несовместимой целью бывает сильнее врага'}));
+      const c3=roles.filter(r=>notLinked(r)&&grFac(r)!==fac).map(r=>({ref:r,why:'из другой фракции, связи пока нет'}));
+      add({id:'noconf:'+P,cat:'Конфликт интересов',prio:dil.length?'low':dg>=3?'high':'mid',kind:'fact',obs:`Связей: ${dg}. Ни одна не отмечена как противостояние или конфликт интересов.`+(dil.length?' Противостояние есть только между его близкими.':''),
+        why:'Без противодействия цели достигаются без усилий: нет повода хитрить, торговаться и рисковать.',
+        rec:'Рассмотрите персонажа, заинтересованного в несовместимом результате. Это не обязательно враг: подойдёт и друг, которому нужно то же самое.',cands:c1.concat(c2,c3),basis:[]});
+    } else {
+      strengths.push(`Есть противодействие: ${confs.map(x=>'«'+grName(oth(x))+'»').slice(0,3).join(', ')}.`);
+      const facMates=roles.filter(r=>grFac(r)===fac&&!fac.startsWith('solo:'));
+      if(facMates.length>=2&&!confs.some(x=>grFac(oth(x))===fac))
+        add({id:'nointra:'+P,cat:'Конфликт интересов',prio:'low',kind:'risk',obs:`Все противоречия персонажа направлены за пределы фракции «${grFacName(fac)}».`,
+          why:'Фракция может играть единым блоком, и внутренние переговоры не понадобятся.',rec:'Небольшое внутреннее соперничество (наследство, место у власти, влияние) делает выбор внутри своих тоже значимым.',
+          cands:facMates.map(r=>({ref:r,why:nb.has(r)?'уже связан, но без противоречий':'из той же фракции'})),basis:confs.map(grBasisE)});
+    }
+    // 3.3 interdependence
+    if(!depKnown) add({id:'depdata:'+P,cat:'Взаимозависимость',prio:'low',kind:'data',obs:'Ни у одной связи персонажа не отмечено, кто от кого зависит.',
+      why:'Без этих данных нельзя проверить, нужны ли ему другие игроки для достижения целей.',rec:'В свойствах связей укажите «Зависимость»: кто нуждается в ресурсах, информации, поддержке или решении другого.',cands:[],basis:[]});
+    else if(!depOut.length){
+      const c=my.filter(x=>!grIsBond(x)||x.e.trust==='low').map(x=>({ref:oth(x),why:`связаны как «${x.t.name}», но это не близкий союзник: зависимость заставит договариваться`}));
+      add({id:'nodep:'+P,cat:'Взаимозависимость',prio:'high',kind:'fact',obs:'По отмеченным зависимостям персонаж ни от кого не зависит.',
+        why:'Он может достичь заявленных целей без участия других игроков: переговоры для него необязательны.',rec:'Добавьте зависимость от человека, которому он не полностью доверяет: нужная информация, деньги, голос, разрешение.',
+        cands:c.concat([...fof].map(([R,N])=>({ref:R,why:`знаком через «${grName(N)}»`}))),basis:depIn.map(grBasisE)});
+    } else if(depOut.every(x=>grIsBond(x)&&x.e.trust!=='low')){
+      const c=my.filter(x=>!grIsBond(x)).map(x=>({ref:oth(x),why:`связаны как «${x.t.name}»`}));
+      add({id:'deptrust:'+P,cat:'Взаимозависимость',prio:'mid',kind:'risk',obs:'Персонаж зависит только от союзников и близких, которым доверяет.',
+        why:'Зависимость от тех, кому доверяешь, не создаёт напряжения: помощь гарантирована.',rec:'Рассмотрите асимметричную зависимость от того, кому он не доверяет или кто преследует свои цели.',cands:c,basis:depOut.map(grBasisE)});
+    } else strengths.push('Есть зависимость от того, кому он не вполне доверяет.');
+    if(depKnown&&depOut.some(x=>grDep(x,P)===3)) strengths.push('Есть взаимная зависимость: обе стороны вынуждены договариваться.');
+    // 3.4 uncertainty
+    const lowTrust=bonds.filter(x=>x.e.trust==='low');
+    if(dg>=2&&!secret.length&&!cross.length&&!lowTrust.length){
+      const c=[...allies].filter(A=>grFac(A)!==fac).map(A=>({ref:A,why:'союзник из другой фракции: у него свои обязательства'}))
+        .concat([...allies].map(A=>[A,deg[net.vi.get(A)]]).sort((a,b)=>b[1]-a[1]).map(([A])=>({ref:A,why:'у него много собственных связей'})));
+      add({id:'predict:'+P,cat:'Неопределённость',prio:'mid',kind:'risk',obs:'Нет тайных связей, связей с низким доверием и союзников, связанных с его противниками.',
+        why:'Если всё известно заранее, исход переговоров предсказуем.',rec:'Добавьте союзника, чьи личные интересы могут заставить его пересмотреть договорённости. Предательство должно оставаться возможностью, а не обязательным сценарием.',
+        cands:c,basis:bonds.map(grBasisE)});
+    } else {
+      if(secret.length) strengths.push(`Тайные связи (${secret.length}): есть что скрывать или раскрыть.`);
+      if(cross.length) strengths.push(`Союзник «${grName(cross[0][0])}» связан и с противником «${grName(cross[0][1])}»: его лояльность под вопросом.`);
+    }
+    // 3.5 cost of choice
+    if(dil.length) strengths.push(`Цена выбора: «${grName(dil[0][0])}» и «${grName(dil[0][1])}» противостоят друг другу, а персонаж близок обоим.`);
+    else if(allies.size>=2&&!bonds.some(x=>x.e.conflict)){
+      const al2=[...allies]; let pair=null;
+      for(let i=0;i<al2.length&&!pair;i++)for(let j=i+1;j<al2.length;j++){const ci=bonds.find(x=>oth(x)===al2[i]),cj=bonds.find(x=>oth(x)===al2[j]);if(grFac(al2[i])!==grFac(al2[j])||(GR_PERSONAL.has(ci.m.cat)!==GR_PERSONAL.has(cj.m.cat))){pair=[al2[i],al2[j]];break}}
+      if(!pair) pair=al2.slice(0,2);
+      add({id:'nocost:'+P,cat:'Цена выбора',prio:'mid',kind:'risk',obs:'Близкие и союзники персонажа не противоречат ни ему, ни друг другу.',
+        why:'Он может добиться всех целей без потерь: нет выбора, который запомнится.',rec:'Рассмотрите ситуацию, в которой поддержка одного близкого человека осложняет отношения с другим.',
+        cands:pair.map(r=>({ref:r,why:'один из двух, между которыми может встать выбор'})),basis:bonds.map(grBasisE)});
+    }
+    // 3.6 personal drama
+    if(dg>=3){
+      const pers=my.filter(x=>GR_PERSONAL.has(x.m.cat)), pol=my.filter(x=>!GR_PERSONAL.has(x.m.cat));
+      if(!pers.length) add({id:'nopers:'+P,cat:'Личная драматургия',prio:'mid',kind:'fact',obs:`Все связи (${dg}) политические или экономические.`,
+        why:'Политика без личного легко сводится к расчёту: решения не будут стоить персонажу ничего лично.',
+        rec:'Возможно, стоит добавить личное отношение (семья, дружба, любовь, долг, старая обида), способное повлиять на его политические решения.',
+        cands:[...enemies].map(r=>({ref:r,why:'личная связь с оппонентом создаёт сильный конфликт лояльности'})).concat([...allies].map(r=>({ref:r,why:'политический союзник, с которым может быть и личная история'}))),basis:my.map(grBasisE)});
+      else if(!pol.length&&ctx.net.E.some(x=>!GR_PERSONAL.has(x.m.cat))) add({id:'nopol:'+P,cat:'Личная драматургия',prio:'low',kind:'risk',obs:'Все связи личные: нет политических или экономических ставок.',
+        why:'Это не ошибка, если персонаж задуман вне политики. Иначе его личные драмы не пересекутся с главными решениями игры.',rec:'Если нужно, свяжите личное с общим: долг, клятва, место при дворе, имущество.',cands:[],basis:[]});
+      const kinds=Object.keys(cats).length; if(kinds>=3) strengths.push(`Разнообразные отношения: ${Object.keys(cats).map(catName).join(', ').toLowerCase()}.`);
+    }
+    // 3.7 initiative
+    if(depKnown&&depIn.length&&!depOut.length) add({id:'passive:'+P,cat:'Инициатива',prio:'mid',kind:'fact',obs:`От персонажа зависят другие (${depIn.length}), а ему самому никто не нужен.`,
+      why:'Роль сводится к ожиданию: к нему приходят, он отвечает.',rec:'Добавьте собственную цель, ради которой ему придётся инициировать переговоры.',
+      cands:roles.filter(r=>my.every(x=>oth(x)!==r)).map(r=>[r,net.E.filter(x=>(x.a===r||x.b===r)&&grDep(x,r)===2).length]).filter(([,k])=>k>0).sort((a,b)=>b[1]-a[1]).map(([r])=>({ref:r,why:'от него зависят другие: у него есть то, что может понадобиться'})),basis:depIn.map(grBasisE)});
+    if(secret.length&&!strengths.some(s=>s.startsWith('Тайные'))) strengths.push('Владеет тайной связью: может раскрыть или скрыть её.');
+  }
+  if(!grHasGoals(P)) add({id:'goaldata:'+P,cat:'Нужны данные',prio:'low',kind:'data',obs:'Цели и мотивы персонажа не заполнены.',
+    why:'Без целей анализ ограничен структурой связей: нельзя проверить противоречия интересов, цену выбора и повод действовать первым.',rec:'Заполните вкладку «Цели и мотивы»: публичные, личные и тайные цели, страхи.',cands:[],basis:[]});
+  GR_CONTENT_ANALYZERS.forEach(fn=>{try{fn(ctx,P,me).forEach(add)}catch(_){}});
+  return {stats,recs,strengths};
+}
+function grAnalyzeNet(ctx){
+  const {net,deg,bc,cut,cfg}=ctx, n=net.V.length, roles=net.V.map((r,i)=>i).filter(i=>net.V[i].startsWith('r:')), recs=[];
+  const isolated=roles.filter(i=>deg[i]<=cfg.low);
+  if(isolated.length) recs.push({id:'net:iso',cat:'Изолированные персонажи',prio:isolated.some(i=>!deg[i])?'mid':'low',kind:'fact',
+    obs:`${cfg.low?`Мало связей (не больше ${cfg.low})`:'Без связей'}: ${isolated.slice(0,8).map(i=>'«'+grName(net.V[i])+'»').join(', ')}${isolated.length>8?` и ещё ${isolated.length-8}`:''}.`,why:'Изоляция не всегда ошибка, но у таких игроков меньше поводов войти в игру.',
+    rec:'Проверьте, задумано ли это. Если нет, дайте каждому хотя бы один повод обратиться к другому: нужда, долг, общий интерес.',cands:isolated.slice(0,3).map(i=>({ref:net.V[i],why:`связей: ${deg[i]}`})),basis:[]});
+  // factions
+  const facs={}; net.V.forEach((r,i)=>{const f=grFac(r);if(f.startsWith('solo:'))return;(facs[f]=facs[f]||{m:[],int:0,ext:0,intConf:0})}); 
+  net.V.forEach((r,i)=>{const f=grFac(r);if(facs[f])facs[f].m.push(i)});
+  net.E.forEach(x=>{const fa=grFac(x.a),fb=grFac(x.b);if(fa===fb){if(facs[fa]){facs[fa].int++;if(grIsConf(x))facs[fa].intConf++}}else{if(facs[fa])facs[fa].ext++;if(facs[fb])facs[fb].ext++}});
+  Object.entries(facs).forEach(([f,s])=>{const roleCnt=s.m.filter(i=>net.V[i].startsWith('r:')).length;if(roleCnt<2||!s.int)return;const share=s.ext/(s.int+s.ext)*100;
+    if(share<cfg.closed) recs.push({id:'net:closed:'+f,cat:'Замкнутые фракции',prio:s.ext?'low':'mid',kind:'fact',
+      obs:`«${grFacName(f)}»: связей внутри ${s.int}, с другими ${s.ext} (${Math.round(share)}%).`,why:'Фракция взаимодействует в основном сама с собой: игрокам незачем выходить к другим домам.',
+      rec:'Рассмотрите личные или политические связи с другими фракциями: брак, долг, торговлю, старую дружбу.',cands:s.m.filter(i=>net.V[i].startsWith('r:')).sort((a,b)=>deg[a]-deg[b]).slice(0,3).map(i=>({ref:net.V[i],why:'член фракции с небольшим числом внешних контактов'})),basis:[]})});
+  // components
+  const comps=grComps(net), parts=comps.filter(c=>c.length>=2); if(parts.length>1) recs.push({id:'net:comps',cat:'Слабые межфракционные связи',prio:'high',kind:'fact',
+    obs:`Сеть распалась на ${parts.length} ${plural(parts.length,'несвязанную часть','несвязанные части','несвязанных частей')}${comps.length>parts.length?' (не считая персонажей без связей)':''}: ${parts.slice(0,4).map(c=>'['+[...new Set(c.map(i=>grFacName(grFac(net.V[i]))))].slice(0,3).join(', ')+']').join(' · ')}.`,
+    why:'Между частями нет ни одного пути: события в одной не затронут игроков другой.',rec:'Добавьте хотя бы одну независимую связь между частями.',cands:parts.slice(0,3).map(c=>{const i=c.slice().sort((a,b)=>deg[b]-deg[a])[0];return {ref:net.V[i],why:'самый связанный в своей части'}}),basis:[]});
+  // articulation points that separate factions
+  const fset=c=>new Set(c.map(i=>grFac(net.V[i])));
+  cut.ap.forEach(v=>{const parts=grComps(net,v),vRef=net.V[v],via=net.E.filter(x=>x.a===vRef||x.b===vRef).filter(c=>c.length>=1);const orig=comps.find(c=>c.includes(v));if(!orig)return;
+    const sub=parts.filter(c=>orig.includes(c[0])&&c.length>=2);if(sub.length<2)return;
+    const fs=sub.map(c=>[...fset(c)].filter(f=>!f.startsWith('solo:'))).filter(a=>a.length);if(fs.length<2)return;
+    const names=fs.slice(0,3).map(a=>a.slice(0,2).map(grFacName).join(' и '));
+    recs.push({id:'net:ap:'+net.V[v],cat:'Уязвимость сети',prio:'mid',kind:'fact',obs:`Связь между частями сети (${names.join(' / ')}) проходит через одного участника: «${grName(net.V[v])}».`,
+      why:'Если этот игрок не приедет, уйдёт из игры или замкнётся, части сети потеряют друг друга.',rec:'Рассмотрите дополнительную независимую связь между этими группами.',
+      cands:[{ref:net.V[v],why:'единственный посредник'}].concat(sub.map(c=>c.filter(i=>net.V[i].startsWith('r:')).sort((a,b)=>deg[b]-deg[a])[0]).filter(i=>i!=null).slice(0,2).map(i=>({ref:net.V[i],why:'может стать второй точкой контакта'}))),basis:via.map(grBasisE)})});
+  // predictable coalitions
+  const fp={}; net.E.forEach(x=>{const fa=grFac(x.a),fb=grFac(x.b);if(fa===fb||!facs[fa]||!facs[fb])return;const k=[fa,fb].sort().join('|');const s=fp[k]=fp[k]||{conf:0,other:0,ex:[]};if(x.m.val==='conflict'){s.conf++;s.ex.push(x)}else s.other++});
+  Object.entries(fp).forEach(([k,s])=>{const [fa,fb]=k.split('|');if(s.conf&&!s.other&&!facs[fa].intConf&&!facs[fb].intConf)
+    recs.push({id:'net:pred:'+k,cat:'Предсказуемые коалиции',prio:'mid',kind:'risk',obs:`«${grFacName(fa)}» и «${grFacName(fb)}» связаны только противостоянием, а внутри обеих фракций конфликтов нет.`,
+      why:'Это ведёт к устойчивым командам: переговоры не нужны, исход сводится к силовому столкновению.',rec:'Добавьте пересекающиеся интересы между ними (брак, долг, общий враг) или внутреннее противоречие хотя бы в одной из фракций.',
+      cands:facs[fa].m.concat(facs[fb].m).filter(i=>net.V[i].startsWith('r:')).sort((a,b)=>deg[b]-deg[a]).slice(0,3).map(i=>({ref:net.V[i],why:`из «${grFacName(grFac(net.V[i]))}»`})),basis:s.ex.slice(0,4).map(grBasisE)})});
+  // opportunity distribution
+  roles.forEach(i=>{const P=net.V[i],my=net.E.filter(x=>x.a===P||x.b===P);if(!my.length)return;
+    const othRefs=my.map(x=>x.a===P?x.b:x.a);
+    if(othRefs.every(r=>r.startsWith('t:'))) recs.push({id:'net:abstract:'+P,cat:'Распределение возможностей',prio:'low',kind:'fact',obs:`«${grName(P)}» связан только с фракциями, но ни с одним конкретным персонажем.`,
+      why:'Связь с домом в целом не даёт повода подойти к конкретному игроку.',rec:'Уточните, с кем именно из фракции у него отношения.',cands:[{ref:P,why:'персонаж без личных контактов'}],basis:my.map(grBasisE)});
+  });
+  // brokers
+  const brokers=net.V.map((r,i)=>[i,bc[i]]).filter(([i,v])=>n>=5&&v*100>=cfg.broker).sort((a,b)=>b[1]-a[1]).slice(0,6)
+    .map(([i,v])=>({ref:net.V[i],share:Math.round(v*100),facs:[...new Set([...net.adj[i]].map(j=>grFac(net.V[j])).filter(f=>!f.startsWith('solo:')))].length}));
+  const interShare=roles.length?Math.round(roles.filter(i=>[...net.adj[i]].some(j=>grFac(net.V[j])!==grFac(net.V[i])&&!grFac(net.V[j]).startsWith('solo:'))).length/roles.length*100):0;
+  return {recs,brokers,facs,comps,interShare,isolated,roles};
+}
+function grRecHtml(r){
+  const st=(GR.recState||{})[r.id]; if(st==='hidden'&&!ui.grShowHidden) return '';
+  const kind={fact:'Подтверждено',risk:r.hyp?'Предположение':'Риск',data:'Нужны данные'}[r.kind], pr={high:'высокий',mid:'средний',low:'низкий'}[r.prio];
+  const open=ui.grOpenRec&&ui.grOpenRec.has(r.id);
+  return `<details class="rec p-${r.prio}${st?' st-'+st:''}" data-rec="${h(r.id)}" ${open?'open':''}><summary><span class="rec-top"><span class="rec-cat">${h(r.cat)}</span><span class="chip k-${r.kind}">${kind}</span><span class="chip">приоритет: ${pr}</span>${st==='done'?'<span class="chip ok">рассмотрено</span>':''}</span><span class="rec-obs">${h(r.obs)}</span></summary>
+    <div class="rec-body"><p><b>Почему это важно.</b> ${h(r.why)}</p><p><b>Рекомендация.</b> ${h(r.rec)}</p>
+    ${r.cands&&r.cands.length?`<p class="rec-h">Возможные персонажи</p><ul>${r.cands.map(c=>`<li><button class="linkbtn" data-grgo="${h(c.ref)}">${h(grName(c.ref))}</button>: ${h(c.why)}</li>`).join('')}</ul>`:''}
+    ${r.basis&&r.basis.length?`<p class="rec-h">Основание</p><ul>${r.basis.slice(0,6).map(b=>`<li>${b.eid?`<button class="linkbtn" data-gredgego="${h(b.gid+'|'+b.eid)}">${h(b.txt)}</button>`:b.ref?`<button class="linkbtn" data-grgo="${h(b.ref)}">${h(b.txt)}</button>`:h(b.txt)}</li>`).join('')}${r.basis.length>6?`<li class="hint">и ещё ${r.basis.length-6}</li>`:''}</ul>`:''}
+    <div class="rec-acts"><button class="btn small" data-grrec="${h(r.id)}" data-st="done">${st==='done'?'Вернуть в работу':'Отметить рассмотренной'}</button><button class="btn small" data-grrec="${h(r.id)}" data-st="hidden">${st==='hidden'?'Показать снова':'Скрыть'}</button></div></div></details>`;
+}
+function grSortRecs(recs){const P={high:0,mid:1,low:2},K={fact:0,risk:1,data:2},S2=r=>{const s=(GR.recState||{})[r.id];return s==='hidden'?2:s==='done'?1:0};return recs.slice().sort((a,b)=>S2(a)-S2(b)||P[a.prio]-P[b.prio]||K[a.kind]-K[b.kind])}
+function grRecList(recs,key,limit){
+  const st=GR.recState||{}, hidden=recs.filter(r=>st[r.id]==='hidden').length, sorted=grSortRecs(recs), vis=sorted.filter(r=>st[r.id]!=='hidden'||ui.grShowHidden);
+  const all=ui.grAllRecs&&ui.grAllRecs[key], shown=all?vis:vis.slice(0,limit);
+  let o=shown.map(grRecHtml).join('')||'<p class="hint">Замечаний нет.</p>';
+  const more=[]; if(vis.length>shown.length) more.push(`<button class="linkbtn" data-grall="${key}">Показать все (${vis.length})</button>`);
+  if(all&&vis.length>limit) more.push(`<button class="linkbtn" data-grall="${key}">Свернуть</button>`);
+  if(hidden) more.push(`<button class="linkbtn" data-grshowhid="1">${ui.grShowHidden?'Не показывать скрытые':'Скрытые: '+hidden}</button>`);
+  return o+(more.length?`<div class="rec-more">${more.join(' · ')}</div>`:'');
+}
+function grCharPanel(ctx,n){
+  const ref=n.ref, a=ctx.char(ref); if(!a) return '<p class="hint">Персонаж ещё не участвует в связях выбранного охвата анализа.</p>';
+  const s=a.stats, pc=Math.round(s.bc*100);
+  let o=`<div class="an-stats"><span><b>${s.dg}</b> ${plural(s.dg,'связь','связи','связей')}</span><span>союзные ${s.coop} · конфликтные ${s.conf} · нейтральные ${s.neu}</span><span>в своей фракции ${s.intra} · с другими ${s.inter}</span>`
+   +(s.depKnown?`<span>зависит от ${s.depOut} · от него зависят ${s.depIn}</span>`:'')+(s.secret?`<span>тайных ${s.secret}</span>`:'')+(ctx.net.V.length>=5?`<span title="Доля кратчайших путей между другими участниками, проходящих через персонажа">посредничество ${pc}%</span>`:'')+`</div>`;
+  if(!ref.startsWith('r:')) return o+'<p class="hint">Для команд показывается только статистика. Рекомендации строятся для персонажей.</p>';
+  if(a.strengths.length) o+=`<div class="an-good"><div class="rec-h">Сильные стороны</div><ul>${a.strengths.map(x=>`<li>${h(x)}</li>`).join('')}</ul></div>`;
+  o+=`<div class="rec-h" style="margin-top:12px">Рекомендации</div>`+grRecList(a.recs,'c:'+ref,4);
+  return o;
+}
+function grGoalsPanel(ref){
+  const g=grGoals(ref), f=(id,lbl,val,ph)=>`<div class="field"><label for="${id}">${lbl}</label><textarea id="${id}" rows="2" placeholder="${ph}">${h(val)}</textarea></div>`;
+  return `<p class="hint" style="margin:0 0 10px">Видно только мастерам. Используется в анализе: без целей проверяется только структура связей.</p>`
+    +f('gr-goal-pub','Публичные цели',g.pub,'Чего он добивается открыто')+f('gr-goal-per','Личные цели',g.per,'Чего хочет для себя')+f('gr-goal-sec','Тайные цели',g.sec,'О чём не знают другие')+f('gr-goal-fear','Страхи и мотивы',g.fear,'Чего боится, что им движет');
+}
+function grNetPanel(ctx){
+  const A=grAnalyzeNet(ctx), c=ctx.cfg, scope=(GR.cfg||{}).scope||'all';
+  const facRows=Object.entries(A.facs).filter(([,s])=>s.m.length).map(([f,s])=>{const t=s.int+s.ext;return `<tr><td>${h(grFacName(f))}</td><td>${s.m.length}</td><td>${s.int}</td><td>${s.ext}</td><td>${t?Math.round(s.ext/t*100)+'%':'—'}</td><td>${s.intConf}</td></tr>`}).join('');
+  return `<div class="map-card gr-net"><div class="gr-net-head"><div class="mc-name">Анализ сети</div>
+      <div class="seg"><button class="chip-btn" data-grscope="all" aria-pressed="${scope==='all'}">Все схемы</button><button class="chip-btn" data-grscope="cur" aria-pressed="${scope==='cur'}">Только эта схема</button></div></div>
+    <div class="an-stats"><span><b>${A.roles.length}</b> ${plural(A.roles.length,'персонаж','персонажа','персонажей')}</span><span><b>${ctx.net.E.length}</b> ${plural(ctx.net.E.length,'связь','связи','связей')}</span><span>частей сети: ${A.comps.length}</span><span>с контактами вне своей фракции: ${A.interShare}%</span><span>в среднем связей на персонажа: ${c.avg.toFixed(1)}</span></div>
+    <div class="rec-h">Рекомендации по сети</div>${grRecList(A.recs,'net',6)}
+    ${A.brokers.length?`<div class="rec-h" style="margin-top:14px">Посредники</div><p class="hint" style="margin:0 0 6px">Через них проходит заметная доля путей между другими участниками. Это потенциально важные фигуры, а не оценка качества роли.</p><ul class="an-list">${A.brokers.map(b=>`<li><button class="linkbtn" data-grgo="${h(b.ref)}">${h(grName(b.ref))}</button> — ${b.share}% путей, соседи из ${b.facs} ${plural(b.facs,'фракции','фракций','фракций')}</li>`).join('')}</ul>`:''}
+    ${facRows?`<div class="rec-h" style="margin-top:14px">Фракции</div><div class="an-table"><table><thead><tr><th>Фракция</th><th>Участников</th><th>Связей внутри</th><th>С другими</th><th>Доля внешних</th><th>Внутр. конфликтов</th></tr></thead><tbody>${facRows}</tbody></table></div>`:''}
+    <details class="an-cfg"><summary>Пороги анализа</summary><div class="an-cfg-row">
+      <label>Мало связей — не больше <input id="gr-cfg-low" type="number" min="0" max="20" value="${(GR.cfg||{}).low!=null?(GR.cfg||{}).low:''}" placeholder="${c.autoLow}"></label>
+      <label>Замкнутая фракция — внешних связей меньше <input id="gr-cfg-closed" type="number" min="1" max="90" value="${(GR.cfg||{}).closed||''}" placeholder="20">%</label>
+      <label>Посредник — от <input id="gr-cfg-broker" type="number" min="1" max="90" value="${(GR.cfg||{}).broker||''}" placeholder="${c.autoBroker}">% путей</label></div>
+      <p class="hint">Пустое поле — автоматическое значение по размеру сети.</p></details>
+    <p class="hint" style="margin:12px 0 0">Анализ строится только по данным схем, типам связей и заполненным целям. Отсутствующие цели и мотивы не додумываются. Содержательный анализ текстов через ИИ не подключён.</p></div>`;
+}
+function grGo(ref){
+  let g=grCur(), n=g.nodes.find(x=>x.ref===ref);
+  if(!n){const g2=GR.graphs.find(x=>x.nodes.some(y=>y.ref===ref));if(g2){g=g2;ui.grId=g2.id;grView=null;n=g2.nodes.find(y=>y.ref===ref)}}
+  if(!n){toast('Этого персонажа нет ни на одной схеме');return}
+  ui.grSel={k:'n',id:n.id}; render();
+  const st=document.getElementById('gr-stage'); if(st&&grView){grView.tx=st.clientWidth/2-n.x*grView.s;grView.ty=st.clientHeight/2-n.y*grView.s;grApply();st.scrollIntoView({block:'nearest',behavior:'smooth'})}
+}
+document.addEventListener('toggle',ev=>{const d=ev.target;if(!d||!d.matches||!d.matches('details.rec'))return;const s=ui.grOpenRec=ui.grOpenRec||new Set();d.open?s.add(d.dataset.rec):s.delete(d.dataset.rec)},true);
 
 /* ---------------- legends (master only) ---------------- */
 function orderedRoles(){
