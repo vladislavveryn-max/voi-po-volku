@@ -1635,8 +1635,8 @@ function pwStats(vals,tot,compact){
 function renderPowers(){
   const P=pwData(), A=P.actors, net=pwTotals(A), tot=pwPos(A), sel=ui.pwSel=ui.pwSel||new Set();
   [...sel].forEach(id=>{if(!A.some(a=>a.id===id))sel.delete(id)});
-  let o=`<p class="hint" style="margin:0 0 14px;max-width:72ch">Политические акторы и их ресурсы. Доли считаются от суммы положительных значений всех акторов. Коалиция складывает показатели участников, отрицательные значения (долги, потери) вычитаются. Карточки можно выгрузить для печати и раздать игрокам.</p>`;
-  o+=`<div class="pw-bar-top"><button class="btn small gold" id="pw-add">+ Политический актор</button><button class="btn small" id="pw-coal-add">${sel.size?`+ Коалиция из выбранных (${sel.size})`:'+ Создать коалицию'}</button>${sel.size?'<button class="btn small" id="pw-sel-clear">Снять выбор</button>':''}<span style="flex:1"></span>${A.length?'<button class="btn small" id="pw-export">Скачать карточки (.docx)</button>':''}<span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>`;
+  let o=`<p class="hint" style="margin:0 0 14px;max-width:72ch">Политические акторы и их ресурсы. Доли считаются от суммы положительных значений всех акторов. Коалиция складывает показатели участников, отрицательные значения (долги, потери) вычитаются. Таблицу можно выгрузить в Excel и балансировать: итоги и коалиции там считаются формулами.</p>`;
+  o+=`<div class="pw-bar-top"><button class="btn small gold" id="pw-add">+ Политический актор</button><button class="btn small" id="pw-coal-add">${sel.size?`+ Коалиция из выбранных (${sel.size})`:'+ Создать коалицию'}</button>${sel.size?'<button class="btn small" id="pw-sel-clear">Снять выбор</button>':''}<span style="flex:1"></span>${A.length?'<button class="btn small" id="pw-export">Скачать таблицу (.xlsx)</button>':''}<span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>`;
   if(A.length) o+=`<div class="map-card pw-total"><div class="mc-name" style="font-size:20px">Все силы вместе</div>${pwStats(net,null)}</div>`;
   // coalitions
   if(P.coalitions.length){
@@ -1696,25 +1696,36 @@ async function pwUpload(file){
   try{m.draft.img=await shrink(file,700,file.type==='image/png'||file.type==='image/webp'?'png':undefined)}catch(e){m.err=e.message||'Не получилось прочитать картинку.'}
   if(ui.modal===m){m.uploading=false;render()}
 }
+let xlsxReady=null;
+function loadXlsx(){
+  if(window.XLSX) return Promise.resolve();
+  if(!xlsxReady) xlsxReady=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';sc.onload=res;sc.onerror=()=>{xlsxReady=null;rej(new Error('lib'))};document.head.appendChild(sc)});
+  return xlsxReady;
+}
 async function pwExport(){
-  const A=pwData().actors; if(!A.length) return; grStatus('Готовлю файл Word…');
+  const P=pwData(), A=P.actors; if(!A.length) return; grStatus('Готовлю таблицу…');
   try{
-    await loadDocx(); const D=window.docx, ch=[];
-    for(let i=0;i<A.length;i++){const a=A[i], info=grRef(a.ref), img=a.img||(info&&info.img)||'';
-      ch.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,pageBreakBefore:i>0,children:[new D.TextRun(pwActorName(a))]}));
-      if(pwActorSub(a)) ch.push(new D.Paragraph({children:[new D.TextRun({text:pwActorSub(a),italics:true,color:'8A6A2B'})],spacing:{after:200}}));
-      if(img) ch.push(new D.Paragraph({children:[await imageRun(D,img,340)],alignment:D.AlignmentType.CENTER,spacing:{after:240}}));
-      ch.push(new D.Table({width:{size:100,type:D.WidthType.PERCENTAGE},rows:[
-        new D.TableRow({children:PW_RES.map(([,l])=>new D.TableCell({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:l,bold:true,color:'5A1E19'})]})]}))}),
-        new D.TableRow({children:PW_RES.map(([k])=>new D.TableCell({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:80,after:80},children:[new D.TextRun({text:pwFmt(a[k]),size:36})]})]}))})]}));
-      if(a.note) ch.push(new D.Paragraph({spacing:{before:240},children:[new D.TextRun({text:a.note,italics:true})]}));
+    await loadXlsx(); const X=window.XLSX, cols=['B','C','D'], n=A.length, last=n+1;
+    const ws1={}, put=(ws,addr,cell)=>{ws[addr]=cell};
+    ['Актор','Армия','Флот','Казна'].forEach((v,c)=>put(ws1,'ABCD'[c]+'1',{t:'s',v}));
+    A.forEach((a,i)=>{const r=i+2;put(ws1,'A'+r,{t:'s',v:pwActorName(a)});PW_RES.forEach(([k],c)=>put(ws1,cols[c]+r,{t:'n',v:pwNum(a[k])}))});
+    const tot=pwTotals(A), tr=last+2;
+    put(ws1,'A'+tr,{t:'s',v:'Итого'}); PW_RES.forEach(([k],c)=>put(ws1,cols[c]+tr,{t:'n',v:tot[k],f:`SUM(${cols[c]}2:${cols[c]}${last})`}));
+    ws1['!ref']=`A1:D${tr}`; ws1['!cols']=[{wch:Math.min(40,Math.max(12,...A.map(a=>pwActorName(a).length))+2)},{wch:12},{wch:12},{wch:12}];
+    ws1['!autofilter']={ref:`A1:D${last}`};
+    const wb=X.utils.book_new(); X.utils.book_append_sheet(wb,ws1,'Акторы');
+    if(P.coalitions.length){
+      const ws2={}; ['Коалиция','Армия','Флот','Казна','Участники'].forEach((v,c)=>put(ws2,'ABCDE'[c]+'1',{t:'s',v}));
+      P.coalitions.forEach((c,i)=>{const r=i+2, rows=c.members.map(id=>A.findIndex(a=>a.id===id)).filter(x=>x>=0), mem=rows.map(x=>A[x]), t=pwTotals(mem);
+        put(ws2,'A'+r,{t:'s',v:c.name||'Коалиция'});
+        PW_RES.forEach(([k],ci)=>put(ws2,cols[ci]+r,rows.length?{t:'n',v:t[k],f:rows.map(x=>`'Акторы'!${cols[ci]}${x+2}`).join('+')}:{t:'n',v:0}));
+        put(ws2,'E'+r,{t:'s',v:mem.map(pwActorName).join(', ')})});
+      ws2['!ref']=`A1:E${P.coalitions.length+1}`; ws2['!cols']=[{wch:22},{wch:12},{wch:12},{wch:12},{wch:60}];
+      X.utils.book_append_sheet(wb,ws2,'Коалиции');
     }
-    const doc=new D.Document({creator:S.hero.title,title:'Карточки политических сил',styles:{default:{document:{run:{font:'Georgia',size:24}},heading1:{run:{font:'Georgia',size:44,color:'5A1E19'},paragraph:{spacing:{after:80}}}}},
-      sections:[{properties:{page:{margin:{top:1134,bottom:1134,left:1134,right:1134}}},children:ch}]});
-    const blob=await D.Packer.toBlob(doc), a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);a.download='Карточки политических сил.docx';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
-    grStatus('Файл Word скачан');
-  }catch(e){console.error(e);grStatus('Не получилось собрать файл Word. Проверьте интернет.')}
+    X.writeFile(wb,'Силы домов.xlsx');
+    grStatus('Таблица скачана');
+  }catch(e){console.error(e);grStatus('Не получилось собрать таблицу. Проверьте интернет.')}
 }
 
 /* ---------------- legends (master only) ---------------- */
