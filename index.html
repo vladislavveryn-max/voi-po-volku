@@ -292,6 +292,52 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .img-bar .ib-sep{width:1px;align-self:stretch;background:var(--line);margin:2px}
 @media (max-width:820px){.lg-editor img.al-l,.lg-editor img.al-r{margin-bottom:8px}.lg-editor img.img-s{width:40%}.lg-editor img.img-m{width:55%}}
 
+/* house powers */
+.pw-pages{margin:0 0 16px}
+.pw-bar-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.pw-stats{display:grid;gap:8px;margin-top:8px}
+.pw-stat{display:grid;grid-template-columns:auto auto 1fr auto;grid-template-areas:"ico lbl val pc" "bar bar bar bar";align-items:center;gap:2px 8px;font-size:14px}
+.pw-stats.compact .pw-stat{font-size:13.5px}
+.pw-ico{grid-area:ico;color:var(--gold);display:grid}
+.pw-lbl{grid-area:lbl;color:var(--muted)}
+.pw-stat b{grid-area:val;text-align:right;font-variant-numeric:tabular-nums;color:var(--fg);font-weight:600}
+.pw-stat .pw-pc{grid-area:pc}
+.pw-pc{font-size:12px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.pw-bar{grid-area:bar;height:4px;border-radius:2px;background:var(--raised);overflow:hidden}
+.pw-bar i{display:block;height:100%;background:var(--gold)}
+.pw-total .pw-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.pw-coals{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.pw-coal{border-top:3px solid var(--c,var(--line));margin:0}
+.pw-coal .pw-bar i{background:var(--c,var(--gold))}
+.pw-coal-head{display:flex;align-items:center;gap:10px}
+.pw-free{margin-top:14px;--c:#5d6a77}
+.pw-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.pw-chip{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:2px 9px;color:#d6cebd}
+.pw-cmp{margin-top:14px}
+.pw-cmp-res{margin-bottom:12px}
+.pw-cmp-lbl{display:flex;align-items:center;gap:6px;color:var(--gold);font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.pw-cmp-row{display:grid;grid-template-columns:minmax(80px,160px) 1fr auto auto;gap:10px;align-items:center;font-size:13.5px;padding:3px 0}
+.pw-cmp-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pw-cmp-track{height:10px;background:var(--raised);border-radius:5px;overflow:hidden}
+.pw-cmp-track i{display:block;height:100%;border-radius:5px}
+.pw-cmp-row b{font-variant-numeric:tabular-nums;font-weight:600}
+.pw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.pw-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.pw-card.sel{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,166,94,.35)}
+.pw-check{position:absolute;top:8px;left:8px;z-index:2;display:flex;gap:6px;align-items:center;background:rgba(13,14,17,.82);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 6px;font-size:12px;color:var(--fg);cursor:pointer}
+.pw-check input{accent-color:var(--gold)}
+.pw-img{aspect-ratio:3/4;max-width:100%;background:radial-gradient(80% 60% at 50% 35%,#24252d,#121318);display:grid;place-items:center;overflow:hidden}
+.pw-img img{width:100%;height:100%;object-fit:cover}
+.pw-img.fallback img{object-fit:contain;padding:18%}
+.pw-img span{font-family:var(--display);font-size:80px;color:rgba(201,166,94,.3)}
+.pw-body{padding:12px 14px 14px;display:grid;gap:4px;flex:1;align-content:start}
+.pw-body h3{font-size:23px}
+.pw-note{margin:6px 0 0;font-size:13.5px;color:var(--muted);font-style:italic}
+.pw-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pw-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pw-pick{display:grid;gap:6px;max-height:36vh;overflow:auto}
+@media (max-width:640px){.pw-total .pw-stats{grid-template-columns:1fr}.pw-inputs{grid-template-columns:1fr}.pw-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pw-body h3{font-size:19px}.pw-cmp-row{grid-template-columns:90px 1fr auto}.pw-cmp-row .pw-pc{display:none}}
+
 /* dramaturgy analysis */
 .an-stats{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px;color:var(--muted);margin:4px 0 10px}
 .an-stats b{color:var(--fg);font-weight:600}
@@ -696,6 +742,8 @@ function renderModal(){
       <div class="foot"><span class="hint" style="align-self:center">Изменения применятся у всех после «Сохранить» внизу экрана.</span><span class="grow"></span><button class="btn" id="m-cancel">Готово</button></div></div></div>`;
   }
   if(m.kind==='grtype') return renderGrTypeModal(m);
+  if(m.kind==='pwactor') return renderPwActorModal(m);
+  if(m.kind==='pwcoal') return renderPwCoalModal(m);
   if(m.kind==='playerpin'){
     const r=S.roles.find(x=>x.id===m.role)||{name:''};
     return wrap(`<h2 id="m-h">Легенда: ${h(r.name)}</h2>
@@ -767,6 +815,8 @@ document.addEventListener('input',ev=>{
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
   if(t.id==='gr-q'){ui.grQ=t.value;render();return}
   if(t.id==='gr-name'){const g=grCur();g.name=t.value;const b=document.querySelector(`[data-grg="${g.id}"]`);if(b)b.textContent=t.value||'Без названия';grSave();return}
+  if(t.id==='pwc-name'&&ui.modal){ui.modal.draft.name=t.value;return}
+  if(['pw-army','pw-fleet','pw-gold','pw-note'].includes(t.id)&&ui.modal){ui.modal.draft[t.id.slice(3)]=t.id==='pw-note'?t.value:pwNum(t.value);return}
   if(/^gr-goal-/.test(t.id)){const n=grCur().nodes.find(x=>ui.grSel&&x.id===ui.grSel.id);if(n){const k={'gr-goal-pub':'pub','gr-goal-per':'per','gr-goal-sec':'sec','gr-goal-fear':'fear'}[t.id];GR.chars=GR.chars||{};const c=GR.chars[n.ref]=GR.chars[n.ref]||{};c[k]=t.value.slice(0,1500);grSave()}return}
   if(t.id==='gr-note'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.note=t.value;grRedrawEdges();grSave()}return}
   if(t.id==='m-gtname'){ui.modal.draft.name=t.value;return}
@@ -785,6 +835,10 @@ document.addEventListener('change',ev=>{
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
+  if(t.id==='pw-img'&&t.files&&t.files[0]){const f=t.files[0];t.value='';pwUpload(f)}
+  if(t.id==='pw-ref'&&ui.modal)ui.modal.draft.ref=t.value;
+  if(t.dataset.pwsel){const sl=ui.pwSel=ui.pwSel||new Set();t.checked?sl.add(t.dataset.pwsel):sl.delete(t.dataset.pwsel);render()}
+  if(t.dataset.pwmem&&ui.modal){const d=ui.modal.draft;d.members=d.members.filter(x=>x!==t.dataset.pwmem);if(t.checked)d.members.push(t.dataset.pwmem);render()}
   if(['gr-e-secret','gr-e-conflict','gr-e-dep','gr-e-trust'].includes(t.id)){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){if(t.id==='gr-e-secret')e.secret=t.checked;if(t.id==='gr-e-conflict')e.conflict=t.checked;if(t.id==='gr-e-dep')e.dep=t.value;if(t.id==='gr-e-trust')e.trust=t.value;grSave();render()}}
   if(['gr-cfg-low','gr-cfg-closed','gr-cfg-broker'].includes(t.id)){GR.cfg=GR.cfg||{};const k=t.id.slice(7);const v=parseInt(t.value,10);if(v>0||(k==='low'&&v===0))GR.cfg[k]=v;else delete GR.cfg[k];grSave();render()}
   if(t.id==='gr-etype'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.type=t.value;grSave();render()}}
@@ -842,6 +896,22 @@ document.addEventListener('click',async ev=>{
     const p=grFreeSpot(g),n={id:uid('n'),ref:ds.gradd,x:p.x,y:p.y};g.nodes.push(n);ui.grSel={k:'n',id:n.id};grSave();render();return}
   if(ds.gredge){ui.grSel={k:'e',id:ds.gredge};render();return}
   if(ds.grptab){ui.grPTab=ds.grptab;render();return}
+  if(ds.grpage){if(grTimer)grFlush();ui.grPage=ds.grpage;ui.grSel=null;ui.grType=null;ui.grFrom=null;render();return}
+  if(t.id==='pw-add'){ui.modal={kind:'pwactor',isNew:true,draft:{id:uid('a'),ref:'',img:'',army:0,fleet:0,gold:0,note:''}};render();return}
+  if(ds.pwedit){const a=pwData().actors.find(x=>x.id===ds.pwedit);if(a){ui.modal={kind:'pwactor',isNew:false,draft:{...a}};render()}return}
+  if(t.id==='pw-img-clear'&&ui.modal){ui.modal.draft.img='';render();return}
+  if(t.id==='pw-save'){const m=ui.modal,d=m.draft;d.ref=document.getElementById('pw-ref').value;PW_RES.forEach(([k])=>d[k]=pwNum(document.getElementById('pw-'+k).value));d.note=document.getElementById('pw-note').value.trim().slice(0,300);
+    if(!d.ref){document.getElementById('pw-err').textContent='Выберите, кто этот актор.';return}
+    const P=pwData();if(m.isNew)P.actors.push(d);else P.actors[P.actors.findIndex(x=>x.id===d.id)]=d;ui.modal=null;grSave();render();return}
+  if(t.id==='pw-del'){const m=ui.modal;if(!m.confirm){m.confirm=true;render();return}const P=pwData(),id=m.draft.id;P.actors=P.actors.filter(x=>x.id!==id);P.coalitions.forEach(c=>c.members=c.members.filter(x=>x!==id));ui.modal=null;grSave();render();return}
+  if(t.id==='pw-coal-add'){const P=pwData();ui.modal={kind:'pwcoal',isNew:true,draft:{id:uid('c'),name:'',color:PW_COLORS[P.coalitions.length%PW_COLORS.length],members:[...(ui.pwSel||[])]}};render();document.getElementById('pwc-name')?.focus();return}
+  if(t.id==='pw-sel-clear'){ui.pwSel=new Set();render();return}
+  if(ds.pwcoaledit){const c=pwData().coalitions.find(x=>x.id===ds.pwcoaledit);if(c){ui.modal={kind:'pwcoal',isNew:false,draft:{...c,members:[...c.members]}};render()}return}
+  if(ds.pwcolor&&ui.modal&&ui.modal.kind==='pwcoal'){ui.modal.draft.color=ds.pwcolor;render();return}
+  if(t.id==='pwc-save'){const m=ui.modal,d=m.draft;d.name=(document.getElementById('pwc-name').value||'').trim().slice(0,40);if(!d.name){const f=document.getElementById('pwc-name');f.focus();f.placeholder='Введите название';return}
+    const P=pwData();if(m.isNew)P.coalitions.push(d);else P.coalitions[P.coalitions.findIndex(x=>x.id===d.id)]=d;ui.modal=null;ui.pwSel=new Set();grSave();render();return}
+  if(t.id==='pwc-del'){const m=ui.modal;if(!m.confirm){m.confirm=true;render();return}const P=pwData();P.coalitions=P.coalitions.filter(x=>x.id!==m.draft.id);ui.modal=null;grSave();render();return}
+  if(t.id==='pw-export'){pwExport();return}
   if(t.id==='gr-net-toggle'){ui.grNet=!ui.grNet;render();if(ui.grNet)document.querySelector('.gr-net')?.scrollIntoView({block:'nearest',behavior:'smooth'});return}
   if(ds.grscope){GR.cfg=GR.cfg||{};GR.cfg.scope=ds.grscope;grSave();render();return}
   if(ds.grgo){grGo(ds.grgo);return}
@@ -1082,9 +1152,11 @@ function renderGraphs(){
   if(!LG){if(!lgLoading&&!lgErr)loadLegends();return `<p class="empty">${h(lgErr||'Загружаю…')}</p>`}
   if(!GR) GR=grParse();
   const g=grCur(); ui.grId=g.id;
-  const ctx=grCtx();
-  const marks=new Set(); if(ui.grNet) g.nodes.forEach(n=>{if(!n.ref.startsWith('r:'))return;const a=ctx.char(n.ref);if(a&&a.recs.some(r=>r.prio==='high'&&!(GR.recState||{})[r.id]))marks.add(n.id)});
+  const ctx=ui.grPage==='powers'?null:grCtx();
+  const marks=new Set(); if(ui.grNet&&ctx) g.nodes.forEach(n=>{if(!n.ref.startsWith('r:'))return;const a=ctx.char(n.ref);if(a&&a.recs.some(r=>r.prio==='high'&&!(GR.recState||{})[r.id]))marks.add(n.id)});
   let o=`<div class="section-title"><h2>Графы</h2></div><p class="hint" style="margin:-10px 0 14px">Видно только мастерам. Схемы связей между персонажами и командами, сохраняются автоматически.</p>`;
+  o+=`<div class="seg pw-pages" role="tablist"><button class="chip-btn" data-grpage="schemes" aria-pressed="${(ui.grPage||'schemes')==='schemes'}">Схемы связей</button><button class="chip-btn" data-grpage="powers" aria-pressed="${ui.grPage==='powers'}">Силы домов</button></div>`;
+  if(ui.grPage==='powers') return o+renderPowers();
   o+=`<div class="lg-tabs gr-tabs" role="tablist">${GR.graphs.map(x=>`<button class="lg-tab" data-grg="${x.id}" aria-selected="${x.id===g.id}">${h(x.name||'Без названия')}</button>`).join('')}<button class="lg-tab add" id="gr-add-graph">+ Схема</button></div>`;
   const t=ui.grType&&grType(ui.grType);
   const hint=t?(ui.grFrom?`Связь «${h(t.name)}»: теперь нажмите на второго${t.dir?' (к кому ведёт стрелка)':''}.`:`Связь «${h(t.name)}»: нажмите на первого${t.dir?' (от кого стрелка)':''}.`):'';
@@ -1540,6 +1612,106 @@ function grGo(ref){
   const st=document.getElementById('gr-stage'); if(st&&grView){grView.tx=st.clientWidth/2-n.x*grView.s;grView.ty=st.clientHeight/2-n.y*grView.s;grApply();st.scrollIntoView({block:'nearest',behavior:'smooth'})}
 }
 document.addEventListener('toggle',ev=>{const d=ev.target;if(!d||!d.matches||!d.matches('details.rec'))return;const s=ui.grOpenRec=ui.grOpenRec||new Set();d.open?s.add(d.dataset.rec):s.delete(d.dataset.rec)},true);
+
+/* ---------------- house powers (master only) ---------------- */
+const PW_RES=[['army','Армия'],['fleet','Флот'],['gold','Казна']];
+const PW_COLORS=['#c9a65e','#8fb3d9','#c0453a','#7fae6e','#a58bd6','#e08a5a','#d26a8a','#9b9485'];
+const PW_ICON={army:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 13L11.5 4.5M10 3h3v3M4.5 9.5l2 2M2.5 13.5l1-1"/></svg>',
+  fleet:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 2v9M8 3l4 6H8M2.5 11h11l-1.8 3H4.3z"/></svg>',
+  gold:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><ellipse cx="8" cy="5" rx="5" ry="2"/><path d="M3 5v3c0 1.1 2.2 2 5 2s5-.9 5-2V5M3 8v3c0 1.1 2.2 2 5 2s5-.9 5-2V8"/></svg>'};
+const pwNum=v=>Math.max(0,Math.min(99999999,Math.round(+v||0)));
+const pwFmt=v=>pwNum(v).toLocaleString('ru-RU');
+function pwData(){const P=GR.powers=GR.powers&&typeof GR.powers==='object'?GR.powers:{};P.actors=Array.isArray(P.actors)?P.actors:[];P.coalitions=Array.isArray(P.coalitions)?P.coalitions:[];return P}
+function pwTotals(list){const t={army:0,fleet:0,gold:0};list.forEach(a=>PW_RES.forEach(([k])=>t[k]+=pwNum(a[k])));return t}
+const pwShare=(v,tot)=>tot>0?Math.round(v/tot*100):0;
+function pwActorName(a){return grName(a.ref)}
+function pwActorSub(a){const i=grRef(a.ref);return i?i.sub:''}
+function pwStats(vals,tot,compact){
+  return `<div class="pw-stats${compact?' compact':''}">${PW_RES.map(([k,l])=>`<div class="pw-stat"><span class="pw-ico">${PW_ICON[k]}</span><span class="pw-lbl">${l}</span><b>${pwFmt(vals[k])}</b>${tot?`<span class="pw-pc">${pwShare(vals[k],tot[k])}%</span><span class="pw-bar"><i style="width:${pwShare(vals[k],tot[k])}%"></i></span>`:''}</div>`).join('')}</div>`;
+}
+function renderPowers(){
+  const P=pwData(), A=P.actors, tot=pwTotals(A), sel=ui.pwSel=ui.pwSel||new Set();
+  [...sel].forEach(id=>{if(!A.some(a=>a.id===id))sel.delete(id)});
+  let o=`<p class="hint" style="margin:0 0 14px;max-width:72ch">Политические акторы и их ресурсы. Доли считаются от суммы всех акторов. Коалиция складывает показатели участников. Карточки можно выгрузить для печати и раздать игрокам.</p>`;
+  o+=`<div class="pw-bar-top"><button class="btn small gold" id="pw-add">+ Политический актор</button><button class="btn small" id="pw-coal-add">${sel.size?`+ Коалиция из выбранных (${sel.size})`:'+ Создать коалицию'}</button>${sel.size?'<button class="btn small" id="pw-sel-clear">Снять выбор</button>':''}<span style="flex:1"></span>${A.length?'<button class="btn small" id="pw-export">Скачать карточки (.docx)</button>':''}<span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>`;
+  if(A.length) o+=`<div class="map-card pw-total"><div class="mc-name" style="font-size:20px">Все силы вместе</div>${pwStats(tot,null)}</div>`;
+  // coalitions
+  if(P.coalitions.length){
+    o+=`<div class="rec-h" style="margin-top:18px">Коалиции</div><div class="pw-coals">`;
+    P.coalitions.forEach(c=>{const mem=c.members.map(id=>A.find(a=>a.id===id)).filter(Boolean), t=pwTotals(mem);
+      o+=`<div class="map-card pw-coal" style="--c:${grSafeColor(c.color)}"><div class="pw-coal-head"><span class="sw" style="background:${grSafeColor(c.color)}"></span><div class="mc-name">${h(c.name||'Коалиция')}</div><span style="flex:1"></span><button class="btn small" data-pwcoaledit="${c.id}">Изменить</button></div>
+        <div class="pw-chips">${mem.map(a=>`<span class="pw-chip">${h(pwActorName(a))}</span>`).join('')||'<span class="hint">Нет участников</span>'}</div>${pwStats(t,tot)}</div>`});
+    o+=`</div>`;
+    const inAny=new Set(P.coalitions.flatMap(c=>c.members)), free=A.filter(a=>!inAny.has(a.id));
+    if(free.length&&A.length>1){const ft=pwTotals(free);o+=`<div class="map-card pw-coal pw-free"><div class="pw-coal-head"><div class="mc-name">Вне коалиций</div></div><div class="pw-chips">${free.map(a=>`<span class="pw-chip">${h(pwActorName(a))}</span>`).join('')}</div>${pwStats(ft,tot)}</div>`}
+    o+=renderPwCompare(P,A,tot);
+  }
+  // actors
+  o+=`<div class="rec-h" style="margin-top:18px">Политические акторы</div>`;
+  if(!A.length) o+=`<p class="empty">Акторов пока нет. Нажмите «+ Политический актор», выберите роль или команду и задайте армию, флот и казну.</p>`;
+  else o+=`<div class="pw-grid">${A.map(a=>{const i=grRef(a.ref), img=a.img||(i&&i.img)||'', coals=P.coalitions.filter(c=>c.members.includes(a.id));
+    return `<article class="pw-card${sel.has(a.id)?' sel':''}"><label class="pw-check" title="Выбрать для коалиции"><input type="checkbox" data-pwsel="${a.id}" ${sel.has(a.id)?'checked':''}><span>выбрать</span></label>
+      <div class="pw-img${a.img?'':' fallback'}">${img?`<img src="${h(img)}" alt="">`:`<span>${h((pwActorName(a)||'?').trim()[0]||'?')}</span>`}</div>
+      <div class="pw-body"><h3>${h(pwActorName(a))}</h3>${pwActorSub(a)?`<div class="rtitle">${h(pwActorSub(a))}</div>`:''}${pwStats(a,tot,true)}
+      ${a.note?`<p class="pw-note">${h(a.note)}</p>`:''}${coals.length?`<div class="pw-chips">${coals.map(c=>`<span class="pw-chip" style="border-color:${grSafeColor(c.color)}">${h(c.name)}</span>`).join('')}</div>`:''}
+      <div class="pw-acts"><button class="btn small" data-pwedit="${a.id}">Изменить</button>${a.ref.startsWith('r:')&&grRef(a.ref)?`<button class="btn small" data-lg="${a.ref.slice(2)}">Легенда</button>`:''}</div></div></article>`}).join('')}</div>`;
+  return o;
+}
+function renderPwCompare(P,A,tot){
+  const rows=P.coalitions.map(c=>{const mem=c.members.map(id=>A.find(a=>a.id===id)).filter(Boolean);return {name:c.name||'Коалиция',color:grSafeColor(c.color),t:pwTotals(mem)}});
+  if(rows.length<2) return '';
+  return `<div class="map-card pw-cmp"><div class="mc-name" style="font-size:20px;margin-bottom:8px">Сравнение коалиций</div>${PW_RES.map(([k,l])=>{const max=Math.max(1,...rows.map(r=>r.t[k]));
+    return `<div class="pw-cmp-res"><div class="pw-cmp-lbl">${PW_ICON[k]} ${l}</div>${rows.slice().sort((a,b)=>b.t[k]-a.t[k]).map(r=>`<div class="pw-cmp-row"><span class="pw-cmp-name">${h(r.name)}</span><span class="pw-cmp-track"><i style="width:${(r.t[k]/max*100).toFixed(1)}%;background:${r.color}"></i></span><b>${pwFmt(r.t[k])}</b><span class="pw-pc">${pwShare(r.t[k],tot[k])}%</span></div>`).join('')}</div>`}).join('')}
+    <p class="hint" style="margin:8px 0 0">Если актор входит в несколько коалиций, его силы учтены в каждой.</p></div>`;
+}
+function renderPwActorModal(m){
+  const d=m.draft, P=pwData(), taken=new Set(P.actors.filter(a=>a.id!==d.id).map(a=>a.ref));
+  const opts=[];S.teams.forEach(t=>{const tr='t:'+t.id;const rs=S.roles.filter(r=>r.team===t.id);opts.push(`<optgroup label="${h(t.name)}"><option value="${tr}" ${d.ref===tr?'selected':''} ${taken.has(tr)?'disabled':''}>${h(t.name)} (вся команда)</option>${rs.map(r=>`<option value="r:${r.id}" ${d.ref==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`)});
+  const lone=S.roles.filter(r=>!S.teams.some(t=>t.id===r.team)); if(lone.length) opts.push(`<optgroup label="Без команды">${lone.map(r=>`<option value="r:${r.id}" ${d.ref==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`);
+  return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">${m.isNew?'Новый политический актор':'Политический актор'}</h2>
+    <div class="field"><label for="pw-ref">Кто актор</label><select id="pw-ref"><option value="">Выберите роль или команду</option>${opts.join('')}</select><span class="hint">Персонажи и команды берутся из «Сетки ролей». Уже добавленные недоступны.</span></div>
+    <div class="field"><span class="lbl">Картинка карточки</span><div class="photo-pick"><div class="thumb">${d.img?`<img src="${h(d.img)}" alt="">`:''}</div>
+      <div style="display:grid;gap:8px"><label class="btn small gold" for="pw-img" style="justify-self:start">${d.img?'Заменить картинку':'Загрузить картинку'}</label><input type="file" id="pw-img" accept="image/*" hidden>
+      ${d.img?'<button class="btn small" id="pw-img-clear" style="justify-self:start">Убрать картинку</button>':''}<span class="hint">${m.uploading?'Загружаю…':m.err?h(m.err):'Без картинки берётся портрет роли или герб команды.'}</span></div></div></div>
+    <div class="pw-inputs">${PW_RES.map(([k,l])=>`<div class="field"><label for="pw-${k}">${l}</label><input id="pw-${k}" type="number" min="0" step="1" inputmode="numeric" value="${pwNum(d[k])}"></div>`).join('')}</div>
+    <div class="field"><label for="pw-note">Примечание на карточке</label><textarea id="pw-note" rows="2" maxlength="300" placeholder="Например: флот стоит в Белой Гавани, казна в долгу у Железного банка">${h(d.note||'')}</textarea></div>
+    <p class="err" id="pw-err"></p>
+    <div class="foot">${m.isNew?'':`<button class="btn danger" id="pw-del">${m.confirm?'Точно удалить?':'Удалить актора'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="pw-save" ${m.uploading?'disabled':''}>Готово</button></div></div></div>`;
+}
+function renderPwCoalModal(m){
+  const d=m.draft, A=pwData().actors, mem=new Set(d.members), t=pwTotals(A.filter(a=>mem.has(a.id)));
+  return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">${m.isNew?'Новая коалиция':'Коалиция'}</h2>
+    <div class="field"><label for="pwc-name">Название</label><input id="pwc-name" value="${h(d.name||'')}" maxlength="40" placeholder="Например, Север"></div>
+    <div class="field"><span class="lbl">Цвет</span><div class="gr-colors">${PW_COLORS.map(c=>`<button class="gr-color" data-pwcolor="${c}" style="background:${c}" aria-pressed="${d.color===c}" aria-label="Цвет ${c}"></button>`).join('')}</div></div>
+    <div class="field"><span class="lbl">Участники</span><div class="pw-pick">${A.map(a=>`<label class="gr-check"><input type="checkbox" data-pwmem="${a.id}" ${mem.has(a.id)?'checked':''}> ${h(pwActorName(a))} <span class="hint">· ${PW_RES.map(([k,l])=>l[0]+' '+pwFmt(a[k])).join(' · ')}</span></label>`).join('')||'<p class="hint">Сначала добавьте политических акторов.</p>'}</div></div>
+    <div class="field"><span class="lbl">Итого</span>${pwStats(t,null)}</div>
+    <div class="foot">${m.isNew?'':`<button class="btn danger" id="pwc-del">${m.confirm?'Точно удалить?':'Удалить коалицию'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="pwc-save">Готово</button></div></div></div>`;
+}
+async function pwUpload(file){
+  const m=ui.modal; if(!m) return; m.uploading=true; m.err=''; render();
+  try{m.draft.img=await shrink(file,700,file.type==='image/png'||file.type==='image/webp'?'png':undefined)}catch(e){m.err=e.message||'Не получилось прочитать картинку.'}
+  if(ui.modal===m){m.uploading=false;render()}
+}
+async function pwExport(){
+  const A=pwData().actors; if(!A.length) return; grStatus('Готовлю файл Word…');
+  try{
+    await loadDocx(); const D=window.docx, ch=[];
+    for(let i=0;i<A.length;i++){const a=A[i], info=grRef(a.ref), img=a.img||(info&&info.img)||'';
+      ch.push(new D.Paragraph({heading:D.HeadingLevel.HEADING_1,pageBreakBefore:i>0,children:[new D.TextRun(pwActorName(a))]}));
+      if(pwActorSub(a)) ch.push(new D.Paragraph({children:[new D.TextRun({text:pwActorSub(a),italics:true,color:'8A6A2B'})],spacing:{after:200}}));
+      if(img) ch.push(new D.Paragraph({children:[await imageRun(D,img,340)],alignment:D.AlignmentType.CENTER,spacing:{after:240}}));
+      ch.push(new D.Table({width:{size:100,type:D.WidthType.PERCENTAGE},rows:[
+        new D.TableRow({children:PW_RES.map(([,l])=>new D.TableCell({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:l,bold:true,color:'5A1E19'})]})]}))}),
+        new D.TableRow({children:PW_RES.map(([k])=>new D.TableCell({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:80,after:80},children:[new D.TextRun({text:pwFmt(a[k]),size:36})]})]}))})]}));
+      if(a.note) ch.push(new D.Paragraph({spacing:{before:240},children:[new D.TextRun({text:a.note,italics:true})]}));
+    }
+    const doc=new D.Document({creator:S.hero.title,title:'Карточки политических сил',styles:{default:{document:{run:{font:'Georgia',size:24}},heading1:{run:{font:'Georgia',size:44,color:'5A1E19'},paragraph:{spacing:{after:80}}}}},
+      sections:[{properties:{page:{margin:{top:1134,bottom:1134,left:1134,right:1134}}},children:ch}]});
+    const blob=await D.Packer.toBlob(doc), a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);a.download='Карточки политических сил.docx';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
+    grStatus('Файл Word скачан');
+  }catch(e){console.error(e);grStatus('Не получилось собрать файл Word. Проверьте интернет.')}
+}
 
 /* ---------------- legends (master only) ---------------- */
 function orderedRoles(){
