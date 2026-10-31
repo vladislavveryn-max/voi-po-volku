@@ -300,6 +300,7 @@ body.has-bg main.col,body.has-bg footer.col{background:transparent}
 .pw-stats.compact .pw-stat{font-size:13.5px}
 .pw-ico{grid-area:ico;color:var(--gold);display:grid}
 .pw-lbl{grid-area:lbl;color:var(--muted)}
+.pw-stat b.neg,.pw-cmp-row b.neg{color:#eaa497}
 .pw-stat b{grid-area:val;text-align:right;font-variant-numeric:tabular-nums;color:var(--fg);font-weight:600}
 .pw-stat .pw-pc{grid-area:pc}
 .pw-pc{font-size:12px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
@@ -1619,22 +1620,24 @@ const PW_COLORS=['#c9a65e','#8fb3d9','#c0453a','#7fae6e','#a58bd6','#e08a5a','#d
 const PW_ICON={army:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M3 13L11.5 4.5M10 3h3v3M4.5 9.5l2 2M2.5 13.5l1-1"/></svg>',
   fleet:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M8 2v9M8 3l4 6H8M2.5 11h11l-1.8 3H4.3z"/></svg>',
   gold:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><ellipse cx="8" cy="5" rx="5" ry="2"/><path d="M3 5v3c0 1.1 2.2 2 5 2s5-.9 5-2V5M3 8v3c0 1.1 2.2 2 5 2s5-.9 5-2V8"/></svg>'};
-const pwNum=v=>Math.max(0,Math.min(99999999,Math.round(+v||0)));
-const pwFmt=v=>pwNum(v).toLocaleString('ru-RU');
+const pwNum=v=>Math.max(-99999999,Math.min(99999999,Math.round(+v||0)));
+const pwFmt=v=>{const n=pwNum(v);return (n<0?'−':'')+Math.abs(n).toLocaleString('ru-RU')};
+const pwW=(v,tot)=>tot>0?Math.max(0,Math.min(100,v/tot*100)).toFixed(1):'0';
 function pwData(){const P=GR.powers=GR.powers&&typeof GR.powers==='object'?GR.powers:{};P.actors=Array.isArray(P.actors)?P.actors:[];P.coalitions=Array.isArray(P.coalitions)?P.coalitions:[];return P}
+function pwPos(list){const t={army:0,fleet:0,gold:0};list.forEach(a=>PW_RES.forEach(([k])=>t[k]+=Math.max(0,pwNum(a[k]))));return t}
 function pwTotals(list){const t={army:0,fleet:0,gold:0};list.forEach(a=>PW_RES.forEach(([k])=>t[k]+=pwNum(a[k])));return t}
-const pwShare=(v,tot)=>tot>0?Math.round(v/tot*100):0;
+const pwShare=(v,tot)=>tot>0?String(Math.round(v/tot*100)).replace('-','−'):0;
 function pwActorName(a){return grName(a.ref)}
 function pwActorSub(a){const i=grRef(a.ref);return i?i.sub:''}
 function pwStats(vals,tot,compact){
-  return `<div class="pw-stats${compact?' compact':''}">${PW_RES.map(([k,l])=>`<div class="pw-stat"><span class="pw-ico">${PW_ICON[k]}</span><span class="pw-lbl">${l}</span><b>${pwFmt(vals[k])}</b>${tot?`<span class="pw-pc">${pwShare(vals[k],tot[k])}%</span><span class="pw-bar"><i style="width:${pwShare(vals[k],tot[k])}%"></i></span>`:''}</div>`).join('')}</div>`;
+  return `<div class="pw-stats${compact?' compact':''}">${PW_RES.map(([k,l])=>`<div class="pw-stat"><span class="pw-ico">${PW_ICON[k]}</span><span class="pw-lbl">${l}</span><b class="${pwNum(vals[k])<0?'neg':''}">${pwFmt(vals[k])}</b>${tot?`<span class="pw-pc">${tot[k]>0?pwShare(vals[k],tot[k])+'%':'—'}</span><span class="pw-bar"><i style="width:${pwW(vals[k],tot[k])}%"></i></span>`:''}</div>`).join('')}</div>`;
 }
 function renderPowers(){
-  const P=pwData(), A=P.actors, tot=pwTotals(A), sel=ui.pwSel=ui.pwSel||new Set();
+  const P=pwData(), A=P.actors, net=pwTotals(A), tot=pwPos(A), sel=ui.pwSel=ui.pwSel||new Set();
   [...sel].forEach(id=>{if(!A.some(a=>a.id===id))sel.delete(id)});
-  let o=`<p class="hint" style="margin:0 0 14px;max-width:72ch">Политические акторы и их ресурсы. Доли считаются от суммы всех акторов. Коалиция складывает показатели участников. Карточки можно выгрузить для печати и раздать игрокам.</p>`;
+  let o=`<p class="hint" style="margin:0 0 14px;max-width:72ch">Политические акторы и их ресурсы. Доли считаются от суммы положительных значений всех акторов. Коалиция складывает показатели участников, отрицательные значения (долги, потери) вычитаются. Карточки можно выгрузить для печати и раздать игрокам.</p>`;
   o+=`<div class="pw-bar-top"><button class="btn small gold" id="pw-add">+ Политический актор</button><button class="btn small" id="pw-coal-add">${sel.size?`+ Коалиция из выбранных (${sel.size})`:'+ Создать коалицию'}</button>${sel.size?'<button class="btn small" id="pw-sel-clear">Снять выбор</button>':''}<span style="flex:1"></span>${A.length?'<button class="btn small" id="pw-export">Скачать карточки (.docx)</button>':''}<span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>`;
-  if(A.length) o+=`<div class="map-card pw-total"><div class="mc-name" style="font-size:20px">Все силы вместе</div>${pwStats(tot,null)}</div>`;
+  if(A.length) o+=`<div class="map-card pw-total"><div class="mc-name" style="font-size:20px">Все силы вместе</div>${pwStats(net,null)}</div>`;
   // coalitions
   if(P.coalitions.length){
     o+=`<div class="rec-h" style="margin-top:18px">Коалиции</div><div class="pw-coals">`;
@@ -1661,7 +1664,7 @@ function renderPwCompare(P,A,tot){
   const rows=P.coalitions.map(c=>{const mem=c.members.map(id=>A.find(a=>a.id===id)).filter(Boolean);return {name:c.name||'Коалиция',color:grSafeColor(c.color),t:pwTotals(mem)}});
   if(rows.length<2) return '';
   return `<div class="map-card pw-cmp"><div class="mc-name" style="font-size:20px;margin-bottom:8px">Сравнение коалиций</div>${PW_RES.map(([k,l])=>{const max=Math.max(1,...rows.map(r=>r.t[k]));
-    return `<div class="pw-cmp-res"><div class="pw-cmp-lbl">${PW_ICON[k]} ${l}</div>${rows.slice().sort((a,b)=>b.t[k]-a.t[k]).map(r=>`<div class="pw-cmp-row"><span class="pw-cmp-name">${h(r.name)}</span><span class="pw-cmp-track"><i style="width:${(r.t[k]/max*100).toFixed(1)}%;background:${r.color}"></i></span><b>${pwFmt(r.t[k])}</b><span class="pw-pc">${pwShare(r.t[k],tot[k])}%</span></div>`).join('')}</div>`}).join('')}
+    return `<div class="pw-cmp-res"><div class="pw-cmp-lbl">${PW_ICON[k]} ${l}</div>${rows.slice().sort((a,b)=>b.t[k]-a.t[k]).map(r=>`<div class="pw-cmp-row"><span class="pw-cmp-name">${h(r.name)}</span><span class="pw-cmp-track"><i style="width:${pwW(r.t[k],max)}%;background:${r.color}"></i></span><b class="${r.t[k]<0?'neg':''}">${pwFmt(r.t[k])}</b><span class="pw-pc">${tot[k]>0?pwShare(r.t[k],tot[k])+'%':'—'}</span></div>`).join('')}</div>`}).join('')}
     <p class="hint" style="margin:8px 0 0">Если актор входит в несколько коалиций, его силы учтены в каждой.</p></div>`;
 }
 function renderPwActorModal(m){
@@ -1673,7 +1676,8 @@ function renderPwActorModal(m){
     <div class="field"><span class="lbl">Картинка карточки</span><div class="photo-pick"><div class="thumb">${d.img?`<img src="${h(d.img)}" alt="">`:''}</div>
       <div style="display:grid;gap:8px"><label class="btn small gold" for="pw-img" style="justify-self:start">${d.img?'Заменить картинку':'Загрузить картинку'}</label><input type="file" id="pw-img" accept="image/*" hidden>
       ${d.img?'<button class="btn small" id="pw-img-clear" style="justify-self:start">Убрать картинку</button>':''}<span class="hint">${m.uploading?'Загружаю…':m.err?h(m.err):'Без картинки берётся портрет роли или герб команды.'}</span></div></div></div>
-    <div class="pw-inputs">${PW_RES.map(([k,l])=>`<div class="field"><label for="pw-${k}">${l}</label><input id="pw-${k}" type="number" min="0" step="1" inputmode="numeric" value="${pwNum(d[k])}"></div>`).join('')}</div>
+    <div class="pw-inputs">${PW_RES.map(([k,l])=>`<div class="field"><label for="pw-${k}">${l}</label><input id="pw-${k}" type="number" step="1" value="${pwNum(d[k])}"></div>`).join('')}</div>
+    <p class="hint" style="margin:-6px 0 12px">Можно вводить отрицательные значения (долги, потери, распущенная армия): при подсчёте коалиции они вычитаются.</p>
     <div class="field"><label for="pw-note">Примечание на карточке</label><textarea id="pw-note" rows="2" maxlength="300" placeholder="Например: флот стоит в Белой Гавани, казна в долгу у Железного банка">${h(d.note||'')}</textarea></div>
     <p class="err" id="pw-err"></p>
     <div class="foot">${m.isNew?'':`<button class="btn danger" id="pw-del">${m.confirm?'Точно удалить?':'Удалить актора'}</button>`}<span class="grow"></span><button class="btn" id="m-cancel">Отмена</button><button class="btn primary" id="pw-save" ${m.uploading?'disabled':''}>Готово</button></div></div></div>`;
