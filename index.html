@@ -817,6 +817,7 @@ document.addEventListener('input',ev=>{
   if(t.id==='gr-q'){ui.grQ=t.value;render();return}
   if(t.id==='gr-name'){const g=grCur();g.name=t.value;const b=document.querySelector(`[data-grg="${g.id}"]`);if(b)b.textContent=t.value||'Без названия';grSave();return}
   if(t.id==='pwc-name'&&ui.modal){ui.modal.draft.name=t.value;return}
+  if((t.id==='pw-name'||t.id==='pw-sub')&&ui.modal){ui.modal.draft[t.id.slice(3)]=t.value;return}
   if(['pw-army','pw-fleet','pw-gold','pw-note'].includes(t.id)&&ui.modal){ui.modal.draft[t.id.slice(3)]=t.id==='pw-note'?t.value:pwNum(t.value);return}
   if(/^gr-goal-/.test(t.id)){const n=grCur().nodes.find(x=>ui.grSel&&x.id===ui.grSel.id);if(n){const k={'gr-goal-pub':'pub','gr-goal-per':'per','gr-goal-sec':'sec','gr-goal-fear':'fear'}[t.id];GR.chars=GR.chars||{};const c=GR.chars[n.ref]=GR.chars[n.ref]||{};c[k]=t.value.slice(0,1500);grSave()}return}
   if(t.id==='gr-note'){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){e.note=t.value;grRedrawEdges();grSave()}return}
@@ -837,7 +838,7 @@ document.addEventListener('change',ev=>{
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
   if(t.id==='pw-img'&&t.files&&t.files[0]){const f=t.files[0];t.value='';pwUpload(f)}
-  if(t.id==='pw-ref'&&ui.modal)ui.modal.draft.ref=t.value;
+  if(t.id==='pw-ref'&&ui.modal){const d=ui.modal.draft;PW_RES.forEach(([k])=>{const el=document.getElementById('pw-'+k);if(el)d[k]=pwNum(el.value)});const nt=document.getElementById('pw-note');if(nt)d.note=nt.value;if(t.value==='__free'){d.free=true;d.ref=''}else{d.free=false;d.ref=t.value}render()}
   if(t.dataset.pwsel){const sl=ui.pwSel=ui.pwSel||new Set();t.checked?sl.add(t.dataset.pwsel):sl.delete(t.dataset.pwsel);render()}
   if(t.dataset.pwmem&&ui.modal){const d=ui.modal.draft;d.members=d.members.filter(x=>x!==t.dataset.pwmem);if(t.checked)d.members.push(t.dataset.pwmem);render()}
   if(['gr-e-secret','gr-e-conflict','gr-e-dep','gr-e-trust'].includes(t.id)){const e=grCur().edges.find(x=>ui.grSel&&x.id===ui.grSel.id);if(e){if(t.id==='gr-e-secret')e.secret=t.checked;if(t.id==='gr-e-conflict')e.conflict=t.checked;if(t.id==='gr-e-dep')e.dep=t.value;if(t.id==='gr-e-trust')e.trust=t.value;grSave();render()}}
@@ -901,8 +902,9 @@ document.addEventListener('click',async ev=>{
   if(t.id==='pw-add'){ui.modal={kind:'pwactor',isNew:true,draft:{id:uid('a'),ref:'',img:'',army:0,fleet:0,gold:0,note:''}};render();return}
   if(ds.pwedit){const a=pwData().actors.find(x=>x.id===ds.pwedit);if(a){ui.modal={kind:'pwactor',isNew:false,draft:{...a}};render()}return}
   if(t.id==='pw-img-clear'&&ui.modal){ui.modal.draft.img='';render();return}
-  if(t.id==='pw-save'){const m=ui.modal,d=m.draft;d.ref=document.getElementById('pw-ref').value;PW_RES.forEach(([k])=>d[k]=pwNum(document.getElementById('pw-'+k).value));d.note=document.getElementById('pw-note').value.trim().slice(0,300);
-    if(!d.ref){document.getElementById('pw-err').textContent='Выберите, кто этот актор.';return}
+  if(t.id==='pw-save'){const m=ui.modal,d=m.draft;const rv=document.getElementById('pw-ref').value;d.free=rv==='__free';d.ref=d.free?'':rv;if(d.free){d.name=(document.getElementById('pw-name').value||'').trim().slice(0,60);d.sub=(document.getElementById('pw-sub').value||'').trim().slice(0,60)}else{delete d.name;delete d.sub}PW_RES.forEach(([k])=>d[k]=pwNum(document.getElementById('pw-'+k).value));d.note=document.getElementById('pw-note').value.trim().slice(0,300);
+    if(d.free&&!d.name){document.getElementById('pw-err').textContent='Введите название независимого актора.';document.getElementById('pw-name').focus();return}
+    if(!d.free&&!d.ref){document.getElementById('pw-err').textContent='Выберите, кто этот актор.';return}
     const P=pwData();if(m.isNew)P.actors.push(d);else P.actors[P.actors.findIndex(x=>x.id===d.id)]=d;ui.modal=null;grSave();render();return}
   if(t.id==='pw-del'){const m=ui.modal;if(!m.confirm){m.confirm=true;render();return}const P=pwData(),id=m.draft.id;P.actors=P.actors.filter(x=>x.id!==id);P.coalitions.forEach(c=>c.members=c.members.filter(x=>x!==id));ui.modal=null;grSave();render();return}
   if(t.id==='pw-coal-add'){const P=pwData();ui.modal={kind:'pwcoal',isNew:true,draft:{id:uid('c'),name:'',color:PW_COLORS[P.coalitions.length%PW_COLORS.length],members:[...(ui.pwSel||[])]}};render();document.getElementById('pwc-name')?.focus();return}
@@ -1627,8 +1629,8 @@ function pwData(){const P=GR.powers=GR.powers&&typeof GR.powers==='object'?GR.po
 function pwPos(list){const t={army:0,fleet:0,gold:0};list.forEach(a=>PW_RES.forEach(([k])=>t[k]+=Math.max(0,pwNum(a[k]))));return t}
 function pwTotals(list){const t={army:0,fleet:0,gold:0};list.forEach(a=>PW_RES.forEach(([k])=>t[k]+=pwNum(a[k])));return t}
 const pwShare=(v,tot)=>tot>0?String(Math.round(v/tot*100)).replace('-','−'):0;
-function pwActorName(a){return grName(a.ref)}
-function pwActorSub(a){const i=grRef(a.ref);return i?i.sub:''}
+function pwActorName(a){return a.free?(a.name||'Без названия'):grName(a.ref)}
+function pwActorSub(a){if(a.free)return a.sub||'Независимый актор';const i=grRef(a.ref);return i?i.sub:''}
 function pwStats(vals,tot,compact){
   return `<div class="pw-stats${compact?' compact':''}">${PW_RES.map(([k,l])=>`<div class="pw-stat"><span class="pw-ico">${PW_ICON[k]}</span><span class="pw-lbl">${l}</span><b class="${pwNum(vals[k])<0?'neg':''}">${pwFmt(vals[k])}</b>${tot?`<span class="pw-pc">${tot[k]>0?pwShare(vals[k],tot[k])+'%':'—'}</span><span class="pw-bar"><i style="width:${pwW(vals[k],tot[k])}%"></i></span>`:''}</div>`).join('')}</div>`;
 }
@@ -1668,11 +1670,12 @@ function renderPwCompare(P,A,tot){
     <p class="hint" style="margin:8px 0 0">Если актор входит в несколько коалиций, его силы учтены в каждой.</p></div>`;
 }
 function renderPwActorModal(m){
-  const d=m.draft, P=pwData(), taken=new Set(P.actors.filter(a=>a.id!==d.id).map(a=>a.ref));
-  const opts=[];S.teams.forEach(t=>{const tr='t:'+t.id;const rs=S.roles.filter(r=>r.team===t.id);opts.push(`<optgroup label="${h(t.name)}"><option value="${tr}" ${d.ref===tr?'selected':''} ${taken.has(tr)?'disabled':''}>${h(t.name)} (вся команда)</option>${rs.map(r=>`<option value="r:${r.id}" ${d.ref==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`)});
-  const lone=S.roles.filter(r=>!S.teams.some(t=>t.id===r.team)); if(lone.length) opts.push(`<optgroup label="Без команды">${lone.map(r=>`<option value="r:${r.id}" ${d.ref==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`);
+  const d=m.draft, P=pwData(), taken=new Set(P.actors.filter(a=>a.id!==d.id&&!a.free).map(a=>a.ref)), sv=d.free?'__free':d.ref;
+  const opts=[];S.teams.forEach(t=>{const tr='t:'+t.id;const rs=S.roles.filter(r=>r.team===t.id);opts.push(`<optgroup label="${h(t.name)}"><option value="${tr}" ${sv===tr?'selected':''} ${taken.has(tr)?'disabled':''}>${h(t.name)} (вся команда)</option>${rs.map(r=>`<option value="r:${r.id}" ${sv==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`)});
+  const lone=S.roles.filter(r=>!S.teams.some(t=>t.id===r.team)); if(lone.length) opts.push(`<optgroup label="Без команды">${lone.map(r=>`<option value="r:${r.id}" ${sv==='r:'+r.id?'selected':''} ${taken.has('r:'+r.id)?'disabled':''}>${h(r.name)}</option>`).join('')}</optgroup>`);
   return `<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h"><h2 id="m-h">${m.isNew?'Новый политический актор':'Политический актор'}</h2>
-    <div class="field"><label for="pw-ref">Кто актор</label><select id="pw-ref"><option value="">Выберите роль или команду</option>${opts.join('')}</select><span class="hint">Персонажи и команды берутся из «Сетки ролей». Уже добавленные недоступны.</span></div>
+    <div class="field"><label for="pw-ref">Кто актор</label><select id="pw-ref"><option value="">Выберите роль или команду</option><option value="__free" ${sv==='__free'?'selected':''}>Независимый актор (без роли): наёмники, банк, орден…</option>${opts.join('')}</select><span class="hint">Персонажи и команды берутся из «Сетки ролей». Уже добавленные недоступны.</span></div>
+    ${sv==='__free'?`<div class="gr-two"><div class="field"><label for="pw-name">Название</label><input id="pw-name" value="${h(d.name||'')}" maxlength="60" placeholder="Например, Золотые Мечи"></div><div class="field"><label for="pw-sub">Подпись</label><input id="pw-sub" value="${h(d.sub||'')}" maxlength="60" placeholder="Например, наёмная армия"></div></div>`:''}
     <div class="field"><span class="lbl">Картинка карточки</span><div class="photo-pick"><div class="thumb">${d.img?`<img src="${h(d.img)}" alt="">`:''}</div>
       <div style="display:grid;gap:8px"><label class="btn small gold" for="pw-img" style="justify-self:start">${d.img?'Заменить картинку':'Загрузить картинку'}</label><input type="file" id="pw-img" accept="image/*" hidden>
       ${d.img?'<button class="btn small" id="pw-img-clear" style="justify-self:start">Убрать картинку</button>':''}<span class="hint">${m.uploading?'Загружаю…':m.err?h(m.err):'Без картинки берётся портрет роли или герб команды.'}</span></div></div></div>
