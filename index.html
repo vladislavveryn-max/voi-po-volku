@@ -927,6 +927,7 @@ document.addEventListener('click',async ev=>{
   if(t.id==='gr-edge-del'){const g=grCur();g.edges=g.edges.filter(e=>!(ui.grSel&&e.id===ui.grSel.id));ui.grSel=null;grSave();render();return}
   if(t.id==='gr-arrange'){if(!ui.grConfirmArr){ui.grConfirmArr=true;render();return}ui.grConfirmArr=false;grArrange(grCur());grView=null;grSave();render();return}
   if(t.id==='gr-png'){grPng();return}
+  if(t.id==='gr-xlsx'){grXlsx();return}
   if(ds.grz){if(ds.grz==='fit'){grFit();grView.g=ui.grId;grApply()}else{const st=document.getElementById('gr-stage');grZoomAt(ds.grz==='in'?1.25:1/1.25,st.clientWidth/2,st.clientHeight/2)}return}
   if(ds.lg){goLegend(ds.lg);return}
   if(ds.plg){ui.modal={kind:'playerpin',role:ds.plg};render();document.getElementById('p-pin')?.focus();return}
@@ -1165,7 +1166,7 @@ function renderGraphs(){
   const hint=t?(ui.grFrom?`Связь «${h(t.name)}»: теперь нажмите на второго${t.dir?' (к кому ведёт стрелка)':''}.`:`Связь «${h(t.name)}»: нажмите на первого${t.dir?' (от кого стрелка)':''}.`):'';
   o+=`<div class="gr-layout"><div class="gr-main">
     <div class="gr-bar"><input id="gr-name" class="ms-in" value="${h(g.name||'')}" maxlength="40" aria-label="Название схемы" placeholder="Название схемы">
-      <button class="btn small" id="gr-arrange">${ui.grConfirmArr?'Точно разложить?':'Разложить по командам'}</button><button class="btn small" id="gr-png">Скачать PNG</button><button class="btn small ${ui.grNet?'gold':''}" id="gr-net-toggle" aria-pressed="${!!ui.grNet}">Анализ сети</button>
+      <button class="btn small" id="gr-arrange">${ui.grConfirmArr?'Точно разложить?':'Разложить по командам'}</button><button class="btn small" id="gr-png">Скачать PNG</button><button class="btn small" id="gr-xlsx">Скачать Excel</button><button class="btn small ${ui.grNet?'gold':''}" id="gr-net-toggle" aria-pressed="${!!ui.grNet}">Анализ сети</button>
       ${GR.graphs.length>1?`<button class="btn small danger" id="gr-del-graph">${ui.grConfirmDel?'Точно удалить схему?':'Удалить схему'}</button>`:''}
       <span class="lg-status" id="gr-status">${h(ui.grStatus||'')}</span></div>
     ${t?`<div class="gr-mode" style="--c:${grSafeColor(t.color)}"><span>${hint}</span><button class="btn small" id="gr-mode-off">Готово</button></div>`:''}
@@ -1306,6 +1307,40 @@ function grArrange(g){
   g.nodes.forEach(n=>{const k=key(n);const c=cols[k]=cols[k]||{t:null,r:[]};if(grIsTeam(n))c.t=n;else c.r.push(n)});
   const order=S.teams.map(t=>t.id).filter(id=>cols[id]).concat(Object.keys(cols).filter(id=>!S.teams.some(t=>t.id===id)));
   order.forEach((tid,ci)=>{const c=cols[tid],x=ci*210;let y=0;if(c.t){c.t.x=x;c.t.y=y;y+=160}c.r.forEach((n,ri)=>{n.x=x+(ri%2?45:-45);n.y=y+ri*120})});
+}
+async function grXlsx(){
+  const g=grCur(); if(!g.nodes.length){toast('Схема пустая');return}
+  grStatus('Готовлю таблицу…');
+  try{
+    await loadXlsx(); const X=window.XLSX;
+    // order: teams in roster order, each followed by its roles; then the rest
+    const rank=n=>{const [k,id]=n.ref.split(':');if(k==='t'){const i=S.teams.findIndex(t=>t.id===id);return [i<0?999:i,0,0]}
+      const r=S.roles.find(x=>x.id===id), ti=r?S.teams.findIndex(t=>t.id===r.team):-1, ri=r?S.roles.indexOf(r):999;return [ti<0?999:ti,1,ri]};
+    const nodes=g.nodes.filter(n=>grRef(n.ref)).slice().sort((a,b)=>{const A=rank(a),B=rank(b);return A[0]-B[0]||A[1]-B[1]||A[2]-B[2]});
+    const idx=new Map(nodes.map((n,i)=>[n.id,i])), N=nodes.length, names=nodes.map(n=>grName(n.ref));
+    const cell=Array.from({length:N},()=>Array.from({length:N},()=>[]));
+    const edges=g.edges.filter(e=>idx.has(e.from)&&idx.has(e.to)&&grType(e.type));
+    edges.forEach(e=>{const t=grType(e.type),a=idx.get(e.from),b=idx.get(e.to),mark=(e.secret?' (тайно)':'')+(e.conflict?' ⚡':'');
+      if(t.dir){cell[a][b].push(t.name+' →'+mark);cell[b][a].push('← '+t.name+mark)}else{cell[a][b].push(t.name+mark);cell[b][a].push(t.name+mark)}});
+    const aoa=[['']].concat([]); aoa[0]=[''].concat(names);
+    for(let i=0;i<N;i++) aoa.push([names[i]].concat(cell[i].map((c,j)=>i===j?'—':c.join('; '))));
+    const ws1=X.utils.aoa_to_sheet(aoa);
+    ws1['!cols']=[{wch:Math.min(32,Math.max(12,...names.map(x=>x.length))+2)}].concat(names.map(x=>({wch:Math.min(24,Math.max(10,x.length+2))})));
+    const fac=n=>{const f=grFac(n.ref);return f.startsWith('solo:')?'':grFacName(f)};
+    const DEP={ab:'первый зависит от второго',ba:'второй зависит от первого',both:'взаимная',none:'нет'}, TR={high:'высокое',mid:'среднее',low:'низкое'};
+    const rows=[['От','Фракция','Тип связи','К','Фракция','Направленная','Категория','Характер','Тайная','Конфликт интересов','Зависимость','Доверие','Описание']];
+    edges.forEach(e=>{const t=grType(e.type),m=grMeta(t),A=nodes[idx.get(e.from)],B=nodes[idx.get(e.to)];
+      rows.push([grName(A.ref),fac(A),t.name,grName(B.ref),fac(B),t.dir?'да':'нет',catName(m.cat),(GR_VALS.find(v=>v[0]===m.val)||['',''])[1],e.secret?'да':'',e.conflict?'да':'',DEP[e.dep]||'',TR[e.trust]||'',e.note||''])});
+    const ws2=X.utils.aoa_to_sheet(rows); ws2['!cols']=[22,16,18,22,16,12,22,16,9,12,22,10,40].map(w=>({wch:w})); ws2['!autofilter']={ref:`A1:M${rows.length}`};
+    const st=[['Персонаж','Фракция','Всего связей','Союзные','Конфликтные','Нейтральные','Внутри фракции','С другими фракциями','Тайные']];
+    nodes.forEach(n=>{const my=edges.filter(e=>e.from===n.id||e.to===n.id), f=grFac(n.ref);let co=0,cf=0,ne=0,inn=0,out=0,se=0;
+      my.forEach(e=>{const m=grMeta(grType(e.type));if(m.val==='conflict'||e.conflict)cf++;else if(m.val==='coop')co++;else ne++;const o=nodes[idx.get(e.from===n.id?e.to:e.from)];if(grFac(o.ref)===f)inn++;else out++;if(e.secret)se++});
+      st.push([grName(n.ref),fac(n),my.length,co,cf,ne,inn,out,se])});
+    const ws3=X.utils.aoa_to_sheet(st); ws3['!cols']=[22,16,12,10,12,12,14,18,8].map(w=>({wch:w})); ws3['!autofilter']={ref:`A1:I${st.length}`};
+    const wb=X.utils.book_new(); X.utils.book_append_sheet(wb,ws1,'Матрица'); X.utils.book_append_sheet(wb,ws2,'Связи'); X.utils.book_append_sheet(wb,ws3,'Персонажи');
+    X.writeFile(wb,(g.name||'Схема').replace(/[\\/:*?"<>|]+/g,' ').trim()+' — связи.xlsx');
+    grStatus('Таблица скачана');
+  }catch(e){console.error(e);grStatus('Не получилось собрать таблицу. Проверьте интернет.')}
 }
 function grPng(){
   const g=grCur(); if(!g.nodes.length){toast('Схема пустая');return}
