@@ -116,6 +116,14 @@ main.col{padding-block:36px 140px}
 .lore-link:hover{color:var(--fg);background:var(--surface)}
 .lore-link[aria-current="true"]{color:var(--gold-hi);background:var(--surface)}
 .mv{background:none;border:0;color:var(--muted);cursor:pointer;padding:6px;font-size:11px}
+.lore-gh{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);margin-top:6px;padding:12px 12px 8px;cursor:pointer;color:var(--fg);font-family:var(--display);font-size:14px;letter-spacing:.1em;text-transform:uppercase}
+.lore-gh:hover{color:var(--gold-hi)}
+.lore-gh .ar{display:inline-block;color:var(--gold);font-size:11px;transition:transform .15s}
+.lore-gh[aria-expanded="true"] .ar{transform:rotate(90deg)}
+.lore-gh .gn{flex:1;min-width:0}
+.lore-gh .gc{font-size:11px;color:var(--muted);letter-spacing:0}
+.lore-item.in-grp .lore-link{padding-left:28px}
+.lore-grp-ey{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .lore-article h2{font-size:clamp(32px,5vw,46px);margin-bottom:18px}
 
 /* roles */
@@ -198,6 +206,8 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
   .lore-item{flex:none}
   .lore-link{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:14px}
   .lore-link[aria-current="true"]{border-color:var(--gold);background:transparent}
+  .lore-gh{flex:none;width:auto;margin:0;border:1px solid var(--gold-line);border-radius:999px;padding:6px 14px;font-size:12px;white-space:nowrap}
+  .lore-item.in-grp .lore-link{padding-left:14px;border-style:dashed}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .card-body{padding:10px 12px 12px}
   .card h3{font-size:20px}
@@ -494,6 +504,7 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .lore-ref{color:#c3d0dc;background:rgba(147,170,187,.1);border:1px solid rgba(147,170,187,.38);border-radius:4px;padding:0 6px;text-decoration:none;cursor:pointer;white-space:nowrap;font-style:italic}
 .lore-ref:hover{background:rgba(147,170,187,.2)}
 .lore-ref.missing{color:var(--muted);text-decoration:line-through;border-color:var(--line);background:none}
+.role-link[data-txt],.lore-ref[data-txt],.lore-ref.own{white-space:normal;padding:0 2px}
 .lr-plain{color:#c3d0dc;font-weight:600;font-style:italic;cursor:help;border-bottom:1px dotted rgba(147,170,187,.55)}
 .hovercard.lore .hc-ph{width:46px;aspect-ratio:1;border-color:rgba(147,170,187,.38);color:#c3d0dc}
 .hovercard.lore .hc-name{color:#dfe7ee}
@@ -574,12 +585,12 @@ const ICON_LOCK=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stro
 const ICON_PEN=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10z"/></svg>`;
 const ICON_OUT=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h3M10 5l3 3-3 3M13 8H6"/></svg>`;
 
-const REF_RE=/\[\[(r|l):([\w-]+)(?:\|([^\]]*))?\]\]/g;
-function refHtml(k,id,lab){
-  if(k==='r'){const r=S.roles.find(x=>x.id===id);return r?`<span class="rl-plain" data-role="${id}" tabindex="0">${h(r.name)}</span>`:`<span class="rl-plain missing">${lab||'роль удалена'}</span>`}
-  const a=S.lore.find(x=>x.id===id);return a?`<a class="lore-ref" data-loreref="${id}" href="#lore">${h(a.title||'Без названия')}</a>`:`<span class="lore-ref missing">${lab||'статья удалена'}</span>`;
+const REF_RE=/\[\[(r|l):([\w-]+)(?:([|=])([^\]]*))?\]\]/g; // [[r:id|auto name]] or [[r:id=own text]]
+function refHtml(k,id,sep,lab){const own=sep==='='&&lab?lab:'';
+  if(k==='r'){const r=S.roles.find(x=>x.id===id);return r?`<span class="rl-plain" data-role="${id}" tabindex="0">${own||h(r.name)}</span>`:`<span class="rl-plain missing">${lab||'роль удалена'}</span>`}
+  const a=S.lore.find(x=>x.id===id);return a?`<a class="lore-ref${own?' own':''}" data-loreref="${id}" href="#lore">${own||h(a.title||'Без названия')}</a>`:`<span class="lore-ref missing">${lab||'статья удалена'}</span>`;
 }
-function inline(s){return s.replace(REF_RE,(m,k,id,lab)=>refHtml(k,id,lab)).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^\w"=])\*([^*<>]+?)\*/g,'$1<em>$2</em>')}
+function inline(s){return s.replace(REF_RE,(m,k,id,sep,lab)=>refHtml(k,id,sep,lab)).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/(^|[^\w"=])\*([^*<>]+?)\*/g,'$1<em>$2</em>')}
 function md(text){
   return h(text||'').split(/\n\s*\n/).map(b=>{
     b=b.trim(); if(!b) return '';
@@ -661,7 +672,12 @@ function renderLore(){
     const a0=Math.max(0,k-28), snip=(a0?'…':'')+plain.slice(a0,k+q.length+40)+(k+q.length+40<plain.length?'…':'');
     return {x,i,snip,k:k-a0+(a0?1:0)}; }).filter(Boolean);
   const mark=(str,k)=>h(str.slice(0,k))+'<mark>'+h(str.slice(k,k+q.length))+'</mark>'+h(str.slice(k+q.length));
-  let nav=(q&&!hits.length?`<p class="empty" style="padding:6px 12px;font-size:14px">Ничего не найдено</p>`:'')+hits.map(({x,i,snip,k})=>`<div class="lore-item"><button class="lore-link" data-lore="${x.id}" aria-current="${x.id===ui[X.c]}">${h(x.title)||'Без названия'}${snip?`<span class="lore-snip">${mark(snip,k)}</span>`:''}</button>${ui.edit&&!q?`<button class="mv" data-lmove="${i}" data-dir="-1" aria-label="Выше">▲</button><button class="mv" data-lmove="${i}" data-dir="1" aria-label="Ниже">▼</button>`:''}</div>`).join('');
+  const item=({x,i,snip,k},g)=>`<div class="lore-item${g?' in-grp':''}"><button class="lore-link" data-lore="${x.id}" aria-current="${x.id===ui[X.c]}">${h(x.title)||'Без названия'}${snip?`<span class="lore-snip">${mark(snip,k)}</span>`:''}</button>${ui.edit&&!q?`<button class="mv" data-lmove="${i}" data-dir="-1" aria-label="Выше">▲</button><button class="mv" data-lmove="${i}" data-dir="1" aria-label="Ниже">▼</button>`:''}</div>`;
+  const grpOf=x=>(x.group||'').trim(), groups=[]; hits.forEach(o=>{const g=grpOf(o.x);if(g&&!groups.includes(g))groups.push(g)});
+  const open=ui.grpOpen=ui.grpOpen||{};
+  let nav=(q&&!hits.length?`<p class="empty" style="padding:6px 12px;font-size:14px">Ничего не найдено</p>`:'')+hits.filter(o=>!grpOf(o.x)).map(o=>item(o,false)).join('')
+    +groups.map(g=>{const its=hits.filter(o=>grpOf(o.x)===g), key=X.k+'|'+g, isOpen=q?true:key in open?open[key]:its.some(o=>o.x.id===ui[X.c]);
+      return `<button class="lore-gh" data-lgrp="${h(key)}" aria-expanded="${isOpen}"><span class="ar">▸</span><span class="gn">${h(g)}</span><span class="gc">${its.length}</span></button>`+(isOpen?its.map(o=>item(o,true)).join(''):'')}).join('');
   if(ui.edit) nav+=`<div class="lore-item"><button class="btn small gold" id="lore-add" style="margin:8px 12px">${X.add}</button></div>`;
   let body;
   if(!a) body=`<p class="empty">${ui.edit?X.emptyEdit:X.empty}</p>`;
@@ -670,9 +686,10 @@ function renderLore(){
       ${a.cover?'<button class="btn small" id="lore-cover-clear" style="justify-self:start">Убрать обложку</button>':''}
       <span class="hint">${h(ui.coverMsg||'Показывается над текстом и фоном страницы.')}</span></div></div></div>
     <div class="field"><label for="f-ltitle">Заголовок ${X.item}</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
-    <div class="field"><label for="f-lbody">Текст ${X.item}</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Ссылки выглядят как [[r:…|Имя]] и [[l:…|Статья]]. На странице они станут подсвеченными именами и названиями.</span></div>
+    <div class="field"><label for="f-lgroup">Тема</label><input id="f-lgroup" data-lbind="group" list="dl-lgroup" maxlength="60" value="${h(a.group||'')}" placeholder="Без темы" autocomplete="off"><datalist id="dl-lgroup">${[...new Set(L.map(x=>(x.group||'').trim()).filter(Boolean))].map(g=>`<option value="${h(g)}">`).join('')}</datalist><span class="hint">Статьи с одинаковой темой собираются в раскрывающийся список. Выберите существующую тему или впишите новую.</span></div>
+    <div class="field"><label for="f-lbody">Текст ${X.item}</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Выделите слова и нажмите кнопку ссылки: слова останутся, но станут ссылкой (выглядит как [[r:…=слова]]). Без выделения вставится имя роли или название статьи.</span></div>
     <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':X.del}</button>`;
-  else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
+  else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}${(a.group||'').trim()?`<div class="lore-grp-ey">${h(a.group.trim())}</div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
   const sv=(ui.lsq||{})[X.k]||'';
   return `<div class="lore"><div class="lore-side"><div class="nav-head"><span class="cap">${X.cap}</span><input id="lore-search" class="lore-search" type="search" placeholder="Поиск" value="${h(sv)}" autocomplete="off" aria-label="Поиск: ${X.cap.toLowerCase()}"></div><nav class="lore-nav" aria-label="${X.cap}">${nav}</nav></div><div>${body}</div></div>`;
 }
@@ -838,6 +855,7 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{
   const t=ev.target;
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
+  if(t.id==='f-lgroup'){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(a){a.group=t.value.trim();if(!a.group)delete a.group;else (ui.grpOpen=ui.grpOpen||{})[SEC().k+'|'+a.group]=true;soft();render()}return}
   if(t.id==='m-photo'&&t.files&&t.files[0]) handlePhoto(t.files[0]);
   if(t.id==='m-ticon'&&t.files&&t.files[0]) handlePhoto(t.files[0],'icon');
   if(t.id==='lg-select') goLegend(t.value);
@@ -944,12 +962,12 @@ document.addEventListener('click',async ev=>{
   if(ds.block){document.execCommand('formatBlock',false,'<'+ds.block.toLowerCase()+'>');scheduleLegendSave();return}
   if(ds.lgact==='photo'){saveRange();document.getElementById('lg-photo').click();return}
   if(ds.lgact==='lorelink'){saveRange();ui.modal={kind:'lorepick',q:''};render();document.getElementById('m-lq')?.focus();return}
-  if(ds.lpick&&ui.modal&&ui.modal.target){const a=S.lore.find(x=>x.id===ds.lpick);insertToken(a?`[[l:${a.id}|${(a.title||'').replace(/[\]|]/g,'')}]]`:'');return}
-  if(ds.pick&&ui.modal&&ui.modal.target){const r=S.roles.find(x=>x.id===ds.pick);insertToken(r?`[[r:${r.id}|${r.name.replace(/[\]|]/g,'')}]]`:'');return}
+  if(ds.lpick&&ui.modal&&ui.modal.target){const a=S.lore.find(x=>x.id===ds.lpick);insertToken(a?refToken('l',a.id,a.title||''):'');return}
+  if(ds.pick&&ui.modal&&ui.modal.target){const r=S.roles.find(x=>x.id===ds.pick);insertToken(r?refToken('r',r.id,r.name):'');return}
   if(ds.mdlink){const ta=document.getElementById(ds.for);if(!ta)return;ui.modal={kind:ds.mdlink==='role'?'rolepick':'lorepick',q:'',target:ds.for,selS:ta.selectionStart,selE:ta.selectionEnd};render();document.getElementById(ds.mdlink==='role'?'m-rq':'m-lq')?.focus();return}
-  if(ds.lpick){const a=S.lore.find(x=>x.id===ds.lpick);ui.modal=null;render();if(a)insertAtSaved(`<a class="lore-ref" data-loreref="${a.id}" contenteditable="false">${h(a.title||'Без названия')}</a>&nbsp;`);return}
+  if(ds.lpick){const a=S.lore.find(x=>x.id===ds.lpick);ui.modal=null;render();if(a)insertLinkAtSaved(`<a class="lore-ref" data-loreref="${a.id}" contenteditable="false"`,a.title||'Без названия');return}
   if(ds.lgact==='link'){saveRange();ui.modal={kind:'rolepick',q:''};render();document.getElementById('m-rq')?.focus();return}
-  if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false">${h(r.name)}</a>&nbsp;`);return}
+  if(ds.pick){const r=S.roles.find(x=>x.id===ds.pick);ui.modal=null;render();if(r)insertLinkAtSaved(`<a class="role-link" data-role="${r.id}" contenteditable="false"`,r.name);return}
   if(t.id==='lg-export-one'){exportDocx(false);return}
   if(t.id==='lg-export-all'){exportDocx(true);return}
   if(ds.tab){if(ui.tab==='legends')flushLegend();if(grTimer)grFlush();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
@@ -959,14 +977,15 @@ document.addEventListener('click',async ev=>{
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
     flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} if(grTimer)grFlush(); LG=null;GR=null;grView=null;if(ui.tab==='legends'||ui.tab==='graphs')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
   if(t.id==='edit-toggle'){ui.edit=!ui.edit;ui.confirmLore=null;render();return}
-  if(ds.lore){ui[SEC().c]=ds.lore;ui.confirmLore=null;ui.coverMsg='';render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
+  if(ds.lore){ui[SEC().c]=ds.lore;ui.confirmLore=null;ui.coverMsg='';{const o=S[SEC().k].find(x=>x.id===ds.lore),g=o&&(o.group||'').trim();if(g)(ui.grpOpen=ui.grpOpen||{})[SEC().k+'|'+g]=true}render();if(window.innerWidth<=820){const n=document.querySelector('.lore');if(n&&n.getBoundingClientRect().top<0)window.scrollTo({top:window.scrollY+n.getBoundingClientRect().top-document.querySelector('.topbar').offsetHeight,behavior:'smooth'})}return}
   if(ds.filter){ui.filter=ds.filter;render();return}
   if(t.id==='brand-open'){ui.modal={kind:'brand'};render();return}
   if(ds.brandClear){if(S.brand)delete S.brand[ds.brandClear];ui.modal.msg='';render();applyFavicon();return}
   if(t.id==='lore-cover-clear'){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(a){delete a.cover;ui.coverMsg='Обложка убрана. Не забудьте сохранить.'}render();return}
   if(t.id==='lore-add'){const X=SEC();const a={id:uid(X.pre),title:X.newT,body:''};(S[X.k]=S[X.k]||[]).push(a);ui[X.c]=a.id;render();document.getElementById('f-ltitle')?.select();return}
   if(t.id==='lore-del'){const X=SEC();if(ui.confirmLore===ui[X.c]){S[X.k]=S[X.k].filter(x=>x.id!==ui[X.c]);ui[X.c]=null;ui.confirmLore=null}else ui.confirmLore=ui[X.c];render();return}
-  if(ds.lmove!==undefined){move(S[SEC().k],+ds.lmove,+ds.dir);render();return}
+  if(ds.lgrp!==undefined){const o=ui.grpOpen=ui.grpOpen||{};o[ds.lgrp]=t.getAttribute('aria-expanded')!=='true';render();return}
+  if(ds.lmove!==undefined){const A=S[SEC().k],i=+ds.lmove,d=+ds.dir,g=(A[i].group||'').trim();let j=i+d;while(j>=0&&j<A.length&&(A[j].group||'').trim()!==g)j+=d;if(j>=0&&j<A.length){const x=A.splice(i,1)[0];A.splice(j,0,x)}soft();render();return}
   if(ds.rmove){const team=S.roles.find(r=>r.id===ds.rmove).team;const idx=S.roles.map((r,i)=>r.team===team?i:-1).filter(i=>i>=0);const pos=idx.indexOf(S.roles.findIndex(r=>r.id===ds.rmove));const to=pos+(+ds.dir);if(to>=0&&to<idx.length){const a=idx[pos],b=idx[to];[S.roles[a],S.roles[b]]=[S.roles[b],S.roles[a]]}render();return}
   if(ds.roleAdd){ui.modal={kind:'role',isNew:true,draft:{id:uid('r'),team:ds.roleAdd,name:'',title:'',text:'',player:'',contact:'',photo:''}};render();document.getElementById('m-name')?.focus();return}
   if(ds.roleEdit){ui.modal={kind:'role',isNew:false,draft:{...S.roles.find(x=>x.id===ds.roleEdit)}};render();return}
@@ -1793,14 +1812,14 @@ function sanitize(html){
       if(!OK.has(n.tagName)){walk(n);n.replaceWith(...n.childNodes);return}
       if(n.tagName==='IMG'){const src=n.getAttribute('src')||'',cl=(n.getAttribute('class')||'').split(/\s+/).filter(c=>IMG_CLS.includes(c));strip(n);if(!/^data:image\/(png|jpe?g|webp|gif);/i.test(src)){n.remove();return}n.setAttribute('src',src);if(cl.length)n.setAttribute('class',cl.join(' '));return}
       if(n.tagName==='A'&&n.getAttribute('data-loreref')){
-        const lid=n.getAttribute('data-loreref'), a=S.lore.find(x=>x.id===lid), label=n.textContent; strip(n);
-        n.setAttribute('data-loreref',lid);n.setAttribute('contenteditable','false');n.className='lore-ref'+(a?'':' missing');
-        n.textContent=a?(a.title||'Без названия'):(label||'статья удалена');return}
+        const lid=n.getAttribute('data-loreref'), a=S.lore.find(x=>x.id===lid), label=n.textContent, own=n.getAttribute('data-txt')==='1'&&label.trim(); strip(n);
+        n.setAttribute('data-loreref',lid);n.setAttribute('contenteditable','false');n.className='lore-ref'+(a?'':' missing');if(own)n.setAttribute('data-txt','1');
+        n.textContent=own?label:a?(a.title||'Без названия'):(label||'статья удалена');return}
       if(n.tagName==='A'){
         const rid=n.getAttribute('data-role'); if(!rid){walk(n);n.replaceWith(...n.childNodes);return}
-        const r=S.roles.find(x=>x.id===rid), label=n.textContent; strip(n);
-        n.setAttribute('data-role',rid);n.setAttribute('contenteditable','false');n.className='role-link'+(r?'':' missing');
-        n.textContent=r?r.name:(label||'роль удалена');return}
+        const r=S.roles.find(x=>x.id===rid), label=n.textContent, own=n.getAttribute('data-txt')==='1'&&label.trim(); strip(n);
+        n.setAttribute('data-role',rid);n.setAttribute('contenteditable','false');n.className='role-link'+(r?'':' missing');if(own)n.setAttribute('data-txt','1');
+        n.textContent=own?label:r?r.name:(label||'роль удалена');return}
       strip(n);walk(n);
     });
   })(tpl.content);
@@ -2023,6 +2042,9 @@ async function saveLegend(){
   else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
     document.querySelectorAll(`.lg-link[data-lg="${id}"] .lg-dot`).forEach(x=>x.classList.toggle('full',lgHasText(L)))}
 }
+function refToken(k,id,name){ // selected text stays as the visible text; with no selection the name is used
+  const m=ui.modal,ta=m&&document.getElementById(m.target),sel=ta?ta.value.slice(m.selS??0,m.selE??0):'',own=sel.replace(/[\[\]|]/g,'').replace(/\s+/g,' ');
+  return own.trim()&&!/\n\s*\n/.test(sel)?`[[${k}:${id}=${own}]]`:`[[${k}:${id}|${name.replace(/[\]|]/g,'')}]]`}
 function insertToken(tok){
   const m=ui.modal; ui.modal=null; render();
   const ta=document.getElementById(m.target); if(!ta||!tok) return;
@@ -2032,7 +2054,7 @@ function insertToken(tok){
   ta.focus({preventScroll:true}); const c=a+tok.length; ta.setSelectionRange(c,c);
 }
 function loreExcerpt(md,n){
-  let t=(md||'').replace(REF_RE,(m,k,id,lab)=>k==='r'?((S.roles.find(x=>x.id===id)||{}).name||lab||''):((S.lore.find(x=>x.id===id)||{}).title||lab||'')).replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
+  let t=(md||'').replace(REF_RE,(m,k,id,sep,lab)=>sep==='='&&lab?lab:k==='r'?((S.roles.find(x=>x.id===id)||{}).name||lab||''):((S.lore.find(x=>x.id===id)||{}).title||lab||'')).replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
   if(t.length>n){t=t.slice(0,n);t=t.slice(0,Math.max(t.lastIndexOf(' '),n-15))+'…'}
   return t;
 }
@@ -2064,6 +2086,12 @@ function restoreRange(){
   ed.focus({preventScroll:true});
   if(lgRange) pathToRange(ed,lgRange); else {const s=getSelection(),r=document.createRange();r.selectNodeContents(ed);r.collapse(false);s.removeAllRanges();s.addRange(r)}
   return true;
+}
+function insertLinkAtSaved(open,name){ // the selected words become the link; nothing selected → the name
+  const ed=document.getElementById('lg-editor');let sel='';
+  if(ed&&lgRange){pathToRange(ed,lgRange);const g=getSelection();sel=g.rangeCount?g.toString():''}
+  const own=sel.replace(/\s+/g,' ').trim()&&!/\n/.test(sel.trim())?sel.replace(/\s+/g,' '):'';
+  insertAtSaved(own?`${open} data-txt="1">${h(own)}</a>`:`${open}>${h(name)}</a>&nbsp;`);
 }
 function insertAtSaved(html){
   if(!restoreRange())return;
