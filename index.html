@@ -757,8 +757,11 @@ function renderModal(){
     const meta=[t&&t.name,r.title].filter(Boolean).map(h).join(' · ');
     return `<div class="modal-bg" id="modal-bg"><div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="m-h">
       <div class="reader-head"><div class="lg-head" style="margin:0"><div class="ph">${src?`<img src="${h(src)}" alt="">`:h((r.name||'?').trim()[0]||'?')}</div><div><h2 id="m-h" style="margin:0">${h(r.name)}</h2><div class="lg-meta">${meta}</div></div></div></div>
-      ${(m.tabs||[]).length?`<div class="lg-tabs" role="tablist"><button class="lg-tab" data-rdtab="main" aria-selected="${(m.tab||'main')==='main'}">Легенда</button>${m.tabs.map(t=>`<button class="lg-tab" data-rdtab="${h(t.id)}" aria-selected="${m.tab===t.id}">${h(t.title||'Без названия')}</button>`).join('')}</div>`:''}
-      <div ${bgAttrs((m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).bg:m.bg,'lg-editor reader')}>${(()=>{const cur=(m.tab&&m.tab!=='main')?((m.tabs||[]).find(t=>t.id===m.tab)||{}).html||'':m.html;return hasText(cur)?readerHtml(cur):'<p class="empty">'+((m.tab&&m.tab!=='main')?'Здесь пока пусто.':'Мастер ещё не написал эту легенду.')+'</p>'})()}</div>
+      ${(()=>{const pages=(hasText(m.html)||safeBg(m.bg)?[{id:'main',title:'Легенда',html:m.html,bg:m.bg}]:[]).concat((m.tabs||[]).filter(t=>hasText(t.html)||safeBg(t.bg)));
+        const cur=pages.find(p=>p.id===m.tab)||pages[0];
+        if(!cur) return '<div class="lg-editor reader"><p class="empty">Мастер ещё не написал эту легенду.</p></div>';
+        return (pages.length>1?`<div class="lg-tabs" role="tablist">${pages.map(p=>`<button class="lg-tab" data-rdtab="${h(p.id)}" aria-selected="${p===cur}">${h(p.title||'Без названия')}</button>`).join('')}</div>`:'')
+          +`<div ${bgAttrs(cur.bg,'lg-editor reader')}>${hasText(cur.html)?readerHtml(cur.html):'<p class="empty">Здесь пока пусто.</p>'}</div>`})()}
       <div class="foot" style="margin-top:18px">${(hasText(m.html)||(m.tabs||[]).some(t=>hasText(t.html)))?'<button class="btn gold" id="rd-export">Скачать (.docx)</button>':''}<span class="hint" id="rd-status" style="align-self:center"></span><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>
     </div></div>`;
   }
@@ -877,9 +880,9 @@ document.addEventListener('click',async ev=>{
   if(t.id==='lg-tab-add'){const nt={id:uid('t'),title:'Новая вкладка',html:'',hidden:true};legendMeta(L=>L.tabs.push(nt));ui.lgTab=nt.id;render();document.getElementById('lg-tab-title')?.select();return}
   if(ds.lgbgmode){legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p&&p.bg)p.bg.mode=ds.lgbgmode});return}
   if(t.id==='lg-bg-clear'){legendMeta(L=>{const p=lgPage(L,curLgTab(ui.legend));if(p)delete p.bg});return}
-  if(t.id==='lg-tab-vis'){legendMeta(L=>{const x=L.tabs.find(y=>y.id===ui.lgTab);if(x)x.hidden=!x.hidden});return}
-  if(ds.lgtabmove){legendMeta(L=>{const i=L.tabs.findIndex(y=>y.id===ui.lgTab);move(L.tabs,i,+ds.lgtabmove)});return}
-  if(t.id==='lg-tab-del'){if(ui.confirmTabDel!==ui.lgTab){ui.confirmTabDel=ui.lgTab;render();return}const del=ui.lgTab;ui.confirmTabDel=null;if(lgTimer){clearTimeout(lgTimer);lgTimer=null}ui.lgTab='main';const L=lgDoc(ui.legend);L.tabs=L.tabs.filter(y=>y.id!==del);lgDirtyId=ui.legend;render();saveLegend();return}
+  if(t.id==='lg-tab-vis'){const c=curLgTab(ui.legend);legendMeta(L=>{const x=L.tabs.find(y=>y.id===c);if(x)x.hidden=!x.hidden});return}
+  if(ds.lgtabmove){const c=curLgTab(ui.legend);legendMeta(L=>{const i=L.tabs.findIndex(y=>y.id===c),j=i+(+ds.lgtabmove);if(i>=0&&j>=0&&j<L.tabs.length)move(L.tabs,i,+ds.lgtabmove)});return}
+  if(t.id==='lg-tab-del'){const c=curLgTab(ui.legend);if(ui.confirmTabDel!==c){ui.confirmTabDel=c;render();return}const del=c;ui.confirmTabDel=null;if(lgTimer){clearTimeout(lgTimer);lgTimer=null}const L=lgDoc(ui.legend);const di=L.tabs.findIndex(y=>y.id===del);L.tabs=L.tabs.filter(y=>y&&y.id!==del);if(!L.tabs.length)L.tabs.push(lgNewTab('Легенда',false));ui.lgTab=L.tabs[Math.max(0,Math.min(di,L.tabs.length-1))].id;lgDirtyId=ui.legend;render();saveLegend();return}
   if(ds.grg){if(grTimer)grFlush();ui.grId=ds.grg;ui.grSel=null;ui.grFrom=null;ui.grConfirmDel=false;ui.grConfirmArr=false;render();return}
   if(t.id==='gr-add-graph'){const g={id:uid('g'),name:'Новая схема',nodes:[],edges:[]};GR.graphs.push(g);ui.grId=g.id;ui.grSel=null;grSave();render();document.getElementById('gr-name')?.select();return}
   if(t.id==='gr-del-graph'){if(!ui.grConfirmDel){ui.grConfirmDel=true;render();return}ui.grConfirmDel=false;GR.graphs=GR.graphs.filter(x=>x.id!==ui.grId);ui.grId=GR.graphs[0].id;ui.grSel=null;grSave();render();return}
@@ -1818,7 +1821,7 @@ function renderLegends(){
   const list=orderedRoles();
   if(!list.length) return `<div class="section-title"><h2>Легенды</h2></div><p class="empty">Сначала добавьте роли в «Сетку ролей». Для каждой роли здесь сразу появится своя легенда.</p>`;
   if(!list.some(x=>x.r.id===ui.legend)) ui.legend=list[0].r.id;
-  const cur=list.find(x=>x.r.id===ui.legend), r=cur.r, q=(ui.lgq||'').toLowerCase();
+  const cur=list.find(x=>x.r.id===ui.legend), r=cur.r, q=(ui.lgq||'').toLowerCase(); lgDoc(r.id); ui.lgTab=curLgTab(r.id);
   const done=list.filter(x=>lgHasText(LG[x.r.id])).length;
   let nav=`<input id="lg-search" class="lg-search" type="search" placeholder="Найти роль" value="${h(ui.lgq||'')}" autocomplete="off">`;
   let lastT='—', sel='', navT=null;
@@ -1855,7 +1858,7 @@ function renderLegends(){
       <button class="lg-tool wide" data-lgact="photo">+ Фото</button><button class="lg-tool wide" data-lgact="link">+ Ссылка на роль</button><button class="lg-tool wide" data-lgact="lorelink" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Ссылка на лор</button>
       <input type="file" id="lg-photo" accept="image/*" hidden>
     </div>
-    <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-tab="${h(curLgTab(r.id))}" data-ph="${curLgTab(r.id)==='main'?'Начните писать легенду персонажа…':'Текст вкладки…'}">${sanitize(lgTabHtml(LG[r.id],curLgTab(r.id)))}</div>
+    <div id="lg-editor" class="lg-editor" contenteditable="true" spellcheck="true" data-role="${r.id}" data-tab="${h(curLgTab(r.id))}" data-ph="Начните писать…">${sanitize(lgTabHtml(LG[r.id],curLgTab(r.id)))}</div>
     ${back.length?`<div class="lg-back">Упоминается в легендах: ${back.map(b=>`<a class="role-link" data-role="${b.id}" href="#legends">${h(b.name)}</a>`).join(' ')}</div>`:''}
   </div></div>`;
 }
@@ -1928,20 +1931,21 @@ document.addEventListener('drop',ev=>{
   if(r&&ed.contains(r.startContainer)){const sl=getSelection();sl.removeAllRanges();sl.addRange(r)}
   saveRange(); insertPhoto(f);
 });
-function curLgTab(id){const L=LG&&LG[id];if(ui.lgTab&&ui.lgTab!=='main'&&L&&(L.tabs||[]).some(t=>t.id===ui.lgTab))return ui.lgTab;return 'main'}
+function curLgTab(id){const L=LG&&LG[id],tabs=(L&&L.tabs)||[];if(ui.lgTab&&tabs.some(t=>t.id===ui.lgTab))return ui.lgTab;return tabs[0]?tabs[0].id:'main'}
 const ICON_EYE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8 12.1 12.5 8 12.5 1.5 8 1.5 8z"/><circle cx="8" cy="8" r="2"/></svg>`;
 const ICON_HIDE=`<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 2l12 12M6.6 3.7A6.6 6.6 0 0 1 8 3.5c4.1 0 6.5 4.5 6.5 4.5a11 11 0 0 1-1.9 2.4M4.2 5.1A11.3 11.3 0 0 0 1.5 8S3.9 12.5 8 12.5c1 0 1.9-.3 2.7-.7"/></svg>`;
 function renderLgTabs(id){
   const L=LG[id]||{tabs:[]}, cur=curLgTab(id), tabs=L.tabs||[];
-  let o=`<div class="lg-tabs" role="tablist" aria-label="Вкладки легенды"><button class="lg-tab" role="tab" data-lgtab="main" aria-selected="${cur==='main'}">Легенда</button>`;
+  let o=`<div class="lg-tabs" role="tablist" aria-label="Вкладки легенды">`;
   tabs.forEach(t=>{o+=`<button class="lg-tab ${t.hidden?'hid':''}" role="tab" data-lgtab="${h(t.id)}" aria-selected="${cur===t.id}" title="${t.hidden?'Скрыто от игрока':'Видно игроку'}">${t.hidden?ICON_HIDE:''}${h(t.title||'Без названия')}</button>`});
   o+=`<button class="lg-tab add" id="lg-tab-add">+ Вкладка</button></div>`;
-  if(cur!=='main'){const t=tabs.find(x=>x.id===cur), i=tabs.indexOf(t);
+  const t=tabs.find(x=>x.id===cur), i=tabs.indexOf(t);
+  if(t){
     o+=`<div class="lg-tabbar"><input id="lg-tab-title" class="ms-in" value="${h(t.title||'')}" placeholder="Название вкладки" maxlength="40" aria-label="Название вкладки">
       <button class="btn small ${t.hidden?'':'gold'}" id="lg-tab-vis">${t.hidden?ICON_HIDE+' Скрыто от игрока':ICON_EYE+' Видно игроку'}</button>
       <button class="btn small" data-lgtabmove="-1" ${i<=0?'disabled':''} aria-label="Сдвинуть влево">←</button><button class="btn small" data-lgtabmove="1" ${i>=tabs.length-1?'disabled':''} aria-label="Сдвинуть вправо">→</button>
       <button class="btn small danger" id="lg-tab-del">${ui.confirmTabDel===t.id?'Точно удалить?':'Удалить вкладку'}</button>
-      <span class="hint" style="flex-basis:100%">${t.hidden?'Игрок не увидит эту вкладку: сервер её не отдаёт.':'Игрок увидит эту вкладку рядом с легендой.'}</span></div>`;}
+      <span class="hint" style="flex-basis:100%">${t.hidden?'Игрок не увидит эту вкладку: сервер её не отдаёт.':'Игрок увидит эту вкладку, когда откроет легенду по пинкоду.'}</span></div>`;}
   return o;
 }
 function renderPinRow(r){
@@ -1967,7 +1971,7 @@ async function openPlayerLegend(rid,code){
   const {data,error}=await sb.rpc('get_player_legend',{p_role_id:rid,p_pin:code});
   const st=data&&data.status;
   if(error||!st){ui.modal={kind:'playerpin',role:rid,err:error?rpcErr(error):'Нет связи с сервером.'};render();return}
-  if(st==='ok'){const sp=splitBg(data.html||'');ui.modal={kind:'reader',role:rid,html:sp.body,bg:sp.bg,tabs:Array.isArray(data.tabs)?data.tabs:[],tab:'main'};render();return}
+  if(st==='ok'){const sp=splitBg(data.html||'');ui.modal={kind:'reader',role:rid,html:sp.body,bg:sp.bg,tabs:Array.isArray(data.tabs)?data.tabs:[],tab:null};render();return}
   ui.modal={kind:'playerpin',role:rid,err:st==='bad'?'Неверный пинкод.':st==='locked'?'Слишком много неверных попыток. Подождите 15 минут.':'Легенда этой роли пока закрыта.'};
   render();document.getElementById('p-pin')?.select();
 }
@@ -1977,14 +1981,19 @@ function readerHtml(html){
   tpl.content.querySelectorAll('a.role-link').forEach(a=>{const sp=document.createElement('span');sp.className='rl-plain';sp.dataset.role=a.getAttribute('data-role');sp.tabIndex=0;sp.textContent=a.textContent;a.replaceWith(sp)});
   return tpl.innerHTML;
 }
-function lgDoc(id){const L=LG[id]=LG[id]||{html:'',tabs:[]};if(!Array.isArray(L.tabs))L.tabs=[];return L}
-const lgHasText=L=>!!L&&(hasText(L.html)||(L.tabs||[]).some(t=>hasText(t.html)));
+const lgNewTab=(title,hidden)=>({id:uid('t'),title,html:'',hidden});
+function lgDoc(id){const L=LG[id]=LG[id]||{html:'',tabs:[]};if(!Array.isArray(L.tabs))L.tabs=[];
+  if(!L._norm&&id!=='__graph'){L._norm=true; // old format: main text lived outside tabs and could not be renamed or hidden
+    if(hasText(L.html)||safeBg(L.bg)){const t=lgNewTab('Легенда',false);t.html=L.html||'';if(safeBg(L.bg))t.bg=L.bg;L.tabs.unshift(t);L.html='';L.bg=null}
+    if(!L.tabs.length)L.tabs.push(lgNewTab('Легенда',false))}
+  return L}
+const lgHasText=L=>!!L&&(hasText(L.html)||(L.tabs||[]).some(t=>t&&hasText(t.html)));
 const lgAllHtml=L=>L?[L.html||''].concat((L.tabs||[]).map(t=>t.html||'')).join(' '):'';
 function lgTabHtml(L,tab){if(!L)return '';if(!tab||tab==='main')return L.html||'';const t=(L.tabs||[]).find(x=>x.id===tab);return t?t.html||'':''}
 function captureEditor(){
   const ed=document.getElementById('lg-editor'); if(!ed||!LG) return;
   const L=lgDoc(ed.dataset.role), tab=ed.dataset.tab||'main', html=sanitize(ed.innerHTML);
-  if(tab==='main') L.html=html; else {const t=L.tabs.find(x=>x.id===tab); if(t) t.html=html}
+  if(tab==='main') L.html=html; else {const t=L.tabs.find(x=>x&&x.id===tab); if(t) t.html=html}
 }
 function legendMeta(fn){ // change tabs (add, rename, hide, delete, move) and save right away
   if(lgTimer){clearTimeout(lgTimer);lgTimer=null}
@@ -2005,9 +2014,9 @@ async function saveLegend(){
   lgSavingN++; setStatus('Сохраняю…');
   let {data,error}=await sb.rpc('save_legend_v2',{p_pin:pin,p_role_id:id,p_html:html,p_tabs:tabs});
   let noTabs=false;
-  if(error&&(error.code==='PGRST202'||/Could not find the function/i.test(error.message||''))){noTabs=true;({data,error}=await sb.rpc('save_legend',{p_pin:pin,p_role_id:id,p_html:html}))}
+  if(error&&(error.code==='PGRST202'||/Could not find the function/i.test(error.message||''))){noTabs=true}
   lgSavingN--;
-  if(noTabs&&!error&&data&&tabs.length){setStatus('Основной текст сохранён. Вкладки сохранятся после настройки базы (файл voi-po-volku-legend-tabs.sql).');return}
+  if(noTabs){setStatus('Не сохранилось: в базе не настроены вкладки легенд (файл voi-po-volku-legend-tabs.sql).');return}
   if(error) setStatus('Не сохранилось: '+rpcErr(error));
   else if(!data) setStatus('Код мастера больше не подходит. Скопируйте текст, выйдите и войдите заново.');
   else{const d=new Date(data);setStatus('Сохранено в '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'));
