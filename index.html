@@ -1393,7 +1393,7 @@ function syncMusic(){
   mus.el.volume=m.vol??0.5; mus.box.querySelector('#mu-vol').value=Math.round(mus.el.volume*100); musUi();
   musSrc(key).then(u=>{if(mus.key!==key){if(u.startsWith('blob:'))URL.revokeObjectURL(u);return}
     mus.url=u; mus.el.src=u;
-    if(!mus.off&&!ui.edit) mus.el.play().catch(()=>{}); musUi();
+    if((mus.want||!mus.off&&!ui.edit)&&(ui.tab!=='banners'||ui.gw==='game')) mus.el.play().catch(()=>{}); mus.want=false; musUi();
   }).catch(()=>{if(mus.key===key){mus.box.querySelector('.mu-name').textContent='♪ музыка не загрузилась'}});
 }
 let mdImgAt=null;
@@ -1915,6 +1915,12 @@ const gwHover=matchMedia('(hover:hover) and (pointer:fine)');
 document.addEventListener('mouseover',ev=>{if(!gwHover.matches)return;const el=ev.target.closest&&ev.target.closest('[data-gtip]');if(el){if(el!==gwTipFor)gwTipShow(el)}else if(gwTipFor)gwTipHide()});
 document.addEventListener('click',ev=>{if(gwHover.matches)return;const el=ev.target.closest&&ev.target.closest('.gw-board [data-gtip]:not([data-gwdecoy])');if(el){gwTipFor===el?gwTipHide():gwTipShow(el)}else if(gwTipFor&&!ev.target.closest('.gw-tip'))gwTipHide()},true);
 addEventListener('scroll',()=>{if(gwTipFor)gwTipHide()},true);
+// game start = the player's click, so the browser lets the music play
+function gwMusicGo(){
+  const g=gwData().music;if(!g||!g.src)return;
+  mus.off=false;try{localStorage.setItem('vpv-music-off','0')}catch(_){}
+  if(mus.el&&mus.key===g.src&&mus.el.src){mus.el.play().catch(()=>{})}else mus.want=true;
+}
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
   if(gwTimer||!GM||ui.tab!=='banners')return;
@@ -1926,7 +1932,7 @@ function gwClick(t,ds){
   if(ds.gwdeck){const F=ui.gwF,d=gwDeck(F),c=gwDefs(F).find(x=>x.id===ds.gwdeck);if(c){d[c.id]=Math.max(0,Math.min(c.max,(d[c.id]||0)+(+ds.dir)));gwSaveDeck(F,d)}render();return true}
   if(t.id==='gw-all'){const F=ui.gwF,d=gwDeck(F);gwDefs(F).forEach(c=>{if(!c.special)d[c.id]=c.max});gwSaveDeck(F,d);render();return true}
   if(t.id==='gw-clear'){gwSaveDeck(ui.gwF,{});render();return true}
-  if(t.id==='gw-play'){gwStart(ui.gwF,ui.gwOp);render();window.scrollTo(0,0);return true}
+  if(t.id==='gw-play'){gwStart(ui.gwF,ui.gwOp);render();gwMusicGo();window.scrollTo(0,0);return true}
   if(!GM)return false;
   const G=GM,me=G.p[0];
   if(ds.gwhand){
@@ -1940,7 +1946,7 @@ function gwClick(t,ds){
   if(t.id==='gw-medic-skip'){G.pick=null;gwNext(G,0);render();gwTick();return true}
   if(t.id==='gw-pass'){G.sel=null;gwPass(G,0);render();gwTick();return true}
   if(t.id==='gw-quit'){G.phase='over';G.winner=1;G.banner='Вы сдались';G.p[0].lives=0;render();return true}
-  if(t.id==='gw-again'){const F=G.p[0].faction,o=ui.gwOp;gwStart(F,o);render();return true}
+  if(t.id==='gw-again'){const F=G.p[0].faction,o=ui.gwOp;gwStart(F,o);render();gwMusicGo();return true}
   if(t.id==='gw-menu'){GM=null;ui.gw='menu';render();return true}
   if(t.id==='gw-banner'&&G.phase!=='over'){G.banner='';clearTimeout(gwTimer);gwTimer=0;render();return true}
   return false;
