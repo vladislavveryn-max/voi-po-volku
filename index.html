@@ -138,6 +138,10 @@ main.col{padding-block:36px 140px}
 .mus-vol-l input{accent-color:var(--gold)}
 body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 @media (max-width:820px){#mu-vol{width:64px}.mu-name{max-width:140px}}
+.md-img{margin:22px 0;text-align:center}
+.md-img img{max-width:100%;max-height:75vh;border-radius:6px;border:1px solid var(--line);display:inline-block}
+.md-img figcaption{margin-top:8px;font-size:14px;color:var(--muted);font-style:italic}
+.md-img-ph{padding:30px;border:1px dashed var(--line);border-radius:6px;color:var(--muted);font-size:14px}
 .lore-grp-ey{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .lore-article h2{font-size:clamp(32px,5vw,46px);margin-bottom:18px}
 
@@ -625,7 +629,9 @@ function md(text){
     const flushL=()=>{if(list.length)out+='<ul>'+list.map(l=>'<li>'+inline(l)+'</li>').join('')+'</ul>';list=[]};
     for(const l of b.split('\n')){
       const t=l.trim();
-      if(t.startsWith('### ')){flushP();flushL();out+='<h4>'+inline(t.slice(4))+'</h4>'}
+      const im=t.match(/^\[\[img:([\w-]+)(?:\|([^\]]*))?\]\]$/);
+      if(im){flushP();flushL();const src=photos[im[1]];out+=`<figure class="md-img">${src?`<img src="${src}" alt="${im[2]||''}" loading="lazy">`:'<div class="md-img-ph">картинка загружается…</div>'}${im[2]?`<figcaption>${inline(im[2])}</figcaption>`:''}</figure>`}
+      else if(t.startsWith('### ')){flushP();flushL();out+='<h4>'+inline(t.slice(4))+'</h4>'}
       else if(t.startsWith('## ')){flushP();flushL();out+='<h3>'+inline(t.slice(3))+'</h3>'}
       else if(/^[-•]\s/.test(t)){flushP();list.push(t.replace(/^[-•]\s+/,''))}
       else{flushL();para.push(l)}
@@ -634,7 +640,7 @@ function md(text){
   }).join('');
 }
 function titleHtml(t){const i=t.indexOf(':');return i>0?h(t.slice(0,i))+'<span class="sep">:</span>'+h(t.slice(i+1)):h(t)}
-const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" data-for="${id}">Заголовок</button><button class="btn small" data-fmt="b" data-for="${id}"><b>Жирный</b></button><button class="btn small" data-fmt="i" data-for="${id}"><i>Курсив</i></button><button class="btn small" data-fmt="li" data-for="${id}">• Список</button><button class="btn small gold" data-mdlink="role" data-for="${id}">+ Персонаж</button><button class="btn small" data-mdlink="lore" data-for="${id}" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Статья лора</button></div>`;
+const TOOLBAR=id=>`<div class="toolbar"><button class="btn small" data-fmt="h" data-for="${id}">Заголовок</button><button class="btn small" data-fmt="b" data-for="${id}"><b>Жирный</b></button><button class="btn small" data-fmt="i" data-for="${id}"><i>Курсив</i></button><button class="btn small" data-fmt="li" data-for="${id}">• Список</button><button class="btn small gold" data-mdlink="role" data-for="${id}">+ Персонаж</button><button class="btn small" data-mdlink="lore" data-for="${id}" style="color:#c3d0dc;border-color:rgba(147,170,187,.38)">+ Статья лора</button><button class="btn small" data-mdimg="${id}">${ui.mdImgBusy===id?'Загружаю…':'+ Картинка'}</button></div>${ui.mdImgMsg&&ui.mdImgMsg.for===id?`<span class="hint" style="color:var(--blood-hi,#d98c7a)">${h(ui.mdImgMsg.t)}</span>`:''}`;
 
 /* ---------------- render ---------------- */
 function render(){
@@ -726,7 +732,7 @@ function renderLore(){
       <span class="hint">${h(ui.musMsg||'Играет по кругу, пока открыта статья. Файл до 8 МБ (mp3, ogg, m4a). Читатель может поставить на паузу и убавить звук.')}</span></div></div>
     <div class="field"><label for="f-ltitle">Заголовок ${X.item}</label><input id="f-ltitle" data-lbind="title" value="${h(a.title)}"></div>
     <div class="field"><label for="f-lgroup">Тема</label><input id="f-lgroup" data-lbind="group" list="dl-lgroup" maxlength="60" value="${h(a.group||'')}" placeholder="Без темы" autocomplete="off"><datalist id="dl-lgroup">${[...new Set(L.map(x=>(x.group||'').trim()).filter(Boolean))].map(g=>`<option value="${h(g)}">`).join('')}</datalist><span class="hint">Статьи с одинаковой темой собираются в раскрывающийся список. Выберите существующую тему или впишите новую.</span></div>
-    <div class="field"><label for="f-lbody">Текст ${X.item}</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Выделите слова и нажмите кнопку ссылки: слова останутся, но станут ссылкой (выглядит как [[r:…=слова]]). Без выделения вставится имя роли или название статьи.</span></div>
+    <div class="field"><label for="f-lbody">Текст ${X.item}</label>${TOOLBAR('f-lbody')}<textarea id="f-lbody" data-lbind="body" rows="18">${h(a.body)}</textarea><span class="hint">Выделите слова и нажмите кнопку ссылки: слова останутся, но станут ссылкой (выглядит как [[r:…=слова]]). Без выделения вставится имя роли или название статьи. Картинка встаёт отдельной строкой [[img:…]]; чтобы добавить подпись, допишите её после | перед ]].</span></div>
     <button class="btn danger" id="lore-del">${ui.confirmLore===a.id?'Нажмите ещё раз, чтобы удалить':X.del}</button>`;
   else body=`<article class="lore-article prose">${photoSrc(a.cover)?`<div class="lore-cover"><img src="${h(photoSrc(a.cover))}" alt=""></div>`:''}${(a.group||'').trim()?`<div class="lore-grp-ey">${h(a.group.trim())}</div>`:''}<h2>${h(a.title)}</h2>${md(a.body)}</article>`;
   const sv=(ui.lsq||{})[X.k]||'';
@@ -1020,6 +1026,8 @@ document.addEventListener('click',async ev=>{
   if(ds.tab){if(ui.tab==='legends')flushLegend();if(grTimer)grFlush();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
   if(t.id==='to-top'){window.scrollTo({top:0,behavior:'smooth'});return}
   if(ds.fmt){applyFmt(ds.for,ds.fmt);return}
+  if(ds.mdimg){const ta=document.getElementById(ds.mdimg);if(!ta)return;mdImgAt={id:ds.mdimg,s:ta.selectionStart,e:ta.selectionEnd};
+    const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=()=>{if(f.files&&f.files[0])uploadMdImg(f.files[0])};f.click();return}
   if(t.id==='login-open'){ui.modal={kind:'login'};render();document.getElementById('m-pin')?.focus();return}
   if(t.id==='logout'){if(dirty()&&!ui.confirmLogout){ui.confirmLogout=true;ui.err='Есть несохранённые изменения. Нажмите «Выйти» ещё раз, чтобы выйти без сохранения.';render();return}
     flushLegend();pin=null;try{sessionStorage.removeItem('vpv-pin')}catch(_){} if(grTimer)grFlush(); LG=null;GR=null;grView=null;if(ui.tab==='legends'||ui.tab==='graphs')ui.tab='about'; ui.edit=false;ui.err='';ui.confirmLogout=false;S=JSON.parse(saved);render();return}
@@ -1139,6 +1147,26 @@ function syncMusic(){
     mus.url=u; mus.el.src=u;
     if(!mus.off&&!ui.edit) mus.el.play().catch(()=>{}); musUi();
   }).catch(()=>{if(mus.key===key){mus.box.querySelector('.mu-name').textContent='♪ музыка не загрузилась'}});
+}
+let mdImgAt=null;
+async function uploadMdImg(file){ // image inside lore/rules/about text: stored like photos, referenced as [[img:id]] on its own line
+  const at=mdImgAt; if(!at) return;
+  ui.mdImgBusy=at.id; ui.mdImgMsg=null; render();
+  try{
+    if(!/^image\//.test(file.type)) throw new Error('Это не картинка.');
+    const d=await shrink(file,1600), id=uid('i');
+    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    if(error) throw new Error(rpcErr(error));
+    if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
+    photos[id]=d;
+    const ta=document.getElementById(at.id);
+    if(ta){const v=ta.value,a=Math.min(at.s??v.length,v.length),b=Math.min(at.e??a,v.length),
+      pre=v.slice(0,a).replace(/[ \t]*$/,''),post=v.slice(b).replace(/^[ \t]*/,''),
+      tok='[[img:'+id+']]',lead=pre?(pre.endsWith('\n\n')?'':pre.endsWith('\n')?'\n':'\n\n'):'',tail=post?(post.startsWith('\n\n')?'':post.startsWith('\n')?'\n':'\n\n'):'';
+      ta.value=pre+lead+tok+tail+post; const c=(pre+lead+tok).length; ta.focus(); ta.setSelectionRange(c,c);
+      ta.dispatchEvent(new Event('input',{bubbles:true}));}
+  }catch(e){ui.mdImgMsg={for:at.id,t:e.message||'Не получилось загрузить картинку.'}}
+  ui.mdImgBusy=null; render();
 }
 async function uploadCover(file){
   const art=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!art) return;
@@ -2163,7 +2191,7 @@ function insertToken(tok){
   ta.focus({preventScroll:true}); const c=a+tok.length; ta.setSelectionRange(c,c);
 }
 function loreExcerpt(md,n){
-  let t=(md||'').replace(REF_RE,(m,k,id,sep,lab)=>sep==='='&&lab?lab:k==='r'?((S.roles.find(x=>x.id===id)||{}).name||lab||''):((S.lore.find(x=>x.id===id)||{}).title||lab||'')).replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
+  let t=(md||'').replace(/\[\[img:[^\]]*\]\]/g,'').replace(REF_RE,(m,k,id,sep,lab)=>sep==='='&&lab?lab:k==='r'?((S.roles.find(x=>x.id===id)||{}).name||lab||''):((S.lore.find(x=>x.id===id)||{}).title||lab||'')).replace(/^#+\s*/gm,'').replace(/\*\*|\*/g,'').replace(/^\s*-\s/gm,'• ').replace(/\s+/g,' ').trim();
   if(t.length>n){t=t.slice(0,n);t=t.slice(0,Math.max(t.lastIndexOf(' '),n-15))+'…'}
   return t;
 }
@@ -2370,7 +2398,7 @@ async function save(){
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN||grTimer||grSaving)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
-function photoIds(){return S.roles.map(r=>r.photo||'').concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+function photoIds(){return [...JSON.stringify(S).matchAll(/\[\[img:([\w-]+)/g)].map(m=>'ph:'+m[1]).concat(S.roles.map(r=>r.photo||'')).concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
