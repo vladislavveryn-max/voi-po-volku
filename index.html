@@ -1842,9 +1842,9 @@ function gwScorch(G){
 function gwFindUnit(side,u){for(const r of GW_ROWS){const c=side.rows[r].find(x=>x.uid===u);if(c)return {r,c}}return null}
 // play card c (already taken from hand) for side i. auto=true → medic picks by itself (AI and simulations)
 function gwApply(G,i,c,row,target,auto){
-  const me=G.p[i],op=G.p[1-i],L=t=>G.log.unshift(t),who=me.name;
+  const me=G.p[i],op=G.p[1-i],L=t=>G.log.unshift(t),who=me.name,Q=k=>{(G.sfx=G.sfx||[]).push(k)};
   if(c.special){
-    const sp=c.special;
+    const sp=c.special;Q(sp);
     if(GW_SP[sp].row){G.weather[GW_SP[sp].row]=true;me.grave.push(c);L(`${who}: ${c.name} (${GW_ROW[GW_SP[sp].row].toLowerCase()}).`)}
     else if(sp==='clear'){G.weather={m:false,r:false,s:false};me.grave.push(c);L(`${who}: ясное небо.`)}
     else if(sp==='horn'){me.horn[row]=c;L(`${who}: боевой рог — ${GW_ROW[row].toLowerCase()}.`)}
@@ -1860,6 +1860,7 @@ function gwApply(G,i,c,row,target,auto){
     return null;
   }
   const r=gwRowFor(c,row);
+  Q(c.ability==='sab'||c.ability==='spy'?c.ability:c.hero?'hero':'land');
   if(c.ability==='sab'){op.rows[r].push(c);L(`${who}: саботажник «${c.name}» — −${c.power} в ряду соперника.`);return null}
   if(c.ability==='spy'){op.rows[r].push(c);const d=me.deck.splice(0,2);me.hand.push(...d);L(`${who}: шпион «${c.name}» — взято карт: ${d.length}.`);return null}
   me.rows[r].push(c);L(`${who}: «${c.name}» (${c.hero?'герой':GW_ROW[r].toLowerCase()}).`);
@@ -1869,7 +1870,7 @@ function gwApply(G,i,c,row,target,auto){
     if(!cand.length)return null;
     if(!auto)return 'medic';
     const best=cand.slice().sort((a,b)=>(b.ability==='spy'?20:b.power)-(a.ability==='spy'?20:a.power))[0];
-    me.grave.splice(me.grave.indexOf(best),1);L(`${who}: исцеление возвращает «${best.name}».`);
+    me.grave.splice(me.grave.indexOf(best),1);L(`${who}: исцеление возвращает «${best.name}».`);Q('medic');
     return gwApply(G,i,best,best.row==='a'?'m':best.row,null,true);
   }
   return null;
@@ -1896,10 +1897,12 @@ function gwRoundEnd(G){
   else if(b>a){G.p[0].lives--;msg=hot?`Битва ${G.round}: побеждает ${G.p[1].name}, ${b} : ${a}`:`Раунд ${G.round} за компьютером: ${a} : ${b}`}
   else{G.p[0].lives--;G.p[1].lives--;msg=`Ничья в раунде ${G.round}: ${a} : ${b}`}
   G.log.unshift(msg+'.');
+  {const hv=G.mode==='hot'?(a===b?-1:a>b?0:1):0;(G.sfx=G.sfx||[]).push(a===b?'roundLose':G.mode==='hot'||a>b===(hv===0)?'roundWin':'roundLose')}
   G.p.forEach(s=>{GW_ROWS.forEach(r=>{s.grave.push(...s.rows[r]);s.rows[r]=[];if(s.horn[r]){s.grave.push(s.horn[r]);s.horn[r]=null}});s.passed=false});
   G.weather={m:false,r:false,s:false};
   if(G.p[0].lives<=0||G.p[1].lives<=0){
     G.phase='over';G.winner=G.p[0].lives>0?0:G.p[1].lives>0?1:-1;
+    G.sfx.push(G.winner===0||G.mode==='hot'&&G.winner>=0?'victory':'defeat');
     G.banner=G.winner<0?'Ничья':G.mode==='hot'?`Победа: ${G.p[G.winner].name} (${G.p[G.winner].title})`:G.winner===0?'Победа!':'Поражение';return;
   }
   G.round++;G.turn=a>b?1:b>a?0:(Math.random()<.5?0:1);G.banner=msg;
@@ -1911,7 +1914,7 @@ function gwNext(G,i){
   const s=G.p[G.turn];
   if(!s.hand.length&&!s.passed){s.passed=true;G.log.unshift(s.name+': карт нет — пас.');gwNext(G,G.turn)}
 }
-function gwPass(G,i){G.p[i].passed=true;G.log.unshift(G.p[i].name+': пас.');gwNext(G,i)}
+function gwPass(G,i){(G.sfx=G.sfx||[]).push('pass');G.p[i].passed=true;G.log.unshift(G.p[i].name+': пас.');gwNext(G,i)}
 function gwActor(G){return G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.turn):0}
 function gwView(G){return G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.shown):0}
 function gwHandover(G){return G.mode==='hot'&&G.phase!=='over'&&(G.phase==='mulligan'?G.shown!==G.mside:G.shown!==G.turn)}
@@ -2029,6 +2032,7 @@ function gwBoard(){
   const v=gwView(G),me=G.p[v],op=G.p[1-v],my=G.turn===v&&G.phase==='play'&&!G.pick;
   // animation memory: what the board looked like at the previous render
   const fx=GW_FX.gm===G&&GW_FX.round===G.round?GW_FX:{pow:{},rows:{},sums:{},tots:{},wx:{}};fx.ok=GW_FX.gm===G&&GW_FX.round===G.round;
+  const fxSnd={};
   const nfx={gm:G,round:G.round,pow:{},rows:{},sums:{},tots:{},wx:Object.assign({},G.weather)};
   const fxTot=i=>{const t=gwTotal(G,i);nfx.tots[i]=t;return fx.ok&&fx.tots[i]!==undefined&&fx.tots[i]!==t?' pop':''};
   const sel=G.sel?me.hand.find(c=>c.uid===G.sel):null;
@@ -2047,6 +2051,7 @@ function gwBoard(){
     nfx.rows[k]=nu;nfx.sums[k]=sum;
     const dp=drops.find(([si,rr])=>si===i&&rr===r);
     return `<div class="gw-row${G.weather[r]?' wx wx-'+r:''}${i!==v?' op':''}${rc}${dp?' drop-ok':''}" data-gwrow="${r}" data-gwside="${i}"${dp?` data-gwrowplay="${dp[2]}" role="button" tabindex="0" aria-label="Сыграть в ряд: ${GW_ROW[r]}"`:''}><span class="gw-rl"><span class="gw-rs${fx.ok&&fx.sums[k]!==undefined&&fx.sums[k]!==sum?' pop':''}">${sum}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':GW_ROW[r]}">${gwIco(s.horn[r]?'horn':r)}</span></span><span class="gw-hslot${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог: сила ряда удвоена':'Место для рога'}">${s.horn[r]?gwCard(s.horn[r],{}):gwIco('horn')}</span><div class="gw-units">${s.rows[r].map(c=>{const pw=gwPow(G,s,r,c),pv=fx.pow[c.uid];nfx.pow[c.uid]=pw;
+      if(fx.ok&&pv!==undefined&&pw!==pv)fxSnd[pw>pv?'up':'down']=1;
       const anim=!fx.ok?'':pv===undefined?' gw-land':pw>pv?' gw-up':pw<pv?' gw-dn':'';
       const badge=fx.ok&&pv!==undefined&&pw!==pv?`<span class="gc-fx ${pw>pv?'up':'dn'}">${pw>pv?'+':'−'}${Math.abs(pw-pv)}</span>`:'';
       const pz=poisonMode&&i!==v&&!c.hero&&!c.special;
@@ -2079,12 +2084,14 @@ function gwBoard(){
     <div class="gw-wxs gw-wslot">${wx.length?wx.map(r=>`<span>${gwIco({m:'frost',r:'fog',s:'rain'}[r])} ${({m:'Мороз',r:'Туман',s:'Дождь'})[r]}</span>`).join(''):'<span class="mut">Небо ясное</span>'}</div>
     <div class="gw-log">${G.log.slice(0,4).map(t=>`<div>${h(t)}</div>`).join('')}</div></div>
   <div class="gw-me">${info(me,v)}</div>
-  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
+  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
   <div class="gw-board">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
   <div class="gw-dock">${act}
   <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
-  GW_FX=nfx;return html;
+  GW_FX=nfx;
+  {const q=(G.sfx||[]).splice(0);if(!q.some(k=>['frost','fog','rain','clear','scorch','poison'].includes(k))){if(fxSnd.up)q.push('up');if(fxSnd.down)q.push('down')}if(q.length)setTimeout(()=>gwSfx(q),30)}
+  return html;
 }
 let gwTipEl=null,gwTipFor=null;
 function gwTipHide(){if(gwTipEl)gwTipEl.classList.remove('on');gwTipFor=null}
@@ -2139,7 +2146,7 @@ function gwDragStart(ev){
   const r=gwDr.el.getBoundingClientRect(),g=gwDr.el.cloneNode(true);
   g.classList.add('gw-ghost');g.classList.remove('sel');g.removeAttribute('data-gwhand');g.removeAttribute('data-gtip');
   g.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
-  document.body.appendChild(g);gwDr.g=g;gwDr.r0=r;gwDr.on=true;gwDr.el.classList.add('gw-dragging');gwTipHide();
+  gwSfx(['pick']);document.body.appendChild(g);gwDr.g=g;gwDr.r0=r;gwDr.on=true;gwDr.el.classList.add('gw-dragging');gwTipHide();
   document.querySelectorAll('.gw-board [data-gwrow]').forEach(rw=>{if(gwDr.t.rows.some(([i,rr])=>String(i)===rw.dataset.gwside&&rr===rw.dataset.gwrow))rw.classList.add('drop-ok')});
   document.querySelector('.gw-game').classList.add('gw-dragmode');
 }
@@ -2149,6 +2156,7 @@ function gwDragEnd(ok){
   const gm=document.querySelector('.gw-game');if(gm)gm.classList.remove('gw-dragmode');
   if(!d.g)return;
   if(ok){d.g.remove();return}
+  gwSfx(['back']);
   d.g.style.transition='left .22s ease,top .22s ease,transform .22s ease,opacity .22s';d.g.style.left=d.r0.left+'px';d.g.style.top=d.r0.top+'px';d.g.style.transform='none';d.g.style.opacity='.4';
   setTimeout(()=>{d.g.remove();if(d.el)d.el.classList.remove('gw-dragging')},230);
 }
@@ -2178,6 +2186,53 @@ document.addEventListener('pointerup',ev=>{
 });
 document.addEventListener('pointercancel',ev=>{if(gwDr&&ev.pointerId===gwDr.id)gwDragEnd(false)});
 document.addEventListener('click',ev=>{if(gwSwallow){gwSwallow=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
+/* ---- sound effects: synthesized with Web Audio, no files ---- */
+const SFX={ctx:null,on:true,master:null};
+try{SFX.on=localStorage.getItem('vpv-sfx')!=='0'}catch(_){}
+function sfxCtx(){
+  if(!SFX.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;SFX.ctx=new C();SFX.master=SFX.ctx.createGain();SFX.master.gain.value=.55;SFX.master.connect(SFX.ctx.destination)}
+  if(SFX.ctx.state==='suspended')SFX.ctx.resume();return SFX.ctx;
+}
+function sfxTone(f,d,o={}){const c=SFX.ctx,t=c.currentTime+(o.at||0),os=c.createOscillator(),g=c.createGain();os.type=o.type||'sine';os.frequency.setValueAtTime(f,t);if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+d);
+  if(o.vib){const l=c.createOscillator(),lg=c.createGain();l.frequency.value=o.vib;lg.gain.value=f*.012;l.connect(lg);lg.connect(os.frequency);l.start(t);l.stop(t+d)}
+  let n=os;if(o.lp){const fl=c.createBiquadFilter();fl.type='lowpass';fl.frequency.value=o.lp;os.connect(fl);n=fl}
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.v||.15,t+(o.a||.005));g.gain.exponentialRampToValueAtTime(0.0001,t+d);n.connect(g);g.connect(SFX.master);os.start(t);os.stop(t+d+.02)}
+let sfxNoiseBuf=null;
+function sfxNoise(d,o={}){const c=SFX.ctx,t=c.currentTime+(o.at||0);if(!sfxNoiseBuf){sfxNoiseBuf=c.createBuffer(1,c.sampleRate,c.sampleRate);const a=sfxNoiseBuf.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}
+  const src=c.createBufferSource(),fl=c.createBiquadFilter(),g=c.createGain();src.buffer=sfxNoiseBuf;fl.type=o.ft||'bandpass';fl.frequency.setValueAtTime(o.f||1000,t);if(o.to)fl.frequency.exponentialRampToValueAtTime(o.to,t+d);fl.Q.value=o.q||1;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(o.v||.15,t+(o.a||.005));g.gain.exponentialRampToValueAtTime(0.0001,t+d);src.connect(fl);fl.connect(g);g.connect(SFX.master);src.start(t,Math.random()*.5);src.stop(t+d+.02)}
+const SFX_LIB={
+  pick:()=>{sfxNoise(.07,{ft:'highpass',f:2500,v:.07})},
+  back:()=>{sfxNoise(.12,{f:1800,to:600,v:.06})},
+  land:()=>{sfxTone(120,.18,{to:55,v:.32});sfxNoise(.09,{f:1600,v:.12,q:.8})},
+  hero:()=>{sfxTone(110,.25,{to:50,v:.35});sfxNoise(.1,{f:1500,v:.12});[523,784,1047].forEach((f,k)=>sfxTone(f,.5,{type:'triangle',v:.06,at:.06+k*.05}))},
+  up:()=>{[523,659,784].forEach((f,k)=>sfxTone(f,.18,{type:'triangle',v:.09,at:k*.07}))},
+  down:()=>{sfxTone(330,.32,{type:'sawtooth',to:150,v:.07,lp:900})},
+  frost:()=>{[1568,2093,2637,3136].forEach((f,k)=>sfxTone(f,.5,{v:.05,at:k*.06}));sfxNoise(.7,{ft:'highpass',f:6000,v:.05,a:.1})},
+  fog:()=>{sfxNoise(1,{ft:'lowpass',f:700,to:250,v:.14,a:.25})},
+  rain:()=>{for(let k=0;k<26;k++)sfxNoise(.025,{ft:'highpass',f:2500+Math.random()*3000,v:.05,at:Math.random()*.8});sfxNoise(.9,{ft:'lowpass',f:900,v:.05,a:.2})},
+  clear:()=>{[784,988,1175,1568].forEach((f,k)=>sfxTone(f,.4,{v:.08,at:k*.07}))},
+  horn:()=>{sfxTone(196,.75,{type:'sawtooth',v:.12,a:.06,lp:1300,vib:5.5});sfxTone(294,.6,{type:'sawtooth',v:.08,a:.06,lp:1300,at:.18,vib:5.5})},
+  scorch:()=>{sfxNoise(1.1,{f:350,to:1800,v:.28,a:.08,q:.7});for(let k=0;k<12;k++)sfxNoise(.02,{ft:'highpass',f:3000,v:.08,at:.1+Math.random()*.8})},
+  poison:()=>{for(let k=0;k<6;k++)sfxTone(300+Math.random()*450,.07,{v:.07,at:k*.08,to:200});sfxTone(130,.5,{type:'triangle',to:70,v:.12,at:.15})},
+  raven:()=>{[0,.2].forEach(at=>{sfxTone(950,.13,{type:'sawtooth',to:620,v:.08,lp:1800,at});sfxNoise(.1,{f:1300,q:4,v:.06,at})});sfxNoise(.3,{ft:'highpass',f:1200,v:.04,at:.35,a:.05})},
+  merc:()=>{[2000,2600,2300,2900,2450].forEach((f,k)=>sfxTone(f,.12,{type:'triangle',v:.06,at:k*.05}))},
+  decoy:()=>{sfxNoise(.28,{f:700,to:3200,v:.1})},
+  spy:()=>{sfxTone(440,.14,{type:'triangle',v:.1});sfxTone(330,.2,{type:'triangle',v:.1,at:.1});sfxNoise(.08,{f:1500,v:.08})},
+  sab:()=>{sfxTone(220,.22,{type:'sawtooth',to:110,v:.09,lp:1200});sfxNoise(.06,{ft:'highpass',f:4000,v:.12,at:.02})},
+  medic:()=>{[660,880,1320].forEach((f,k)=>sfxTone(f,.45,{v:.07,at:k*.08,a:.03}))},
+  pass:()=>{sfxTone(147,.7,{v:.14,a:.01});sfxTone(220,.6,{v:.06,at:.02})},
+  roundWin:()=>{[523,659,784,1047].forEach((f,k)=>sfxTone(f,.35,{type:'triangle',v:.1,at:k*.1}))},
+  roundLose:()=>{[392,330,262].forEach((f,k)=>sfxTone(f,.45,{v:.1,at:k*.14}))},
+  victory:()=>{[392,523,659,784,1047].forEach((f,k)=>sfxTone(f,k===4?.9:.25,{type:'sawtooth',lp:2200,v:.08,at:k*.12,vib:k===4?5:0}))},
+  defeat:()=>{[294,277,262,196].forEach((f,k)=>sfxTone(f,k===3?1:.35,{type:'triangle',v:.1,at:k*.2}))}
+};
+function gwSfx(list){
+  if(!SFX.on||!list||!list.length)return;
+  try{if(matchMedia('(prefers-reduced-motion:reduce)').matches&&false)return;const c=sfxCtx();if(!c)return;
+    const seen=new Set();list.forEach((k,n)=>{if(seen.has(k)||!SFX_LIB[k])return;seen.add(k);setTimeout(()=>{try{SFX_LIB[k]()}catch(_){}},n*90)})}catch(_){}
+}
+document.addEventListener('pointerdown',()=>{if(ui.tab==='banners'&&SFX.on)sfxCtx()},{passive:true});
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
   if(gwTimer||!GM||ui.tab!=='banners')return;
@@ -2199,13 +2254,13 @@ function gwClick(t,ds){
   if(ds.gwmerc!==undefined&&G.pick&&G.pick.type==='merc'){const def=G.pick.opts[+ds.gwmerc];G.pick=null;if(def){const res=gwHire(G,A,def,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(ds.gwhand){
     if(G.phase==='mulligan'){const k=me.hand.findIndex(c=>c.uid===ds.gwhand);if(k>=0&&G.mull>0&&me.deck.length){const old=me.hand[k];me.hand[k]=me.deck.shift();me.deck.splice(Math.floor(Math.random()*(me.deck.length+1)),0,old);G.mull--;G.log.unshift(G.mode==='hot'?me.name+': замена карты.':'Вы заменили карту.');if(!G.mull)gwMullDone(G)}render();gwTick();return true}
-    if(G.phase==='play'&&G.turn===A&&!G.pick){G.sel=G.sel===ds.gwhand?null:ds.gwhand;render()}return true}
+    if(G.phase==='play'&&G.turn===A&&!G.pick){G.sel=G.sel===ds.gwhand?null:ds.gwhand;if(G.sel)gwSfx(['pick']);render()}return true}
   if(t.id==='gw-mull-done'){gwMullDone(G);render();gwTick();return true}
   if(t.id==='gw-unsel'||t.id==='gw-unsel2'){G.sel=null;render();return true}
   if(ds.gwplay&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);if(k<0)return true;G.sel=null;G.banner='';const res=gwPlayFromHand(G,A,k,ds.gwplay==='-'?null:ds.gwplay,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}if(res==='merc'){render();return true}gwNext(G,A);render();gwTick();return true}
   if(ds.gwpoison&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(G.p[1-A],ds.gwpoison);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwpoison,false);gwNext(G,A);render();gwTick();return true}
   if(ds.gwdecoy&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(me,ds.gwdecoy);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwdecoy,false);gwNext(G,A);render();gwTick();return true}
-  if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
+  if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);(G.sfx=G.sfx||[]).push('medic');const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-medic-skip'){G.pick=null;gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-pass'){G.sel=null;gwPass(G,A);render();gwTick();return true}
   if(t.id==='gw-quit'){G.phase='over';G.winner=1-A;G.banner=G.mode==='hot'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
@@ -2305,6 +2360,7 @@ function gwMasterClick(t,ds){
   if(t.id==='gw-reauto'){gwData().cards={};soft();render();return true}
   if(t.id==='gw-facoff'){const g=gwData(),F=ui.gwF,L=g.offTeams=g.offTeams||[];if(L.includes(F))g.offTeams=L.filter(x=>x!==F);else L.push(F);if(ui.gwOp===F)ui.gwOp='';soft();render();return true}
   if(t.id==='gw-music-clear'){delete gwData().music;ui.musMsg='Музыка убрана. Не забудьте сохранить.';soft();render();return true}
+  if(t.id==='gw-sfx'){SFX.on=!SFX.on;try{localStorage.setItem('vpv-sfx',SFX.on?'1':'0')}catch(_){}if(SFX.on)gwSfx(['pick']);render();return true}
   if(t.id==='gw-mus'){const b=document.getElementById('mu-play');if(b)b.click();return true}
   if(t.id==='gw-t-reset'){const g=gwData();delete g.troopList;delete g.troops;soft();render();return true}
   return false;
