@@ -230,6 +230,9 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .gc.pick{cursor:pointer;box-shadow:0 0 0 2px #9fd18a}
 .gw-log{font-size:13px;color:var(--muted);display:grid;gap:2px}.gw-log div:first-child{color:var(--fg)}
 .gw-banner{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:60;padding:22px 34px;border-radius:14px;background:rgba(12,10,8,.94);border:1px solid var(--gold);font-family:var(--display);font-size:clamp(22px,4vw,34px);color:var(--gold-hi);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.7);cursor:pointer;max-width:90vw}
+.rv-seal.off{opacity:.45;position:relative}.rv-seal.off .gw-offb{top:6px}
+.gw-facoff{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;border:1px dashed var(--gold-line);border-radius:10px;font-size:14px;color:var(--gold-hi)}
+.gw-facoff.is-off{border-color:rgba(171,55,46,.6);color:#e8a99c}
 .gw-edhint{font-size:14px;color:var(--gold-hi);border:1px dashed var(--gold-line);border-radius:10px;padding:10px 14px;margin:0 0 16px}
 .gw-pc .gc.open{cursor:pointer}.gw-pc .gc.open:hover{box-shadow:0 0 0 2px var(--gold-line)}
 .gw-pc{position:relative}.gw-pc.off{opacity:.45}.gw-offb{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#5a1d16;color:#f3d0c8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -1642,7 +1645,8 @@ function gwDefs(F,withOff){ // every card a deck of faction F may contain (withO
   Object.keys(GW_SP).forEach(k=>out.push({id:'sp:'+k,kind:'special',special:k,name:GW_SP[k].name,faction:'neutral',power:0,row:'',ability:'',hero:false,max:k==='scorch'||k==='clear'?2:3}));
   return out;
 }
-function gwFactions(){return S.teams.filter(t=>S.roles.some(r=>r.team===t.id&&!gwStats(r).off)||gwData().extras.some(x=>x.faction===t.id)||gwTroopList().some(x=>x.faction===t.id))}
+function gwTeamOff(id){return (gwData().offTeams||[]).includes(id)}
+function gwFactions(withOff){return S.teams.filter(t=>(withOff||!gwTeamOff(t.id))&&(S.roles.some(r=>r.team===t.id&&!gwStats(r).off)||gwData().extras.some(x=>x.faction===t.id)||gwTroopList().some(x=>x.faction===t.id)))}
 function gwDeckKey(F){return 'vpv-gw-deck-'+F}
 function gwDefaultDeck(F){const d={};gwDefs(F).forEach(c=>{d[c.id]=c.special?(['frost','fog','rain','horn','decoy','scorch'].includes(c.special)?1:0):c.max});return d}
 function gwDeck(F){let d=null;try{d=JSON.parse(localStorage.getItem(gwDeckKey(F))||'null')}catch(_){}
@@ -1797,7 +1801,7 @@ const GW_RULES=`<details class="gw-rules"><summary>Как играть</summary>
 <p>♛ Герои не боятся погоды и способностей. ${Object.keys(GW_ABD).map(k=>`${GW_AI[k]} <b>${GW_AB[k]}</b>: ${GW_ABD[k].charAt(0).toLowerCase()+GW_ABD[k].slice(1)}`).join(' ')}</p>
 <p>Особые карты: ${Object.values(GW_SP).map(x=>`${x.icon} <b>${x.name}</b> — ${x.d.charAt(0).toLowerCase()+x.d.slice(1)}`).join(' ')}</p></div></details>`;
 function gwMenu(){
-  const fs=gwFactions();
+  const ed0=!!(ui.edit&&pin),fs=gwFactions(ed0),fsPlay=gwFactions();
   if(!fs.length)return `<section class="gw"><h2>Игра знамён</h2><p class="empty">Пока нет ни одной фракции с картами. Добавьте роли в сетку ролей.</p>${gwMasterEd()}</section>`;
   if(!ui.gwF||!fs.some(t=>t.id===ui.gwF))ui.gwF=fs[0].id;
   const ed=!!(ui.edit&&pin),F=ui.gwF,defs=gwDefs(F,ed),d=gwDeck(F),st=gwDeckStats(F,d),ok=st.units>=GW_MIN_UNITS&&st.sp<=GW_MAX_SP;
@@ -1805,13 +1809,15 @@ function gwMenu(){
     return `<div class="gw-pc${n?' on':''}${c.off?' off':''}">${gwCard(c,{name:true,cls:'open',attrs:`data-gwopen="${h(c.id)}" role="button" tabindex="0" aria-label="${h(c.name)}: подробнее${ed?' и правка':''}"`})}${c.off?'<span class="gw-offb">не в игре</span>':''}<div class="gw-pc-b"><div class="gw-pc-t">${c.ability?`${GW_AI[c.ability]} ${GW_AB[c.ability]}`:c.special?'Особая':c.hero?'Герой':'Отряд'}</div>
       <div class="gw-cnt"><button class="mv" data-gwdeck="${h(c.id)}" data-dir="-1" aria-label="Убрать"${n?'':' disabled'}>−</button><b>${n}/${c.max}</b><button class="mv" data-gwdeck="${h(c.id)}" data-dir="1" aria-label="Добавить"${n<c.max&&!c.off?'':' disabled'}>+</button></div></div>
       <div class="gw-pc-d">${gwDesc(c)}</div></div>`}).join('')}${add?`<button class="gw-addc" id="${add[0]}"><span>+</span>${add[1]}</button>`:''}</div></div>`:'';
-  const opF=ui.gwOp&&fs.some(t=>t.id===ui.gwOp&&t.id!==F)?ui.gwOp:'';
+  const fOff=gwTeamOff(F),fT=S.teams.find(t=>t.id===F);
+  const opF=ui.gwOp&&fsPlay.some(t=>t.id===ui.gwOp&&t.id!==F)?ui.gwOp:'';
   return `<section class="gw"><div class="rv-head"><h2>Игра знамён</h2><p class="rv-lead">Созовите знамёна своего дома: персонажи нашей игры, их войска и союзники сходятся в битве трёх сражений. Выберите фракцию, соберите колоду и одолейте соперника.</p></div>
   ${GW_RULES}
-  <div class="field"><span class="lbl">Ваша фракция</span><div class="rv-seals gw-facs">${fs.map(t=>`<button class="rv-seal" data-gwf="${t.id}" aria-pressed="${t.id===F}">${t.icon&&photoSrc(t.icon)?`<img src="${gwImg(photoSrc(t.icon))}" alt="">`:`<span class="rv-ini">${h((t.name||'?')[0])}</span>`}<span>${h(t.name)}</span></button>`).join('')}</div></div>
+  <div class="field"><span class="lbl">Ваша фракция</span><div class="rv-seals gw-facs">${fs.map(t=>`<button class="rv-seal${gwTeamOff(t.id)?' off':''}" data-gwf="${t.id}" aria-pressed="${t.id===F}" title="${gwTeamOff(t.id)?'Скрыта от игроков':''}">${gwTeamOff(t.id)?'<span class="gw-offb">скрыта</span>':''}${t.icon&&photoSrc(t.icon)?`<img src="${gwImg(photoSrc(t.icon))}" alt="">`:`<span class="rv-ini">${h((t.name||'?')[0])}</span>`}<span>${h(t.name)}</span></button>`).join('')}</div>
+  ${ed?`<div class="gw-facoff${fOff?' is-off':''}"><span>${fOff?`Фракция «${h(fT?fT.name:'')}» скрыта: игроки её не видят, и компьютер ею не играет.`:`Фракция «${h(fT?fT.name:'')}» участвует в игре.`}</span><button class="btn small${fOff?' gold':''}" id="gw-facoff">${fOff?'Вернуть в игру':'Скрыть фракцию от игроков'}</button></div>`:''}</div>
   <div class="gw-deckbar"><div class="gw-stats"><span class="${st.units>=GW_MIN_UNITS?'':'bad'}">Отрядов: <b>${st.units}</b> (мин. ${GW_MIN_UNITS})</span><span class="${st.sp<=GW_MAX_SP?'':'bad'}">Особых: <b>${st.sp}</b>/${GW_MAX_SP}</span><span>Сила: <b>${st.power}</b></span><span>Героев: <b>${st.heroes}</b></span></div>
-    <div class="gw-go"><select id="gw-op" aria-label="Соперник"><option value="">Соперник: случайная фракция</option>${fs.filter(t=>t.id!==F).map(t=>`<option value="${t.id}"${opF===t.id?' selected':''}>Соперник: ${h(t.name)}</option>`).join('')}</select>
-    <button class="btn small" id="gw-all">Взять всё</button><button class="btn small" id="gw-clear">Очистить</button><button class="btn gold" id="gw-play"${ok?'':' disabled'}>В бой</button></div></div>
+    <div class="gw-go"><select id="gw-op" aria-label="Соперник"><option value="">Соперник: случайная фракция</option>${fsPlay.filter(t=>t.id!==F).map(t=>`<option value="${t.id}"${opF===t.id?' selected':''}>Соперник: ${h(t.name)}</option>`).join('')}</select>
+    <button class="btn small" id="gw-all">Взять всё</button><button class="btn small" id="gw-clear">Очистить</button><button class="btn gold" id="gw-play"${ok&&!fOff?'':' disabled'} title="${fOff?'Фракция скрыта':''}">В бой</button></div></div>
   ${ed?'<p class="gw-edhint">Режим мастера: нажмите на любую карту, чтобы изменить её, или на «+», чтобы добавить новую. Изменения сохраняются кнопкой «Сохранить».</p>':''}
   ${sect('Персонажи',defs.filter(c=>c.kind==='role'))}${sect('Карты мастера',defs.filter(c=>c.kind==='extra'),ed&&['gw-x-add','Новая карта'])}${sect('Отряды фракции',defs.filter(c=>c.kind==='troop'),ed&&['gw-t-add','Новый отряд'])}${sect('Особые карты',defs.filter(c=>c.kind==='special'))}
   ${gwMasterEd()}</section>`;
@@ -1984,6 +1990,7 @@ function gwMasterClick(t,ds){
   if(t.id==='gw-m-noimg'){const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(M&&M.obj){const x=M.kind==='troop'?gwTroopsEdit().find(y=>y.id===M.obj.id):M.obj;x.img=''}soft();render();return true}
   if(t.id==='gw-m-auto'){const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(M&&M.kind==='role'){const g=gwData(),off=g.cards[M.obj.id]&&g.cards[M.obj.id].off;delete g.cards[M.obj.id];if(off)g.cards[M.obj.id]={off:true}}soft();render();return true}
   if(t.id==='gw-reauto'){gwData().cards={};soft();render();return true}
+  if(t.id==='gw-facoff'){const g=gwData(),F=ui.gwF,L=g.offTeams=g.offTeams||[];if(L.includes(F))g.offTeams=L.filter(x=>x!==F);else L.push(F);if(ui.gwOp===F)ui.gwOp='';soft();render();return true}
   if(t.id==='gw-music-clear'){delete gwData().music;ui.musMsg='Музыка убрана. Не забудьте сохранить.';soft();render();return true}
   if(t.id==='gw-mus'){const b=document.getElementById('mu-play');if(b)b.click();return true}
   if(t.id==='gw-t-reset'){const g=gwData();delete g.troopList;delete g.troops;soft();render();return true}
