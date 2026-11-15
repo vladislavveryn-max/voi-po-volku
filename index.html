@@ -1257,7 +1257,7 @@ function rvAfterRender(){
   rvDraw();
   if(!RVS.fonts){RVS.fonts=Promise.all([document.fonts.load('48px "Bad Script"','Аа'),document.fonts.load('48px Forum','Аа')]).then(rvDrawSoon,rvDrawSoon)}
   if(!RVS.botChecked){RVS.botChecked=true;rvFn({action:'info'}).then(r=>{if(r&&r.bot){RVS.bot=r.bot;if(ui.tab==='raven')render()}}).catch(()=>{})}
-  if(RVS.known===null){RVS.known=undefined;const us=rvRecipients().map(x=>x.u);
+  if(RVS.known!==undefined&&Date.now()-(RVS.knownAt||0)>15000){RVS.knownAt=Date.now();RVS.known=undefined;const us=rvRecipients().map(x=>x.u);
     sb.rpc('raven_known',{p_users:us}).then(({data,error})=>{RVS.known=error?null:new Set((data||[]).map(x=>String(x).toLowerCase()));if(!error&&ui.tab==='raven')render()},()=>{})}
 }
 function rvDrawSoon(){clearTimeout(RVS.timer);RVS.timer=setTimeout(rvDraw,120)}
