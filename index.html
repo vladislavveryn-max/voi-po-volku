@@ -287,6 +287,8 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 @keyframes gwRvIn{from{opacity:0;transform:translate(-50%,-40%) scale(.9)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes gwRvFlip{0%{transform:perspective(600px) rotateY(90deg);filter:brightness(2)}100%{transform:none;filter:none}}
 @media (prefers-reduced-motion:reduce){.gw-reveal,.gw-rv-card .gc{animation:none}}
+.gc-p.sab{background:radial-gradient(circle at 35% 30%,#ffd6cc,#c4483a 60%,#7a1d14)!important;color:#fff}
+.gw-board .gc.pick.poison{box-shadow:0 0 0 2px #b46ad6,0 0 16px rgba(180,106,214,.7)!important}
 .gw-mopt{display:grid;gap:4px;justify-items:center;font-size:12px;color:var(--muted);text-align:center;max-width:110px}.gw-mopt .gc{--w:96px}
 .gc img{position:absolute;inset:0}
 .gw-pool{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
@@ -1732,9 +1734,9 @@ async function rvSealIcon(sid,file){
 }
 // ---------- «Игра знамён» (карточная битва): карты-роли, колоды по фракциям, игра против компьютера ----------
 const GW_ROWS=['m','r','s'], GW_ROW={m:'Ближний бой',r:'Дальний бой',s:'Осада',a:'Ближний или дальний'}, GW_RI={m:'⚔',r:'🏹',s:'🏰',a:'⇄'};
-const GW_AB={'':'Без способности',spy:'Шпион',medic:'Исцеление',muster:'Сбор',bond:'Братство',morale:'Боевой дух',horn:'Рог'};
-const GW_AI={spy:'👁',medic:'✚',muster:'⚑',bond:'⛓',morale:'✦',horn:'📯'};
-const GW_ABD={spy:'Выставляется на поле противника (его сила идёт сопернику), а вы берёте 2 карты из колоды.',medic:'Возвращает в игру одну обычную карту отряда из вашего сброса.',muster:'Вместе с этой картой из колоды выходят все карты с тем же названием.',bond:'Одинаковые карты в одном ряду умножают силу друг друга.',morale:'+1 к силе всех остальных карт в этом ряду.',horn:'Удваивает силу остальных карт в этом ряду.'};
+const GW_AB={'':'Без способности',spy:'Шпион',medic:'Исцеление',muster:'Сбор',bond:'Братство',morale:'Боевой дух',horn:'Рог',sab:'Саботажник'};
+const GW_AI={spy:'👁',medic:'✚',muster:'⚑',bond:'⛓',morale:'✦',horn:'📯',sab:'🗡'};
+const GW_ABD={spy:'Выставляется на поле противника (его сила идёт сопернику), а вы берёте 2 карты из колоды.',medic:'Возвращает в игру одну обычную карту отряда из вашего сброса.',muster:'Вместе с этой картой из колоды выходят все карты с тем же названием.',bond:'Одинаковые карты в одном ряду умножают силу друг друга.',morale:'+1 к силе всех остальных карт в этом ряду.',horn:'Удваивает силу остальных карт в этом ряду.',sab:'Выставляется на поле противника, и её сила вычитается из силы этого ряда противника.'};
 const GW_HERO='Герой: на него не действуют погода, рог и способности, его нельзя сжечь или подменить двойником.';
 const GW_SP={frost:{name:'Трескучий мороз',icon:'❄',row:'m',d:'Сила всех карт ближнего боя у обоих игроков становится 1.'},
   fog:{name:'Туман с Узкого моря',icon:'🌫',row:'r',d:'Сила всех карт дальнего боя у обоих игроков становится 1.'},
@@ -1743,6 +1745,8 @@ const GW_SP={frost:{name:'Трескучий мороз',icon:'❄',row:'m',d:'�
   horn:{name:'Боевой рог',icon:'📯',d:'Удваивает силу карт в выбранном вашем ряду (кроме героев).'},
   decoy:{name:'Двойник',icon:'🎭',d:'Встаёт на место вашей карты на поле, а та возвращается в руку.'},
   scorch:{name:'Драконье пламя',icon:'🔥',d:'Сжигает самую сильную карту (или карты) на всём поле, кроме героев.'},
+  poison:{name:'Яд',icon:'☠',d:'Убивает выбранную карту противника на поле (кроме героев).'},
+  raven:{name:'Ворон',icon:'🐦',d:'Забирает случайную карту из руки противника в вашу руку (если рука пуста — из его колоды).'},
   merc:{name:'Наёмники',icon:'💰',d:'Призывает случайный отряд наёмников — он сразу вступает в бой.'}};
 const GW_MERCS=[{id:'gold',name:'Золотые Мечи',row:'m',power:7,ability:'',hero:false},{id:'sons',name:'Младшие Сыновья',row:'m',power:5,ability:'morale',hero:false},
   {id:'storm',name:'Буревестники',row:'r',power:5,ability:'',hero:false},{id:'brave',name:'Бравые Ребята',row:'m',power:4,ability:'spy',hero:false},
@@ -1816,6 +1820,7 @@ function gwStart(F,opF,mode){
 }
 function gwPow(G,side,row,c){
   if(c.special==='decoy')return 0;
+  if(c.ability==='sab')return -(c.hero||!G.weather[row]?c.power:Math.min(1,c.power));
   if(c.hero)return c.power;
   const U=side.rows[row];let p=G.weather[row]?Math.min(1,c.power):c.power;
   if(c.ability==='bond')p*=Math.max(1,U.filter(x=>x.name===c.name&&x.ability==='bond').length);
@@ -1823,7 +1828,7 @@ function gwPow(G,side,row,c){
   if(side.horn[row]||U.some(x=>x!==c&&x.ability==='horn'))p*=2;
   return p;
 }
-function gwRowSum(G,i,row){const s=G.p[i];return s.rows[row].reduce((a,c)=>a+gwPow(G,s,row,c),0)}
+function gwRowSum(G,i,row){const s=G.p[i];return Math.max(0,s.rows[row].reduce((a,c)=>a+gwPow(G,s,row,c),0))}
 function gwTotal(G,i){return GW_ROWS.reduce((a,r)=>a+gwRowSum(G,i,r),0)}
 function gwRowFor(c,pref){return c.row==='a'?(pref==='r'?'r':'m'):c.row}
 function gwScorch(G){
@@ -1845,13 +1850,17 @@ function gwApply(G,i,c,row,target,auto){
     else if(sp==='horn'){me.horn[row]=c;L(`${who}: боевой рог — ${GW_ROW[row].toLowerCase()}.`)}
     else if(sp==='scorch'){const n=gwScorch(G);me.grave.push(c);L(`${who}: драконье пламя — сгорело карт: ${n}.`)}
     else if(sp==='decoy'){const f=gwFindUnit(me,target);if(f){const R=me.rows[f.r];R.splice(R.indexOf(f.c),1,c);me.hand.push(f.c);L(`${who}: двойник вместо «${f.c.name}».`)}else me.grave.push(c)}
+    else if(sp==='poison'){me.grave.push(c);const f=gwFindUnit(op,target);if(f&&!f.c.hero){op.rows[f.r]=op.rows[f.r].filter(x=>x!==f.c);op.grave.push(f.c);L(`${who}: яд убивает «${f.c.name}».`)}else L(`${who}: яд пропал впустую.`)}
+    else if(sp==='raven'){me.grave.push(c);const src=op.hand.length?op.hand:op.deck;if(!src.length){L(`${who}: ворон вернулся ни с чем.`);return null}
+      const k=Math.floor(Math.random()*src.length),got=src.splice(k,1)[0];me.hand.push(got);G.reveal={c:got,who,t:'ворон принёс карту соперника'};L(`${who}: ворон похищает «${got.name}».`)}
     else if(sp==='merc'){me.grave.push(c);const pool=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef);
       if(!pool.length){L(`${who}: наёмников не нашлось.`);return null}
-      const got=pool[Math.floor(Math.random()*pool.length)];G.reveal={c:got,who};
+      const got=pool[Math.floor(Math.random()*pool.length)];G.reveal={c:got,who,t:'на зов откликнулись'};
       return gwHire(G,i,got,auto);}
     return null;
   }
   const r=gwRowFor(c,row);
+  if(c.ability==='sab'){op.rows[r].push(c);L(`${who}: саботажник «${c.name}» — −${c.power} в ряду соперника.`);return null}
   if(c.ability==='spy'){op.rows[r].push(c);const d=me.deck.splice(0,2);me.hand.push(...d);L(`${who}: шпион «${c.name}» — взято карт: ${d.length}.`);return null}
   me.rows[r].push(c);L(`${who}: «${c.name}» (${c.hero?'герой':GW_ROW[r].toLowerCase()}).`);
   if(c.ability==='muster'){const more=me.deck.filter(x=>x.name===c.name);if(more.length){me.deck=me.deck.filter(x=>x.name!==c.name);more.forEach(x=>me.rows[gwRowFor(x,r)].push(x));L(`${who}: сбор — ещё «${c.name}» ×${more.length}.`)}}
@@ -1870,6 +1879,7 @@ function gwOptions(G,i){
   const me=G.p[i],out=[];
   me.hand.forEach((c,idx)=>{
     if(c.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])out.push({idx,row:r})});
+    else if(c.special==='poison')GW_ROWS.forEach(r=>G.p[1-i].rows[r].forEach(u=>{if(!u.hero&&!u.special)out.push({idx,row:r,target:u.uid})}));
     else if(c.special==='decoy')GW_ROWS.forEach(r=>me.rows[r].forEach(u=>{if(!u.hero&&!u.special)out.push({idx,row:r,target:u.uid})}));
     else if(c.special)out.push({idx});
     else (c.row==='a'?['m','r']:[c.row]).forEach(r=>out.push({idx,row:r}));
@@ -1910,10 +1920,10 @@ function gwAiMove(G){
   const me=G.p[1],op=G.p[0];
   if(!me.hand.length)return gwPass(G,1);
   const a=gwTotal(G,1),b=gwTotal(G,0);
-  const opts=gwOptions(G,1).filter(o=>{const c=me.hand[o.idx];if(c.special!=='decoy')return true;const f=gwFindUnit(me,o.target);return f&&(f.c.ability==='spy'||f.c.ability==='medic')});
+  const opts=gwOptions(G,1).filter(o=>{const c=me.hand[o.idx];if(c.special!=='decoy')return true;const f=gwFindUnit(me,o.target);return f&&(f.c.ability==='spy'||f.c.ability==='sab'||f.c.ability==='medic')});
   const ev=opts.map(o=>{const g=gwClone(G),c=g.p[1].hand[o.idx];gwPlayFromHand(g,1,o.idx,o.row,o.target,true);const x=gwTotal(g,1),y=gwTotal(g,0);
-    let bonus=c.ability==='spy'?9:0;if(c.special==='decoy')bonus=7;if(c.ability==='medic')bonus+=3;
-    const cost=c.special?(c.special==='decoy'?0:4):(c.hero?c.power+4:c.power);
+    let bonus=c.ability==='spy'?9:0;if(c.special==='decoy')bonus=7;if(c.ability==='medic')bonus+=3;if(c.special==='raven')bonus=(op.hand.length||op.deck.length)?8:-5;
+    const cost=c.special?(c.special==='decoy'?0:4):c.ability==='sab'?0:(c.hero?c.power+4:c.power);
     return {o,after:x-y,gain:(x-y)-(a-b),bonus,cost,c}});
   const play=e=>{const c=me.hand[e.o.idx];gwPlayFromHand(G,1,e.o.idx,e.o.row,e.o.target,true);gwNext(G,1)};
   if(op.passed){
@@ -1926,7 +1936,7 @@ function gwAiMove(G){
   if(me.lives===2&&b-a>25&&me.hand.length<=op.hand.length+1)return gwPass(G,1);
   if(G.round===1&&a-b>=14&&me.hand.length<=op.hand.length)return gwPass(G,1);
   const k=G.round===1?.45:me.lives===1?.05:.25;
-  const scored=ev.filter(e=>!(e.c.special&&e.gain<=0&&e.c.special!=='decoy')).map(e=>Object.assign(e,{v:e.gain+e.bonus-e.cost*k}));
+  const scored=ev.filter(e=>!(e.c.special&&e.gain<=0&&e.c.special!=='decoy'&&e.c.special!=='raven')).map(e=>Object.assign(e,{v:e.gain+e.bonus-e.cost*k}));
   if(!scored.length)return gwPass(G,1);
   scored.sort((x,y)=>y.v-x.v);
   play(scored[0]);
@@ -1939,7 +1949,7 @@ function gwCard(c,o={}){
   const tipK=ui.tab==='banners'&&(ui.gw==='game'&&GM||o.tip)?(c.uid||c.id):null;if(tipK)GW_TIP[tipK]={c,pow:pw};
   return `<div class="gc${c.hero?' hero':''}${sp?' sp':''}${ico?' ico':''}${own?'':' noart'}${o.cls?' '+o.cls:''}" ${o.attrs||''} ${tipK?`data-gtip="${h(tipK)}"`:`title="${h(c.name)}${c.sub?' · '+h(c.sub):''}"`}>`
     +(img?`<img src="${img}" alt="" draggable="false">`:sp||c.kind==='merc'?`<span class="gc-sp">${gwIco(sp||'merc')}</span>`:`<span class="gc-ini">${h((c.name||'?').trim()[0]||'?')}</span>`)
-    +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
+    +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}${c.ability==='sab'?' sab':''}">${c.ability==='sab'&&pw>0?'−'+pw:pw<0?'−'+(-pw):pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
     +(c.ability?`<span class="gc-a">${gwIco(c.ability)}</span>`:'')+(sp&&img?`<span class="gc-a gc-spb">${gwIco(sp)}</span>`:'')
     +(o.name||sp||!own?`<span class="gc-n">${h(c.name)}</span>`:'')+(o.fx||'')+`</div>`;
 }
@@ -1998,6 +2008,9 @@ const GW_SVG={m:'M19 4 8.5 14.5M19 4h-3.5M19 4v3.5M6.5 12.5l5 5M8 16l-4 4',
   rain:'M7 14.5a4 4 0 1 1 1.1-7.8A5.2 5.2 0 0 1 18 8.2a3.2 3.2 0 0 1 0 6.3ZM8.5 17.5l-1 3M12.5 17.5l-1 3M16.5 17.5l-1 3',
   clear:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8',
   decoy:'M5.5 4h13v6.5a6.5 6.5 0 0 1-13 0ZM9 9h.01M15 9h.01M9 13.5c2 1.6 4 1.6 6 0',
+  sab:'M14.5 3.5l6 6L10 20H4v-6ZM12.5 6.5l5 5M4 20l3.5-3.5',
+  poison:'M9.5 3h5M10.5 3v5L6 16.2A3.2 3.2 0 0 0 8.8 21h6.4a3.2 3.2 0 0 0 2.8-4.8L13.5 8V3M7.6 14h8.8',
+  raven:'M3 12.5c2.8-.4 4.6-3.6 8.5-3.6 2.4 0 3.9 1 4.9 2.1l3.6-1.2-2.3 3.1c0 3.6-2.9 6.1-6.7 6.1l-3.2 2.7-.8-3.1C4.7 17.9 3.4 15.8 3 12.5ZM15.2 10.6h.01',
   merc:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM14.6 9.2c-.4-1-1.4-1.7-2.6-1.7-1.5 0-2.6.9-2.6 2 0 2.7 5.4 1.6 5.4 4.6 0 1.2-1.2 2.1-2.8 2.1-1.3 0-2.4-.7-2.8-1.8M12 5.8v1.7M12 16.2v1.9',
   scorch:'M12 2.5c1 4 6.5 6.2 6.5 11.5a6.5 6.5 0 0 1-13 0c0-3.2 2-4.6 3.2-6.6.2 2 1.2 3.4 2.6 3.4-.3-3.2-.1-5.6.7-8.3Z',
   music:'M9 18V5.5l11-2V16M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM20 16a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z',
@@ -2028,7 +2041,7 @@ function gwBoard(){
   const tg=sel&&my&&!sel.special?null:null, drops=sel&&my&&sel.special!=='decoy'?gwDropTargets(G,v,sel).rows:[];
   const lead=(s,cls)=>`<div class="gw-lead ${cls}"><div class="gw-lead-in">${teamIc(s)}</div><span>${h(s.title||'')}</span></div>`;
   const piles=(s,cls)=>{const top=s.grave[s.grave.length-1];return `<div class="gw-piles ${cls}"><div class="gw-pile gw-grave" title="Сброс: ${s.grave.length}">${top?gwCard(top,{}):'<span class="gw-pile-e">сброс</span>'}<span class="gw-pile-c">${s.grave.length}</span></div><div class="gw-pile gw-deck" title="Колода: ${s.deck.length}"><div class="gw-back">${teamIc(s)}</div><span class="gw-pile-c">${s.deck.length}</span></div></div>`};
-  const decoyMode=sel&&sel.special==='decoy'&&my;
+  const decoyMode=sel&&sel.special==='decoy'&&my, poisonMode=sel&&sel.special==='poison'&&my;
   const row=(i,r)=>{const s=G.p[i],sum=gwRowSum(G,i,r),k=i+r,pu=fx.rows[k]||[],nu=s.rows[r].map(c=>c.uid);
     const rc=(fx.ok&&pu.some(u=>!nu.includes(u))&&!nu.some(u=>!pu.includes(u))?' gw-burn':'')+(fx.ok&&nu.some(u=>!pu.includes(u))?' gw-hit':'')+(fx.ok&&G.weather[r]&&!fx.wx[r]?' wx-in':'');
     nfx.rows[k]=nu;nfx.sums[k]=sum;
@@ -2036,7 +2049,8 @@ function gwBoard(){
     return `<div class="gw-row${G.weather[r]?' wx wx-'+r:''}${i!==v?' op':''}${rc}${dp?' drop-ok':''}" data-gwrow="${r}" data-gwside="${i}"${dp?` data-gwrowplay="${dp[2]}" role="button" tabindex="0" aria-label="Сыграть в ряд: ${GW_ROW[r]}"`:''}><span class="gw-rl"><span class="gw-rs${fx.ok&&fx.sums[k]!==undefined&&fx.sums[k]!==sum?' pop':''}">${sum}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':GW_ROW[r]}">${gwIco(s.horn[r]?'horn':r)}</span></span><span class="gw-hslot${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог: сила ряда удвоена':'Место для рога'}">${s.horn[r]?gwCard(s.horn[r],{}):gwIco('horn')}</span><div class="gw-units">${s.rows[r].map(c=>{const pw=gwPow(G,s,r,c),pv=fx.pow[c.uid];nfx.pow[c.uid]=pw;
       const anim=!fx.ok?'':pv===undefined?' gw-land':pw>pv?' gw-up':pw<pv?' gw-dn':'';
       const badge=fx.ok&&pv!==undefined&&pw!==pv?`<span class="gc-fx ${pw>pv?'up':'dn'}">${pw>pv?'+':'−'}${Math.abs(pw-pv)}</span>`:'';
-      return gwCard(c,{pow:pw,fx:badge,cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':'')+anim,attrs:`data-gwu="${c.uid}"`+(decoyMode&&i===v&&!c.hero&&!c.special?` data-gwdecoy="${c.uid}" role="button" tabindex="0"`:'')})}).join('')}</div></div>`};
+      const pz=poisonMode&&i!==v&&!c.hero&&!c.special;
+      return gwCard(c,{pow:pw,fx:badge,cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':'')+(pz?' pick poison':'')+anim,attrs:`data-gwu="${c.uid}"`+(decoyMode&&i===v&&!c.hero&&!c.special?` data-gwdecoy="${c.uid}" role="button" tabindex="0"`:'')+(pz?` data-gwpoison="${c.uid}" role="button" tabindex="0"`:'')})}).join('')}</div></div>`};
   let act='',selBtns='';
   if(G.phase==='mulligan')act=`<div class="gw-act"><span>${G.mode==='hot'?h(me.name)+': м':'М'}ожно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
   else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div></div>`;
@@ -2045,6 +2059,7 @@ function gwBoard(){
   else if(sel&&my){
     const b=[];
     if(sel.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])b.push(`<button class="btn small gold" data-gwplay="${r}">${gwIco(r)} ${GW_ROW[r]}</button>`)});
+    else if(sel.special==='poison')b.push('<span class="gw-hint">Нажмите на карту противника на поле.</span>');
     else if(sel.special==='decoy')b.push('<span class="gw-hint">Нажмите на свою карту на поле.</span>');
     else if(sel.special)b.push('<button class="btn small gold" data-gwplay="-">Сыграть</button>');
     else (sel.row==='a'?['m','r']:[sel.row]).forEach(r=>b.push(`<button class="btn small gold" data-gwplay="${r}">${sel.ability==='spy'?'Шпион: ':''}${gwIco(r)} ${GW_ROW[r]}</button>`));
@@ -2052,12 +2067,12 @@ function gwBoard(){
     act=`<div class="gw-act selact"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?`<span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
   }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: перетащите карту на поле или нажмите на неё.':'Ваш ход: перетащите карту на поле или нажмите на неё.'):me.passed?(G.mode==='hot'?'Вы спасовали.':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode==='hot'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
   const mullMode=G.phase==='mulligan', gm=gwData().music, hasMus=!!(gm&&gm.src);
-  const prev=`<div class="gw-prev">${sel&&my?`<div class="gw-prev-card">${gwCard(sel,{name:true})}</div><b>${h(sel.name)}</b>${sel.sub?`<span class="gw-prev-sub">${h(sel.sub)}</span>`:''}<p>${gwDesc(sel)}</p><div class="gw-btns">${selBtns}<button class="btn small" id="gw-unsel2">Отмена</button></div><span class="gw-prev-h">${sel.special==='decoy'?'':'Или нажмите на подсвеченный ряд.'}</span>`
+  const prev=`<div class="gw-prev">${sel&&my?`<div class="gw-prev-card">${gwCard(sel,{name:true})}</div><b>${h(sel.name)}</b>${sel.sub?`<span class="gw-prev-sub">${h(sel.sub)}</span>`:''}<p>${gwDesc(sel)}</p><div class="gw-btns">${selBtns}<button class="btn small" id="gw-unsel2">Отмена</button></div><span class="gw-prev-h">${sel.special==='decoy'||sel.special==='poison'?'':'Или нажмите на подсвеченный ряд.'}</span>`
     :`<div class="gw-prev-e">${G.phase==='mulligan'?'Нажмите на карту в руке, чтобы заменить её.':my?'Выберите карту в руке или перетащите её на поле.':G.phase==='over'?'Бой окончен.':'Ждём хода соперника…'}</div>`}</div>`;
   const wx=GW_ROWS.filter(r=>G.weather[r]);
   const html=`<section class="gw gw-game">
   ${G.banner?`<div class="gw-banner" id="gw-banner"><span class="gw-bn-orn">⚜</span>${h(G.banner)}<span class="gw-bn-orn">⚜</span></div>`:''}
-  ${G.reveal&&!G.banner?`<div class="gw-reveal" id="gw-reveal"><div class="gw-rv-card">${gwCard(G.reveal.c,{name:true})}</div><div class="gw-rv-t">${h(G.reveal.who)}: на зов откликнулись</div><b>${h(G.reveal.c.name)}</b></div>`:''}
+  ${G.reveal&&!G.banner?`<div class="gw-reveal" id="gw-reveal"><div class="gw-rv-card">${gwCard(G.reveal.c,{name:true})}</div><div class="gw-rv-t">${h(G.reveal.who)}: ${h(G.reveal.t||'')}</div><b>${h(G.reveal.c.name)}</b></div>`:''}
   ${lead(op,'op')}${piles(op,'op')}${prev}${lead(me,'me')}${piles(me,'me')}
   <div class="gw-op">${info(op,1-v)}</div>
   <div class="gw-ctl"><div class="gw-round">Битва ${GW_ROMAN[G.round]||G.round}</div>
@@ -2076,7 +2091,7 @@ function gwTipHide(){if(gwTipEl)gwTipEl.classList.remove('on');gwTipFor=null}
 function gwTipShow(el){
   const k=el.dataset.gtip,t=GW_TIP[k];if(!t){gwTipHide();return}
   if(!gwTipEl){gwTipEl=document.createElement('div');gwTipEl.className='gw-tip';gwTipEl.setAttribute('role','tooltip');document.body.appendChild(gwTipEl)}
-  const c=t.c,pw=t.pow,mod=!c.special&&pw!==c.power;
+  const c=t.c,pw=t.pow,mod=!c.special&&c.ability!=='sab'&&pw!==c.power;
   gwTipEl.innerHTML=`<div class="gw-tip-card">${gwCard(Object.assign({},c,{uid:null,id:null}),{name:true,pow:pw})}</div><div class="gw-tip-b"><b>${h(c.name)}</b>${c.sub?`<span class="gw-tip-sub">${h(c.sub)}</span>`:''}
     <div class="gw-mtags">${c.special?'<span>Особая карта</span>':`<span>${gwIco(c.row)} ${GW_ROW[c.row]||''}</span><span>Сила ${pw}${mod?` <s>${c.power}</s>`:''}</span>${c.hero?`<span>${gwIco('hero')} Герой</span>`:''}${c.ability?`<span>${gwIco(c.ability)} ${GW_AB[c.ability]}</span>`:''}`}</div>
     <p>${gwDesc(c)}</p>${mod?`<p class="gw-tip-mod">Сила сейчас ${pw>c.power?'выше':'ниже'} обычной из-за ${pw>c.power?'рога, боевого духа или братства':'погоды'}.</p>`:''}</div>`;
@@ -2104,21 +2119,23 @@ let gwDr=null,gwSwallow=false;
 function gwDropTargets(G,A,c){ // → {rows:[[side,row,play]], decoy:bool}
   const me=G.p[A],o=1-A,out=[];
   if(c.special==='decoy')return {rows:[],decoy:true};
+  if(c.special==='poison')return {rows:[],decoy:false,poison:true};
   if(c.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])out.push([A,r,r])});
   else if(c.special)[0,1].forEach(i=>GW_ROWS.forEach(r=>out.push([i,r,'-'])));
-  else (c.row==='a'?['m','r']:[c.row]).forEach(r=>out.push([c.ability==='spy'?o:A,r,r]));
+  else (c.row==='a'?['m','r']:[c.row]).forEach(r=>out.push([c.ability==='spy'||c.ability==='sab'?o:A,r,r]));
   return {rows:out,decoy:false};
 }
 function gwDropAt(x,y){
   const el=document.elementFromPoint(x,y);if(!el||!gwDr)return null;
   if(gwDr.t.decoy){const u=el.closest('.gw-board [data-gwdecoy]');return u?{decoy:u.dataset.gwdecoy,el:u}:null}
+  if(gwDr.t.poison){const u=el.closest('.gw-board [data-gwpoison]');return u?{poison:u.dataset.gwpoison,el:u}:null}
   const rw=el.closest('.gw-board [data-gwrow]');if(!rw)return null;
   const m=gwDr.t.rows.find(([i,r])=>String(i)===rw.dataset.gwside&&r===rw.dataset.gwrow);return m?{play:m[2],el:rw}:null;
 }
 function gwDragStart(ev){
   const G=GM,A=gwActor(G),c=G.p[A].hand.find(x=>x.uid===gwDr.uid);if(!c){gwDr=null;return}
   gwDr.t=gwDropTargets(G,A,c);
-  if(gwDr.t.decoy&&G.sel!==c.uid){G.sel=c.uid;render();gwDr.el=document.querySelector(`.gw-hand [data-gwhand="${c.uid}"]`)}
+  if((gwDr.t.decoy||gwDr.t.poison)&&G.sel!==c.uid){G.sel=c.uid;render();gwDr.el=document.querySelector(`.gw-hand [data-gwhand="${c.uid}"]`)}
   const r=gwDr.el.getBoundingClientRect(),g=gwDr.el.cloneNode(true);
   g.classList.add('gw-ghost');g.classList.remove('sel');g.removeAttribute('data-gwhand');g.removeAttribute('data-gtip');
   g.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
@@ -2157,7 +2174,7 @@ document.addEventListener('pointerup',ev=>{
   gwDragEnd(!!t);
   if(!t)return;
   const G=GM;if(!G)return;G.sel=uid;
-  if(t.decoy)gwClick({id:''},{gwdecoy:t.decoy});else gwClick({id:''},{gwplay:t.play});
+  if(t.decoy)gwClick({id:''},{gwdecoy:t.decoy});else if(t.poison)gwClick({id:''},{gwpoison:t.poison});else gwClick({id:''},{gwplay:t.play});
 });
 document.addEventListener('pointercancel',ev=>{if(gwDr&&ev.pointerId===gwDr.id)gwDragEnd(false)});
 document.addEventListener('click',ev=>{if(gwSwallow){gwSwallow=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
@@ -2178,7 +2195,7 @@ function gwClick(t,ds){
   if(!GM)return false;
   const G=GM,A=gwActor(G),me=G.p[A];
   if(t.id==='gw-ready'){G.shown=G.phase==='mulligan'?G.mside:G.turn;G.sel=null;render();window.scrollTo(0,0);return true}
-  if(gwHandover(G)&&(ds.gwhand||ds.gwplay||ds.gwdecoy||ds.gwmedic||ds.gwmerc||t.id==='gw-pass'))return true;
+  if(gwHandover(G)&&(ds.gwhand||ds.gwplay||ds.gwdecoy||ds.gwpoison||ds.gwmedic||ds.gwmerc||t.id==='gw-pass'))return true;
   if(ds.gwmerc!==undefined&&G.pick&&G.pick.type==='merc'){const def=G.pick.opts[+ds.gwmerc];G.pick=null;if(def){const res=gwHire(G,A,def,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(ds.gwhand){
     if(G.phase==='mulligan'){const k=me.hand.findIndex(c=>c.uid===ds.gwhand);if(k>=0&&G.mull>0&&me.deck.length){const old=me.hand[k];me.hand[k]=me.deck.shift();me.deck.splice(Math.floor(Math.random()*(me.deck.length+1)),0,old);G.mull--;G.log.unshift(G.mode==='hot'?me.name+': замена карты.':'Вы заменили карту.');if(!G.mull)gwMullDone(G)}render();gwTick();return true}
@@ -2186,6 +2203,7 @@ function gwClick(t,ds){
   if(t.id==='gw-mull-done'){gwMullDone(G);render();gwTick();return true}
   if(t.id==='gw-unsel'||t.id==='gw-unsel2'){G.sel=null;render();return true}
   if(ds.gwplay&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);if(k<0)return true;G.sel=null;G.banner='';const res=gwPlayFromHand(G,A,k,ds.gwplay==='-'?null:ds.gwplay,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}if(res==='merc'){render();return true}gwNext(G,A);render();gwTick();return true}
+  if(ds.gwpoison&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(G.p[1-A],ds.gwpoison);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwpoison,false);gwNext(G,A);render();gwTick();return true}
   if(ds.gwdecoy&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(me,ds.gwdecoy);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwdecoy,false);gwNext(G,A);render();gwTick();return true}
   if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-medic-skip'){G.pick=null;gwNext(G,A);render();gwTick();return true}
@@ -2302,8 +2320,8 @@ async function gwXImg(id,file,troop){
 document.addEventListener('click',ev=>{
   if(ui.tab!=='banners')return;
   if(ev.target.id==='gw-mbg'){ui.gwModal=null;render();return}
-  {const rp=ev.target.closest&&ev.target.closest('[data-gwrowplay]');if(rp&&!ev.target.closest('[data-gwdecoy]')){gwClick({id:''},{gwplay:rp.dataset.gwrowplay});return}}
-  const t=ev.target.closest&&ev.target.closest('[data-gwhand],[data-gwdecoy],[data-gwmedic],[data-gwmerc],[data-gwopen],button,summary,.gw-banner,.gw-reveal');if(!t||t.id==='gw-mbg')return;
+  {const rp=ev.target.closest&&ev.target.closest('[data-gwrowplay]');if(rp&&!ev.target.closest('[data-gwdecoy],[data-gwpoison]')){gwClick({id:''},{gwplay:rp.dataset.gwrowplay});return}}
+  const t=ev.target.closest&&ev.target.closest('[data-gwhand],[data-gwdecoy],[data-gwpoison],[data-gwmedic],[data-gwmerc],[data-gwopen],button,summary,.gw-banner,.gw-reveal');if(!t||t.id==='gw-mbg')return;
   const ds=t.dataset||{};gwClick(t,ds)||gwMasterClick(t,ds);
 });
 document.addEventListener('keydown',ev=>{if(ui.tab==='banners'&&ev.key==='Escape'&&ui.gwModal){ui.gwModal=null;render();return}if(ui.tab==='banners'&&(ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('[data-gwhand],[data-gwdecoy],[data-gwmedic],[data-gwmerc],[data-gwopen]')){ev.preventDefault();ev.target.click()}});
