@@ -288,6 +288,24 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 @keyframes gwRvFlip{0%{transform:perspective(600px) rotateY(90deg);filter:brightness(2)}100%{transform:none;filter:none}}
 @media (prefers-reduced-motion:reduce){.gw-reveal,.gw-rv-card .gc{animation:none}}
 .gw-mopt{display:grid;gap:4px;justify-items:center;font-size:12px;color:var(--muted);text-align:center;max-width:110px}.gw-mopt .gc{--w:96px}
+.gc img{position:absolute;inset:0}
+.gw-pool{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.gw-pc{padding:8px 8px 6px;gap:6px;opacity:.55;grid-template-columns:minmax(0,1fr)}
+.gw-pc-b{min-width:0;flex-wrap:wrap;justify-content:center;gap:4px}.gw-pc-t{min-width:0;flex:1 1 100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gw-pc .gc .gc-n{font-size:13px!important;padding:22px 6px 7px!important}
+.gw-pc.on{opacity:1}
+.gw-pc .gc{--w:120px;width:100%;min-width:0;height:auto;aspect-ratio:3/4}
+.gw-pc .gc-n{font-size:13px;padding:22px 6px 7px;line-height:1.15}
+.gw-pc .gc-p{font-size:17px}
+.gw-pc .gc-r,.gw-pc .gc-a{font-size:15px;width:28px;height:28px}
+.gw-pc .gc-a{top:38px}
+.gw-pc-d{display:none!important}
+.gw-pc-b{min-height:30px}
+.gw-pc-t{font-size:13px}
+.gw-cnt .mv{min-width:30px;min-height:30px;border-radius:50%;padding:0;display:grid;place-items:center;border:1px solid rgba(201,166,94,.3)}
+.gw-cnt .mv:not(:disabled):hover{background:rgba(201,166,94,.15);color:var(--gold-hi)}
+.gw-pc.off .gc{filter:grayscale(.7)}
+.gw-addc{min-height:0;aspect-ratio:3/4.6}
 .gw-edhint{font-size:14px;color:var(--gold-hi);border:1px dashed var(--gold-line);border-radius:10px;padding:10px 14px;margin:0 0 16px}
 .gw-pc .gc.open{cursor:pointer}.gw-pc .gc.open:hover{box-shadow:0 0 0 2px var(--gold-line)}
 .gw-pc{position:relative}.gw-pc.off{opacity:.45}.gw-offb{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#5a1d16;color:#f3d0c8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -1918,7 +1936,7 @@ function gwAiMove(G){
 let GW_TIP={};
 function gwCard(c,o={}){
   const sp=c.special,own=photoSrc(c.pic)||(c.img&&!c.pic?c.img:''),fbs=!own&&!sp?photoSrc(c.fb):'',img=gwImg(own||fbs),ico=!own&&!!fbs,pw=o.pow!==undefined?o.pow:c.power;
-  const tipK=ui.tab==='banners'&&ui.gw==='game'&&GM?(c.uid||c.id):null;if(tipK)GW_TIP[tipK]={c,pow:pw};
+  const tipK=ui.tab==='banners'&&(ui.gw==='game'&&GM||o.tip)?(c.uid||c.id):null;if(tipK)GW_TIP[tipK]={c,pow:pw};
   return `<div class="gc${c.hero?' hero':''}${sp?' sp':''}${ico?' ico':''}${own?'':' noart'}${o.cls?' '+o.cls:''}" ${o.attrs||''} ${tipK?`data-gtip="${h(tipK)}"`:`title="${h(c.name)}${c.sub?' · '+h(c.sub):''}"`}>`
     +(img?`<img src="${img}" alt="" draggable="false">`:sp||c.kind==='merc'?`<span class="gc-sp">${gwIco(sp||'merc')}</span>`:`<span class="gc-ini">${h((c.name||'?').trim()[0]||'?')}</span>`)
     +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
@@ -1946,7 +1964,7 @@ function gwMenu(){
   if(!ui.gwF||!fs.some(t=>t.id===ui.gwF))ui.gwF=fs[0].id;
   const ed=!!(ui.edit&&pin),F=ui.gwF,defs=gwDefs(F,ed),d=gwDeck(F),st=gwDeckStats(F,d),ok=st.units>=GW_MIN_UNITS&&st.sp<=GW_MAX_SP;
   const sect=(title,list,add)=>list.length||add?`<div class="gw-sec"><div class="rv-cap">${title}</div><div class="gw-pool">${list.map(c=>{const n=c.off?0:d[c.id]||0;
-    return `<div class="gw-pc${n||c.kind==='merc'?' on':''}${c.off?' off':''}">${gwCard(c,{name:true,cls:'open',attrs:`data-gwopen="${h(c.id)}" role="button" tabindex="0" aria-label="${h(c.name)}: подробнее${ed?' и правка':''}"`})}${c.off?'<span class="gw-offb">не в игре</span>':''}<div class="gw-pc-b"><div class="gw-pc-t">${c.ability?`${GW_AI[c.ability]} ${GW_AB[c.ability]}`:c.special?'Особая':c.hero?'Герой':'Отряд'}</div>
+    return `<div class="gw-pc${n||c.kind==='merc'?' on':''}${c.off?' off':''}">${gwCard(c,{name:true,tip:true,cls:'open',attrs:`data-gwopen="${h(c.id)}" role="button" tabindex="0" aria-label="${h(c.name)}: подробнее${ed?' и правка':''}"`})}${c.off?'<span class="gw-offb">не в игре</span>':''}<div class="gw-pc-b"><div class="gw-pc-t">${c.ability?`${GW_AI[c.ability]} ${GW_AB[c.ability]}`:c.special?'Особая':c.hero?'Герой':'Отряд'}</div>
       ${c.kind==='merc'?'<span class="gw-pc-t">из карты «Наёмники»</span>':`<div class="gw-cnt"><button class="mv" data-gwdeck="${h(c.id)}" data-dir="-1" aria-label="Убрать"${n?'':' disabled'}>−</button><b>${n}/${c.max}</b><button class="mv" data-gwdeck="${h(c.id)}" data-dir="1" aria-label="Добавить"${n<c.max&&!c.off?'':' disabled'}>+</button></div>`}</div>
       <div class="gw-pc-d">${gwDesc(c)}</div></div>`}).join('')}${add?`<button class="gw-addc" id="${add[0]}"><span>+</span>${add[1]}</button>`:''}</div></div>`:'';
   const fOff=gwTeamOff(F),fT=S.teams.find(t=>t.id===F);
