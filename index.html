@@ -932,7 +932,7 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{
   const t=ev.target;
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
-  if(t.id==='rv-to'){RV.to=t.value;rvMsg(null);render();return}
+  if(t.id==='rv-to'){RV.to=t.value;rvMsg(null);RVS.knownAt=0;render();return}
   if(t.dataset&&t.dataset.sealicon&&t.files&&t.files[0]){const f=t.files[0],sid=t.dataset.sealicon;t.value='';rvSealIcon(sid,f);return}
   if(t.id==='lore-music-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMusic(f);return}
   if(t.id==='f-lmusic-url'){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(!a)return;const v=t.value.trim();
