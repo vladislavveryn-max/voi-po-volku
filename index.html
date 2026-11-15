@@ -249,6 +249,36 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .gw-ho-t{font-family:var(--display);font-size:30px;color:var(--gold-hi);letter-spacing:.04em}.gw-ho-f{color:var(--muted);margin-top:-6px}
 .gw-ho p{margin:4px 0;color:#d6cebd}.gw-ho-log{font-size:13px;color:var(--muted);display:grid;gap:2px;margin-bottom:6px}
 .gc .gc-spb{left:auto;right:3px;top:3px;bottom:auto}.gw-mcard .gc.sp .gc-n{font-size:16px;padding:22px 8px 9px}.gw-tip-card .gc.sp .gc-n{font-size:13px;padding:16px 6px 7px}.gw-mcard .gc .gc-spb,.gw-tip-card .gc .gc-spb{top:8px;right:8px}
+.gw-game .gw-hand .gc{touch-action:pan-x;-webkit-touch-callout:none;-webkit-user-select:none}
+.gw-hand .gc.gw-dragging{opacity:.25;transform:none!important}
+.gw-ghost{position:fixed!important;z-index:95;pointer-events:none;margin:0;--w:90px;transform:rotate(-3deg) scale(1.12);box-shadow:0 22px 44px rgba(0,0,0,.75),0 0 0 2px #e2bd68,0 0 26px rgba(226,189,104,.45)!important;transition:transform .08s}
+.gw-ghost .gc-n{display:none}
+.gw-board .gw-row.drop-ok{outline:1px dashed rgba(226,189,104,.75);outline-offset:-2px;background:rgba(201,166,94,.08)}
+.gw-board .gw-row.drop-hover{outline:2px solid #e2bd68;background:rgba(201,166,94,.18);box-shadow:inset 0 0 30px rgba(226,189,104,.4)}
+.gw-dragmode .gw-board .gw-row:not(.drop-ok){opacity:.55}
+.gw-dragmode .gw-board [data-gwdecoy]{box-shadow:0 0 0 2px #9fd18a,0 0 16px rgba(160,220,140,.6)}
+@keyframes gwLand{0%{transform:translateY(-45%) scale(1.4);opacity:0;filter:brightness(1.9)}55%{transform:translateY(0) scale(.93);opacity:1}78%{transform:scale(1.05)}100%{transform:none;filter:none}}
+@keyframes gwGlowG{0%{box-shadow:0 0 0 2px #ffe3a0,0 0 30px 10px rgba(255,196,90,.85)}100%{box-shadow:0 0 0 1px #000,0 3px 8px rgba(0,0,0,.6)}}
+@keyframes gwUp{0%{box-shadow:0 0 0 2px #b8f5a0,0 0 26px 8px rgba(120,220,110,.8);filter:brightness(1.35)}100%{box-shadow:0 0 0 1px #000,0 3px 8px rgba(0,0,0,.6);filter:none}}
+@keyframes gwDn{0%{transform:none;box-shadow:0 0 0 2px #ff9c8a,0 0 26px 8px rgba(230,80,60,.8);filter:saturate(.6) brightness(.85)}15%{transform:translateX(-3px)}30%{transform:translateX(3px)}45%{transform:translateX(-2px)}60%{transform:translateX(2px)}100%{transform:none;box-shadow:0 0 0 1px #000,0 3px 8px rgba(0,0,0,.6);filter:none}}
+@keyframes gwBump{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+@keyframes gwFloat{0%{opacity:0;transform:translate(-50%,-10%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-150%) scale(1)}}
+@keyframes gwRowHit{0%{box-shadow:inset 0 0 0 1px rgba(255,214,130,.8),inset 0 0 40px rgba(255,190,90,.45)}100%{box-shadow:inset 0 0 0 1px transparent,inset 0 0 0 transparent}}
+@keyframes gwBurn{0%{box-shadow:inset 0 0 50px rgba(255,120,30,.9);background-color:rgba(255,90,20,.25)}100%{box-shadow:none;background-color:transparent}}
+@keyframes gwSweep{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.gw-board .gc.gw-land{animation:gwLand .5s cubic-bezier(.2,.8,.3,1.15) both,gwGlowG 1s ease-out .15s both}
+.gw-board .gc.gw-up{animation:gwUp 1s ease-out both}.gw-board .gc.gw-dn{animation:gwDn .8s ease-out both}
+.gw-board .gc.gw-up .gc-p,.gw-board .gc.gw-dn .gc-p{animation:gwBump .55s ease-out}
+.gc-fx{position:absolute;left:50%;top:50%;z-index:3;font-family:var(--display);font-weight:700;font-size:max(14px,calc(var(--w)*.42));line-height:1;text-shadow:0 2px 6px #000,0 0 10px rgba(0,0,0,.8);pointer-events:none;animation:gwFloat 1.2s ease-out both}
+.gc-fx.up{color:#c4ff9e}.gc-fx.dn{color:#ffab98}
+.gw-board .gw-rs.pop,.gw-info .gw-tot.pop{animation:gwBump .55s ease-out}
+.gw-board .gw-row.gw-hit{animation:gwRowHit .8s ease-out}
+.gw-board .gw-row.gw-burn{animation:gwBurn 1s ease-out}
+.gw-board .gw-row.wx-in::after{content:"";position:absolute;inset:0;pointer-events:none;animation:gwSweep 1.1s ease-in-out both}
+.gw-row.wx-in.wx-m::after{background:linear-gradient(90deg,transparent,rgba(200,230,255,.45),transparent)}
+.gw-row.wx-in.wx-r::after{background:linear-gradient(90deg,transparent,rgba(220,220,220,.4),transparent)}
+.gw-row.wx-in.wx-s::after{background:linear-gradient(90deg,transparent,rgba(120,170,255,.45),transparent)}
+@media (prefers-reduced-motion:reduce){.gw-board .gc,.gw-board .gw-row,.gc-fx,.gw-rs,.gw-tot{animation:none!important}.gw-board .gw-row::after{display:none}}
 .gw-edhint{font-size:14px;color:var(--gold-hi);border:1px dashed var(--gold-line);border-radius:10px;padding:10px 14px;margin:0 0 16px}
 .gw-pc .gc.open{cursor:pointer}.gw-pc .gc.open:hover{box-shadow:0 0 0 2px var(--gold-line)}
 .gw-pc{position:relative}.gw-pc.off{opacity:.45}.gw-offb{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#5a1d16;color:#f3d0c8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -1812,7 +1842,7 @@ function gwCard(c,o={}){
     +(img?`<img src="${img}" alt="" draggable="false">`:sp?`<span class="gc-sp">${gwIco(sp)}</span>`:`<span class="gc-ini">${h((c.name||'?').trim()[0]||'?')}</span>`)
     +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
     +(c.ability?`<span class="gc-a">${gwIco(c.ability)}</span>`:'')+(sp&&img?`<span class="gc-a gc-spb">${gwIco(sp)}</span>`:'')
-    +(o.name||sp?`<span class="gc-n">${h(c.name)}</span>`:'')+`</div>`;
+    +(o.name||sp?`<span class="gc-n">${h(c.name)}</span>`:'')+(o.fx||'')+`</div>`;
 }
 function gwDesc(c){
   if(c.special)return GW_SP[c.special].d;
@@ -1873,6 +1903,7 @@ const GW_SVG={m:'M19 4 8.5 14.5M19 4h-3.5M19 4v3.5M6.5 12.5l5 5M8 16l-4 4',
   music:'M9 18V5.5l11-2V16M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM20 16a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z',
   flag:'M5 21V4M5 4.5h12l-2 4 2 4H5'};
 function gwIco(k,cls){const d=GW_SVG[k];return d?`<svg class="gi${cls?' '+cls:''}${k==='morale'?' fill':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`:''}
+let GW_FX={};
 const GW_ROMAN=['','I','II','III','IV','V','VI','VII','VIII','IX'];
 function gwBoard(){
   const G=GM;
@@ -1883,15 +1914,25 @@ function gwBoard(){
       ${G.phase==='play'?`<div class="gw-ho-log">${G.log.slice(0,3).map(x=>`<div>${h(x)}</div>`).join('')}</div>`:''}
       <button class="btn gold" id="gw-ready">Я готов${s.name==='Игрок 2'||s.name==='Игрок 1'?'':''}</button></div></section>`}
   const v=gwView(G),me=G.p[v],op=G.p[1-v],my=G.turn===v&&G.phase==='play'&&!G.pick;
+  // animation memory: what the board looked like at the previous render
+  const fx=GW_FX.gm===G&&GW_FX.round===G.round?GW_FX:{pow:{},rows:{},sums:{},tots:{},wx:{}};fx.ok=GW_FX.gm===G&&GW_FX.round===G.round;
+  const nfx={gm:G,round:G.round,pow:{},rows:{},sums:{},tots:{},wx:Object.assign({},G.weather)};
+  const fxTot=i=>{const t=gwTotal(G,i);nfx.tots[i]=t;return fx.ok&&fx.tots[i]!==undefined&&fx.tots[i]!==t?' pop':''};
   const sel=G.sel?me.hand.find(c=>c.uid===G.sel):null;
   const lives=s=>`<span class="gw-lives" title="Жизни: ${s.lives}">${[0,1].map(k=>`<i class="${k<s.lives?'on':''}"></i>`).join('')}</span>`;
   const teamIc=s=>{const t=S.teams.find(x=>x.id===s.faction),src=t&&photoSrc(t.icon);return src?`<img src="${gwImg(src)}" alt="">`:gwIco('flag')};
   const info=(s,i)=>`<div class="gw-info ${i!==v?'op':'me'}${G.turn===i&&G.phase==='play'?' turn':''}">
     <span class="gw-sig">${teamIc(s)}</span><div class="gw-nm"><b>${h(s.name)}</b><span>${h(s.title||'')}</span></div>
     <div class="gw-meta">${lives(s)}<span title="Карт в руке">${gwIco('flag','sm')} ${s.hand.length}</span><span class="gw-dk" title="Карт в колоде">колода ${s.deck.length}</span></div>
-    ${s.passed?'<span class="gw-pass">пас</span>':''}<span class="gw-tot" title="Сила на поле">${gwTotal(G,i)}</span></div>`;
+    ${s.passed?'<span class="gw-pass">пас</span>':''}<span class="gw-tot${fxTot(i)}" title="Сила на поле">${gwTotal(G,i)}</span></div>`;
   const decoyMode=sel&&sel.special==='decoy'&&my;
-  const row=(i,r)=>{const s=G.p[i];return `<div class="gw-row${G.weather[r]?' wx wx-'+r:''}${i!==v?' op':''}"><span class="gw-rl"><span class="gw-rs">${gwRowSum(G,i,r)}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':GW_ROW[r]}">${gwIco(s.horn[r]?'horn':r)}</span></span><div class="gw-units">${s.rows[r].map(c=>gwCard(c,{pow:gwPow(G,s,r,c),cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':''),attrs:decoyMode&&i===v&&!c.hero&&!c.special?`data-gwdecoy="${c.uid}" role="button" tabindex="0"`:''})).join('')}</div></div>`};
+  const row=(i,r)=>{const s=G.p[i],sum=gwRowSum(G,i,r),k=i+r,pu=fx.rows[k]||[],nu=s.rows[r].map(c=>c.uid);
+    const rc=(fx.ok&&pu.some(u=>!nu.includes(u))&&!nu.some(u=>!pu.includes(u))?' gw-burn':'')+(fx.ok&&nu.some(u=>!pu.includes(u))?' gw-hit':'')+(fx.ok&&G.weather[r]&&!fx.wx[r]?' wx-in':'');
+    nfx.rows[k]=nu;nfx.sums[k]=sum;
+    return `<div class="gw-row${G.weather[r]?' wx wx-'+r:''}${i!==v?' op':''}${rc}" data-gwrow="${r}" data-gwside="${i}"><span class="gw-rl"><span class="gw-rs${fx.ok&&fx.sums[k]!==undefined&&fx.sums[k]!==sum?' pop':''}">${sum}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':GW_ROW[r]}">${gwIco(s.horn[r]?'horn':r)}</span></span><div class="gw-units">${s.rows[r].map(c=>{const pw=gwPow(G,s,r,c),pv=fx.pow[c.uid];nfx.pow[c.uid]=pw;
+      const anim=!fx.ok?'':pv===undefined?' gw-land':pw>pv?' gw-up':pw<pv?' gw-dn':'';
+      const badge=fx.ok&&pv!==undefined&&pw!==pv?`<span class="gc-fx ${pw>pv?'up':'dn'}">${pw>pv?'+':'−'}${Math.abs(pw-pv)}</span>`:'';
+      return gwCard(c,{pow:pw,fx:badge,cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':'')+anim,attrs:`data-gwu="${c.uid}"`+(decoyMode&&i===v&&!c.hero&&!c.special?` data-gwdecoy="${c.uid}" role="button" tabindex="0"`:'')})}).join('')}</div></div>`};
   let act='';
   if(G.phase==='mulligan')act=`<div class="gw-act"><span>${G.mode==='hot'?h(me.name)+': м':'М'}ожно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
   else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div></div>`;
@@ -1903,10 +1944,10 @@ function gwBoard(){
     else if(sel.special)b.push('<button class="btn small gold" data-gwplay="-">Сыграть</button>');
     else (sel.row==='a'?['m','r']:[sel.row]).forEach(r=>b.push(`<button class="btn small gold" data-gwplay="${r}">${sel.ability==='spy'?'Шпион: ':''}${gwIco(r)} ${GW_ROW[r]}</button>`));
     act=`<div class="gw-act"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?`<span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
-  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: выберите карту или спасуйте.':'Ваш ход: выберите карту или спасуйте.'):me.passed?(G.mode==='hot'?'Вы спасовали.':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode==='hot'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
+  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: перетащите карту на поле или нажмите на неё.':'Ваш ход: перетащите карту на поле или нажмите на неё.'):me.passed?(G.mode==='hot'?'Вы спасовали.':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode==='hot'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
   const mullMode=G.phase==='mulligan', gm=gwData().music, hasMus=!!(gm&&gm.src);
   const wx=GW_ROWS.filter(r=>G.weather[r]);
-  return `<section class="gw gw-game">
+  const html=`<section class="gw gw-game">
   ${G.banner?`<div class="gw-banner" id="gw-banner"><span class="gw-bn-orn">⚜</span>${h(G.banner)}<span class="gw-bn-orn">⚜</span></div>`:''}
   <div class="gw-op">${info(op,1-v)}</div>
   <div class="gw-ctl"><div class="gw-round">Битва ${GW_ROMAN[G.round]||G.round}</div>
@@ -1918,6 +1959,7 @@ function gwBoard(){
   <div class="gw-dock">${act}
   <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
+  GW_FX=nfx;return html;
 }
 let gwTipEl=null,gwTipFor=null;
 function gwTipHide(){if(gwTipEl)gwTipEl.classList.remove('on');gwTipFor=null}
@@ -1947,6 +1989,68 @@ function gwMusicGo(){
   mus.off=false;try{localStorage.setItem('vpv-music-off','0')}catch(_){}
   if(mus.el&&mus.key===g.src&&mus.el.src){mus.el.play().catch(()=>{})}else mus.want=true;
 }
+/* ---- drag a card from the hand onto the board ---- */
+let gwDr=null,gwSwallow=false;
+function gwDropTargets(G,A,c){ // → {rows:[[side,row,play]], decoy:bool}
+  const me=G.p[A],o=1-A,out=[];
+  if(c.special==='decoy')return {rows:[],decoy:true};
+  if(c.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])out.push([A,r,r])});
+  else if(c.special)[0,1].forEach(i=>GW_ROWS.forEach(r=>out.push([i,r,'-'])));
+  else (c.row==='a'?['m','r']:[c.row]).forEach(r=>out.push([c.ability==='spy'?o:A,r,r]));
+  return {rows:out,decoy:false};
+}
+function gwDropAt(x,y){
+  const el=document.elementFromPoint(x,y);if(!el||!gwDr)return null;
+  if(gwDr.t.decoy){const u=el.closest('.gw-board [data-gwdecoy]');return u?{decoy:u.dataset.gwdecoy,el:u}:null}
+  const rw=el.closest('.gw-board [data-gwrow]');if(!rw)return null;
+  const m=gwDr.t.rows.find(([i,r])=>String(i)===rw.dataset.gwside&&r===rw.dataset.gwrow);return m?{play:m[2],el:rw}:null;
+}
+function gwDragStart(ev){
+  const G=GM,A=gwActor(G),c=G.p[A].hand.find(x=>x.uid===gwDr.uid);if(!c){gwDr=null;return}
+  gwDr.t=gwDropTargets(G,A,c);
+  if(gwDr.t.decoy&&G.sel!==c.uid){G.sel=c.uid;render();gwDr.el=document.querySelector(`.gw-hand [data-gwhand="${c.uid}"]`)}
+  const r=gwDr.el.getBoundingClientRect(),g=gwDr.el.cloneNode(true);
+  g.classList.add('gw-ghost');g.classList.remove('sel');g.removeAttribute('data-gwhand');g.removeAttribute('data-gtip');
+  g.style.cssText=`left:${r.left}px;top:${r.top}px;width:${r.width}px;height:${r.height}px`;
+  document.body.appendChild(g);gwDr.g=g;gwDr.r0=r;gwDr.on=true;gwDr.el.classList.add('gw-dragging');gwTipHide();
+  document.querySelectorAll('.gw-board [data-gwrow]').forEach(rw=>{if(gwDr.t.rows.some(([i,rr])=>String(i)===rw.dataset.gwside&&rr===rw.dataset.gwrow))rw.classList.add('drop-ok')});
+  document.querySelector('.gw-game').classList.add('gw-dragmode');
+}
+function gwDragEnd(ok){
+  if(!gwDr)return;const d=gwDr;gwDr=null;
+  document.querySelectorAll('.drop-ok,.drop-hover').forEach(x=>x.classList.remove('drop-ok','drop-hover'));
+  const gm=document.querySelector('.gw-game');if(gm)gm.classList.remove('gw-dragmode');
+  if(!d.g)return;
+  if(ok){d.g.remove();return}
+  d.g.style.transition='left .22s ease,top .22s ease,transform .22s ease,opacity .22s';d.g.style.left=d.r0.left+'px';d.g.style.top=d.r0.top+'px';d.g.style.transform='none';d.g.style.opacity='.4';
+  setTimeout(()=>{d.g.remove();if(d.el)d.el.classList.remove('gw-dragging')},230);
+}
+document.addEventListener('pointerdown',ev=>{
+  if(ui.tab!=='banners'||!GM||ev.button>0)return;
+  const el=ev.target.closest&&ev.target.closest('.gw-hand [data-gwhand]');if(!el)return;
+  const G=GM,A=gwActor(G);if(G.phase!=='play'||G.turn!==A||G.pick||gwHandover(G))return;
+  gwDr={el,uid:el.dataset.gwhand,x0:ev.clientX,y0:ev.clientY,id:ev.pointerId,on:false,touch:ev.pointerType!=='mouse'};
+});
+document.addEventListener('pointermove',ev=>{
+  if(!gwDr||ev.pointerId!==gwDr.id)return;
+  const dx=ev.clientX-gwDr.x0,dy=ev.clientY-gwDr.y0;
+  if(!gwDr.on){if(Math.hypot(dx,dy)<9)return;if(gwDr.touch&&!(dy<-6&&Math.abs(dy)>Math.abs(dx)*.8)){gwDr=null;return}gwDragStart(ev);if(!gwDr)return}
+  ev.preventDefault();
+  const r=gwDr.r0;gwDr.g.style.left=(r.left+dx)+'px';gwDr.g.style.top=(r.top+dy)+'px';gwDr.g.style.transform=`rotate(${Math.max(-10,Math.min(10,(ev.movementX||0)*.8))}deg) scale(1.12)`;
+  const t=gwDropAt(ev.clientX,ev.clientY);
+  document.querySelectorAll('.drop-hover').forEach(x=>x.classList.remove('drop-hover'));if(t)t.el.classList.add('drop-hover');
+},{passive:false});
+document.addEventListener('pointerup',ev=>{
+  if(!gwDr||ev.pointerId!==gwDr.id)return;
+  if(!gwDr.on){gwDr=null;return}
+  const t=gwDropAt(ev.clientX,ev.clientY),uid=gwDr.uid;gwSwallow=true;setTimeout(()=>{gwSwallow=false},50);
+  gwDragEnd(!!t);
+  if(!t)return;
+  const G=GM;if(!G)return;G.sel=uid;
+  if(t.decoy)gwClick({id:''},{gwdecoy:t.decoy});else gwClick({id:''},{gwplay:t.play});
+});
+document.addEventListener('pointercancel',ev=>{if(gwDr&&ev.pointerId===gwDr.id)gwDragEnd(false)});
+document.addEventListener('click',ev=>{if(gwSwallow){gwSwallow=false;ev.stopImmediatePropagation();ev.preventDefault()}},true);
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
   if(gwTimer||!GM||ui.tab!=='banners')return;
