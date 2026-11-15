@@ -8,7 +8,7 @@
 <meta name="description" content="Ролевая игра живого действия «Игра Престолов: Вой по волку»: об игре, лор и сетка ролей.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Lora:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bad+Script&family=Forum&family=Lora:ital,wght@0,400;0,600;1,400&display=swap">
 <style>
 /* Layout: sticky iron topbar (sigil + title + tabs) over a torch-lit hero; content column below.
    Lore = sticky index + reading pane; roles = house sections with framed portrait cards. */
@@ -142,6 +142,31 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .md-img img{max-width:100%;max-height:75vh;border-radius:6px;border:1px solid var(--line);display:inline-block}
 .md-img figcaption{margin-top:8px;font-size:14px;color:var(--muted);font-style:italic}
 .md-img-ph{padding:30px;border:1px dashed var(--line);border-radius:6px;color:var(--muted);font-size:14px}
+.raven{max-width:1180px;margin:0 auto}
+.rv-head h2{font-size:clamp(34px,5vw,52px);margin:0 0 8px}
+.rv-lead{color:var(--muted);max-width:70ch;margin:0 0 26px}
+.rv-lead a{color:var(--gold-hi)}
+.rv-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:36px;align-items:start}
+.rv-form{display:grid;gap:4px}
+.rv-form select,.rv-form textarea{width:100%}
+.rv-seals{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.rv-seal{display:grid;justify-items:center;gap:8px;padding:12px 8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;color:var(--fg);cursor:pointer;font:inherit;font-size:14px;line-height:1.2;text-align:center}
+.rv-seal img,.rv-ini{width:54px;height:54px;object-fit:contain;border-radius:6px}
+.rv-ini{display:grid;place-items:center;font-family:var(--display);font-size:30px;color:var(--gold);border:1px solid var(--gold-line);border-radius:50%}
+.rv-seal:hover{border-color:var(--gold-line)}
+.rv-seal[aria-pressed="true"]{border-color:var(--gold);background:rgba(201,166,94,.12);color:var(--gold-hi)}
+.rv-prev{position:sticky;top:calc(var(--tb) + 20px);display:grid;gap:8px;justify-items:center}
+.rv-prev canvas{width:100%;height:auto;filter:drop-shadow(0 18px 30px rgba(0,0,0,.6))}
+.rv-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:8px}
+.rv-msg{font-size:15px;color:var(--muted)}.rv-msg.ok{color:var(--ok)}.rv-msg.err{color:#e0907e}
+.rv-cap{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.rv-setup,.rv-seal-ed{margin-top:26px;padding:16px 18px;border:1px dashed var(--gold-line);border-radius:10px;font-size:15px}
+.rv-seal-ed{margin:10px 0 14px;display:grid;gap:8px}
+.rv-setup ol{margin:0 0 12px;padding-left:20px;color:var(--muted)}.rv-setup code{color:var(--gold-hi)}
+.rv-se-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.rv-se-row input[data-sealname]{flex:1;min-width:140px}
+.rv-se-ic{width:36px;height:36px;display:grid;place-items:center;color:var(--muted)}.rv-se-ic img{max-width:36px;max-height:36px}
+@media (max-width:900px){.rv-grid{grid-template-columns:1fr}.rv-prev{position:static;max-width:420px;margin:0 auto}.rv-seals{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}}
 .lore-grp-ey{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .lore-article h2{font-size:clamp(32px,5vw,46px);margin-bottom:18px}
 
@@ -212,6 +237,9 @@ footer.col{padding-block:0 40px;color:var(--muted);font-size:13px;border-top:1px
   .tab{padding:11px 4px;font-size:16px;text-align:center}
   .tab[aria-selected="true"]::after{left:18%;right:18%}
   .tabs[style*="--n:5"] .tab{font-size:14px;padding:11px 1px;letter-spacing:.02em}
+  .tabs[style*="--n:6"],.tabs[style*="--n:7"]{display:flex;overflow-x:auto;scrollbar-width:none;gap:0}
+  .tabs[style*="--n:6"]::-webkit-scrollbar,.tabs[style*="--n:7"]::-webkit-scrollbar{display:none}
+  .tabs[style*="--n:6"] .tab,.tabs[style*="--n:7"] .tab{flex:1 0 auto;font-size:14px;padding:11px 10px;letter-spacing:.02em}
   .icon-btn .lbl{display:none}
   .icon-btn{padding:8px}
   .hero .col{padding-block:36px 32px}
@@ -596,7 +624,7 @@ let photos={};               // id -> data URI
 let pin=null; try{sessionStorage.removeItem('vpv-pin')}catch(_){}  // master code lives only until reload
 const ui={tab:'about',lore:null,filter:'all',edit:false,saving:false,err:'',modal:null,loading:true,loadErr:false,toast:''};
 
-const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли']];
+const TABS=[['about','Об игре','Об игре'],['lore','Лор игры','Лор'],['rules','Правила','Правила'],['roles','Сетка ролей','Роли'],['raven','Отправить ворона','Ворон']];
 const LEG_TAB=['legends','Легенды','Легенды'];
 const GR_TAB=['graphs','Графы','Графы'];
 const tabs=()=>pin?TABS.concat([LEG_TAB,GR_TAB]):TABS;
@@ -672,7 +700,7 @@ function render(){
   if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
-  else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='roles'?renderRoles():renderAbout();
+  else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='roles'?renderRoles():ui.tab==='raven'?renderRaven():renderAbout();
   o+='</main>';
   o+=`<footer class="col gutter">«${h(S.hero.title)}» · ролевая игра живого действия</footer>`;
 
@@ -687,7 +715,8 @@ function render(){
   applyEdBg();
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
-  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic();
+  {const at=document.querySelector('.tabs .tab[aria-selected="true"]'),tb=at&&at.parentNode;if(tb&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2)}
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -880,6 +909,8 @@ function toast(msg){ui.toast=msg;render();setTimeout(()=>{ui.toast='';render()},
 document.addEventListener('input',ev=>{
   const t=ev.target;
   if(t.id==='lg-editor'){scheduleLegendSave();return}
+  if(t.dataset&&t.dataset.rv){RV[t.dataset.rv]=t.value;rvMsg(null);rvDrawSoon();if(t.dataset.rv==='text'){const c=document.getElementById('rv-count');if(c)c.textContent=t.value.length+' / '+RV_MAX}return}
+  if(t.dataset&&t.dataset.sealname!==undefined){const x=(S.seals||[]).find(y=>y.id===t.dataset.sealname);if(x){x.name=t.value;soft();rvDrawSoon()}return}
   if(t.id==='lg-search'){ui.lgq=t.value;render();return}
   if(t.id==='gr-q'){ui.grQ=t.value;render();return}
   if(t.id==='gr-name'){const g=grCur();g.name=t.value;const b=document.querySelector(`[data-grg="${g.id}"]`);if(b)b.textContent=t.value||'Без названия';grSave();return}
@@ -901,6 +932,8 @@ document.addEventListener('input',ev=>{
 document.addEventListener('change',ev=>{
   const t=ev.target;
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
+  if(t.id==='rv-to'){RV.to=t.value;rvMsg(null);render();return}
+  if(t.dataset&&t.dataset.sealicon&&t.files&&t.files[0]){const f=t.files[0],sid=t.dataset.sealicon;t.value='';rvSealIcon(sid,f);return}
   if(t.id==='lore-music-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMusic(f);return}
   if(t.id==='f-lmusic-url'){const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]);if(!a)return;const v=t.value.trim();
     if(!v){if(a.music&&/^https?:/.test(a.music.src||''))delete a.music;ui.musMsg=''}
@@ -1026,6 +1059,13 @@ document.addEventListener('click',async ev=>{
   if(ds.tab){if(ui.tab==='legends')flushLegend();if(grTimer)grFlush();ui.tab=ds.tab;try{history.replaceState(null,'','#'+ds.tab)}catch(_){} render();const hero=document.querySelector('.hero');if(!hero)window.scrollTo(0,0);else if(window.scrollY>hero.offsetHeight)window.scrollTo({top:hero.offsetTop+hero.offsetHeight-document.querySelector('.topbar').offsetHeight,behavior:'smooth'});return}
   if(t.id==='to-top'){window.scrollTo({top:0,behavior:'smooth'});return}
   if(ds.fmt){applyFmt(ds.for,ds.fmt);return}
+  if(ds.rvseal){RV.seal=ds.rvseal;rvMsg(null);render();return}
+  if(t.id==='rv-send'){rvSend();return}
+  if(t.id==='rv-setup'){rvSetup();return}
+  if(t.id==='seal-add'){(S.seals=S.seals||[]).push({id:uid('s'),name:'Дом …',icon:''});soft();render();return}
+  if(t.id==='seal-from-teams'){S.seals=S.seals||[];S.teams.filter(x=>x.icon).forEach(x=>{if(!S.seals.some(y=>y.name===x.name))S.seals.push({id:uid('s'),name:x.name,icon:x.icon})});soft();render();return}
+  if(ds.sealdel){S.seals=(S.seals||[]).filter(y=>y.id!==ds.sealdel);if(RV.seal===ds.sealdel)RV.seal='';soft();render();return}
+  if(ds.sealmove){const A=S.seals||[],i=A.findIndex(y=>y.id===ds.sealmove);if(i>=0)move(A,i,+ds.dir);soft();render();return}
   if(ds.mdimg){const ta=document.getElementById(ds.mdimg);if(!ta)return;mdImgAt={id:ds.mdimg,s:ta.selectionStart,e:ta.selectionEnd};
     const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=()=>{if(f.files&&f.files[0])uploadMdImg(f.files[0])};f.click();return}
   if(t.id==='login-open'){ui.modal={kind:'login'};render();document.getElementById('m-pin')?.focus();return}
@@ -1167,6 +1207,194 @@ async function uploadMdImg(file){ // image inside lore/rules/about text: stored 
       ta.dispatchEvent(new Event('input',{bubbles:true}));}
   }catch(e){ui.mdImgMsg={for:at.id,t:e.message||'Не получилось загрузить картинку.'}}
   ui.mdImgBusy=null; render();
+}
+// ---------- «Отправить ворона»: letter on parchment → PDF → Telegram bot ----------
+const RV={seal:'',to:'',salut:'',text:'',sign:''}, RV_MAX=1500;
+const RVS={known:null,bot:'',botChecked:false,busy:false,msg:null,imgs:{},bg:null,timer:0,sealMsg:''};
+const tgUser=c=>{const m=String(c||'').match(/(?:^|[\s(])@([A-Za-z0-9_]{4,32})\b|t\.me\/([A-Za-z0-9_]{4,32})\b/);return m?(m[1]||m[2]):''};
+function rvSeals(){const own=(S.seals||[]).filter(x=>(x.name||'').trim());return own.length?own:S.teams.filter(t=>t.icon).map(t=>({id:'team:'+t.id,name:t.name,icon:t.icon}))}
+function rvSeal(){return rvSeals().find(x=>x.id===RV.seal)||null}
+function rvRecipients(){return S.roles.map(r=>({r,u:tgUser(r.contact)})).filter(x=>x.u)}
+function rvMsg(m){RVS.msg=m;const n=document.getElementById('rv-msg');if(n){n.className='rv-msg'+(m?' '+m.k:'');n.textContent=m?m.t:''}}
+function rvFn(body){return fetch(SB_URL+'/functions/v1/raven',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify(body)}).then(r=>r.json())}
+function renderRaven(){
+  const seals=rvSeals(), sel=rvSeal(), recs=rvRecipients(), known=RVS.known;
+  const kn=u=>known?known.has(u.toLowerCase()):null;
+  const byTeam=S.teams.map(t=>({t,list:recs.filter(x=>x.r.team===t.id)})).filter(g=>g.list.length);
+  const loose=recs.filter(x=>!S.teams.some(t=>t.id===x.r.team));
+  const opt=x=>{const k=kn(x.u);return `<option value="${x.r.id}"${RV.to===x.r.id?' selected':''}>${h(x.r.name)}${x.r.player?' · '+h(x.r.player):''}${k===false?' — ворон не знает дороги':''}</option>`};
+  const toRole=recs.find(x=>x.r.id===RV.to), toKnown=toRole?kn(toRole.u):null;
+  const botLink=RVS.bot?`<a href="https://t.me/${h(RVS.bot)}" target="_blank" rel="noopener">@${h(RVS.bot)}</a>`:'бота «Ворон»';
+  const sealEd=ui.edit&&pin?`<div class="rv-seal-ed"><div class="rv-cap">Печати (видит и правит только мастер)</div>
+    ${(S.seals||[]).map((x,i)=>`<div class="rv-se-row"><span class="rv-se-ic">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:'—'}</span>
+      <input data-sealname="${x.id}" value="${h(x.name)}" maxlength="60" aria-label="Название печати">
+      <label class="btn small" for="seal-ic-${x.id}">Герб</label><input type="file" id="seal-ic-${x.id}" data-sealicon="${x.id}" accept="image/*" hidden>
+      <button class="mv" data-sealmove="${x.id}" data-dir="-1" aria-label="Выше">▲</button><button class="mv" data-sealmove="${x.id}" data-dir="1" aria-label="Ниже">▼</button>
+      <button class="btn small danger" data-sealdel="${x.id}">Удалить</button></div>`).join('')}
+    <div class="mus-row"><button class="btn small gold" id="seal-add">+ Печать</button>${S.teams.some(t=>t.icon)?'<button class="btn small" id="seal-from-teams">Взять гербы из команд</button>':''}</div>
+    <span class="hint">${h(RVS.sealMsg||(S.seals&&S.seals.length?'Герб лучше квадратный, светлый рисунок на тёмном или прозрачном фоне: на воске он станет оттиском.':'Пока своих печатей нет, игрокам показываются гербы команд из сетки ролей.'))}</span></div>`:'';
+  const setup=pin?`<div class="rv-setup"><div class="rv-cap">Бот «Ворон» (видит только мастер)</div>
+    <ol><li>В Telegram откройте <b>@BotFather</b> → <code>/newbot</code>, назовите бота (например, «Ворон»), скопируйте токен.</li>
+    <li>Supabase → <b>Edge Functions → Secrets</b> → добавьте секрет <code>TELEGRAM_BOT_TOKEN</code> со значением токена.</li>
+    <li>Нажмите кнопку ниже: бот начнёт слушать игроков.</li></ol>
+    <button class="btn small gold" id="rv-setup"${RVS.busy?' disabled':''}>Подключить бота</button> <span class="hint">${RVS.bot?'Сейчас подключён @'+h(RVS.bot):RVS.botChecked?'Бот ещё не подключён.':''}</span></div>`:'';
+  return `<section class="raven"><div class="rv-head"><h2>Отправить ворона</h2>
+    <p class="rv-lead">Выберите печать, адресата и напишите письмо. Ворон доставит его в Telegram свитком на пергаменте.<br>Чтобы получать воронов, откройте ${botLink} и нажмите «Старт», а в сетке ролей в контакте вашей роли должен стоять ваш @ник.</p></div>
+  <div class="rv-grid"><div class="rv-form">
+    <div class="field"><span class="lbl">Под чьей печатью</span><div class="rv-seals">${seals.length?seals.map(x=>`<button class="rv-seal" data-rvseal="${x.id}" aria-pressed="${RV.seal===x.id}">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:`<span class="rv-ini">${h((x.name||'?').trim()[0]||'?')}</span>`}<span>${h(x.name)}</span></button>`).join(''):'<p class="empty">Мастер ещё не добавил печати.</p>'}</div></div>
+    ${sealEd}
+    <div class="field"><label for="rv-to">Кому</label><select id="rv-to"><option value="">— выберите адресата —</option>${byTeam.map(g=>`<optgroup label="${h(g.t.name)}">${g.list.map(opt).join('')}</optgroup>`).join('')}${loose.length?`<optgroup label="Без команды">${loose.map(opt).join('')}</optgroup>`:''}</select>
+      <span class="hint">${toRole?(toKnown===false?`Ворон пока не знает дороги к @${h(toRole.u)}: игрок должен открыть ${RVS.bot?'@'+h(RVS.bot):'бота'} и нажать «Старт».`:toKnown?`Ворон знает дорогу к @${h(toRole.u)}.`:`Письмо уйдёт в Telegram @${h(toRole.u)}.`):'В списке только роли, у которых в контакте указан Telegram-ник.'}</span></div>
+    <div class="field"><label for="rv-salut">Обращение</label><input id="rv-salut" data-rv="salut" maxlength="80" value="${h(RV.salut)}" placeholder="Милорд Старк," autocomplete="off"></div>
+    <div class="field"><label for="rv-text">Письмо</label><textarea id="rv-text" data-rv="text" maxlength="${RV_MAX}" rows="9" placeholder="Зима близко…">${h(RV.text)}</textarea><span class="hint" id="rv-count">${RV.text.length} / ${RV_MAX}</span></div>
+    <div class="field"><label for="rv-sign">Подпись</label><input id="rv-sign" data-rv="sign" maxlength="60" value="${h(RV.sign)}" placeholder="Можно оставить пустой — тогда письмо анонимно" autocomplete="off"></div>
+    <div class="rv-actions"><button class="btn gold" id="rv-send"${RVS.busy?' disabled':''}>${RVS.busy?'Ворон в пути…':'Отправить ворона'}</button><span id="rv-msg" class="rv-msg${RVS.msg?' '+RVS.msg.k:''}" role="status">${RVS.msg?h(RVS.msg.t):''}</span></div>
+    ${setup}
+  </div>
+  <div class="rv-prev"><canvas id="rv-canvas" width="1200" height="1700" aria-label="Предпросмотр письма"></canvas><span class="hint">Так письмо будет выглядеть в PDF${sel?'':' — выберите печать'}.</span></div></div></section>`;
+}
+function rvAfterRender(){
+  rvDraw();
+  if(!RVS.fonts){RVS.fonts=Promise.all([document.fonts.load('48px "Bad Script"','Аа'),document.fonts.load('48px Forum','Аа')]).then(rvDrawSoon,rvDrawSoon)}
+  if(!RVS.botChecked){RVS.botChecked=true;rvFn({action:'info'}).then(r=>{if(r&&r.bot){RVS.bot=r.bot;if(ui.tab==='raven')render()}}).catch(()=>{})}
+  if(RVS.known===null){RVS.known=undefined;const us=rvRecipients().map(x=>x.u);
+    sb.rpc('raven_known',{p_users:us}).then(({data,error})=>{RVS.known=error?null:new Set((data||[]).map(x=>String(x).toLowerCase()));if(!error&&ui.tab==='raven')render()},()=>{})}
+}
+function rvDrawSoon(){clearTimeout(RVS.timer);RVS.timer=setTimeout(rvDraw,120)}
+function rvRand(seed){return ()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function rvEdge(ctx,W,H,R){ // torn parchment outline
+  const m=16,j=9,pts=[];
+  const side=(x0,y0,x1,y1)=>{const n=Math.round(Math.hypot(x1-x0,y1-y0)/34);for(let i=0;i<n;i++){const t=i/n;pts.push([x0+(x1-x0)*t+(R()-.5)*j*(y0===y1?.4:2),y0+(y1-y0)*t+(R()-.5)*j*(x0===x1?.4:2)])}};
+  side(m,m,W-m,m);side(W-m,m,W-m,H-m);side(W-m,H-m,m,H-m);side(m,H-m,m,m);
+  ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();
+}
+function rvParchment(W,H){
+  if(RVS.bg) return RVS.bg;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),R=rvRand(1931);
+  x.save();rvEdge(x,W,H,R);x.clip();
+  x.fillStyle='#e6d2a2';x.fillRect(0,0,W,H);
+  let g=x.createRadialGradient(W/2,H*.44,W*.08,W/2,H/2,W*.9);g.addColorStop(0,'rgba(255,247,222,.65)');g.addColorStop(.55,'rgba(236,214,163,0)');g.addColorStop(1,'rgba(118,74,28,.6)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  for(let i=0;i<16;i++){const cx=R()*W,cy=R()*H,r=40+R()*170;const s=x.createRadialGradient(cx,cy,0,cx,cy,r);s.addColorStop(0,`rgba(140,92,38,${.05+R()*.07})`);s.addColorStop(1,'rgba(140,92,38,0)');x.fillStyle=s;x.fillRect(cx-r,cy-r,2*r,2*r)}
+  const n=document.createElement('canvas');n.width=n.height=200;const nx=n.getContext('2d'),id=nx.createImageData(200,200);
+  for(let i=0;i<id.data.length;i+=4){const v=R()*255;id.data[i]=id.data[i+1]=id.data[i+2]=v>128?60:20;id.data[i+3]=R()*16}
+  nx.putImageData(id,0,0);x.fillStyle=x.createPattern(n,'repeat');x.fillRect(0,0,W,H);
+  x.lineCap='round';
+  for(let i=0;i<140;i++){const a=R()*W,b=R()*H,l=20+R()*70,an=R()*Math.PI;x.strokeStyle=`rgba(110,75,35,${.04+R()*.06})`;x.lineWidth=.6+R()*1.2;x.beginPath();x.moveTo(a,b);x.quadraticCurveTo(a+Math.cos(an)*l*.5+(R()-.5)*14,b+Math.sin(an)*l*.5+(R()-.5)*14,a+Math.cos(an)*l,b+Math.sin(an)*l);x.stroke()}
+  x.shadowColor='rgba(70,35,8,.85)';x.shadowBlur=46;x.strokeStyle='rgba(95,55,18,.55)';x.lineWidth=20;rvEdge(x,W,H,rvRand(1931));x.stroke();
+  x.restore();
+  return RVS.bg=c;
+}
+function rvImg(src){if(!src)return null;let o=RVS.imgs[src];if(!o){o=RVS.imgs[src]=new Image();o.onload=rvDrawSoon;o.src=src}return o.complete&&o.naturalWidth?o:null}
+function rvWax(ctx,cx,cy,r,seal){
+  const R=rvRand(77+((seal&&seal.name)||'').length*13);
+  ctx.save();
+  const n=40,pts=[];for(let i=0;i<n;i++){const a=i/n*Math.PI*2,k=1+(R()-.5)*.13+(i%9===0?.08:0);pts.push([cx+Math.cos(a)*r*k,cy+Math.sin(a)*r*k])}
+  ctx.beginPath();for(let i=0;i<=n;i++){const p=pts[i%n],q=pts[(i+1)%n],mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2;i?ctx.quadraticCurveTo(p[0],p[1],mx,my):ctx.moveTo(mx,my)}ctx.closePath();
+  ctx.shadowColor='rgba(45,10,4,.55)';ctx.shadowBlur=22;ctx.shadowOffsetY=8;
+  const g=ctx.createRadialGradient(cx-r*.35,cy-r*.4,r*.1,cx,cy,r*1.15);g.addColorStop(0,'#d24a3c');g.addColorStop(.55,'#9c1d16');g.addColorStop(1,'#5a0b08');ctx.fillStyle=g;ctx.fill();
+  ctx.shadowColor='transparent';
+  ctx.lineWidth=7;ctx.strokeStyle='rgba(55,5,3,.5)';ctx.beginPath();ctx.arc(cx,cy,r*.76,0,Math.PI*2);ctx.stroke();
+  ctx.lineWidth=3;ctx.strokeStyle='rgba(255,165,145,.28)';ctx.beginPath();ctx.arc(cx-1.5,cy-2,r*.79,Math.PI*1.05,Math.PI*1.75);ctx.stroke();
+  const img=seal&&rvImg(photoSrc(seal.icon)), ir=r*.66;
+  if(img){ // icon pressed into wax: brightness → wax shade
+    const sz=Math.round(ir*2),o=document.createElement('canvas');o.width=o.height=sz;const ox=o.getContext('2d');
+    const k=Math.min(sz/img.naturalWidth,sz/img.naturalHeight),w=img.naturalWidth*k,hh=img.naturalHeight*k;ox.drawImage(img,(sz-w)/2,(sz-hh)/2,w,hh);
+    const d=ox.getImageData(0,0,sz,sz),a=d.data;for(let i=0;i<a.length;i+=4){const l=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/255;a[i]=70+l*165;a[i+1]=8+l*100;a[i+2]=6+l*86}ox.putImageData(d,0,0);
+    ctx.save();ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.clip();ctx.fillStyle='#6a0e0a';ctx.fillRect(cx-ir,cy-ir,2*ir,2*ir);ctx.globalAlpha=.95;ctx.drawImage(o,cx-ir,cy-ir);ctx.restore();
+    ctx.lineWidth=4;ctx.strokeStyle='rgba(40,3,2,.45)';ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.stroke();
+  }else{
+    ctx.font=`${Math.round(r*.95)}px Forum, Georgia, serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    const ch=((seal&&seal.name)||'✦').replace(/^(дом|house)\s+/i,'').trim()[0]||'✦';
+    ctx.fillStyle='rgba(255,160,140,.35)';ctx.fillText(ch,cx-2,cy-1);ctx.fillStyle='#560906';ctx.fillText(ch,cx+1.5,cy+2.5);
+  }
+  ctx.restore();
+}
+function rvWrap(ctx,text,width,firstIndent,indentLines){
+  const out=[];let lineNo=0;
+  for(const para of String(text).split('\n')){
+    const words=para.split(/\s+/).filter(Boolean);if(!words.length){out.push('');lineNo++;continue}
+    let cur='';
+    const maxW=()=>width-(lineNo<indentLines?firstIndent:0);
+    for(const w of words){const t=cur?cur+' '+w:w;if(ctx.measureText(t).width<=maxW()||!cur)cur=t;else{out.push(cur);lineNo++;cur=w}}
+    out.push(cur);lineNo++;
+  }
+  return out;
+}
+function rvDraw(target){
+  const c=target||document.getElementById('rv-canvas');if(!c)return;
+  const W=c.width,H=c.height,x=c.getContext('2d');x.clearRect(0,0,W,H);
+  x.drawImage(rvParchment(W,H),0,0);
+  const ink='#2a1708',seal=rvSeal(),L=150,Rr=W-150,TW=Rr-L;
+  // ornament
+  x.strokeStyle='rgba(92,52,20,.55)';x.lineWidth=2;x.beginPath();x.moveTo(W*.3,118);x.lineTo(W*.46,118);x.moveTo(W*.54,118);x.lineTo(W*.7,118);x.stroke();
+  x.fillStyle='rgba(122,30,20,.75)';x.beginPath();x.moveTo(W/2,104);x.lineTo(W/2+12,118);x.lineTo(W/2,132);x.lineTo(W/2-12,118);x.closePath();x.fill();
+  let y=200;
+  const salut=RV.salut.trim(), body=RV.text.trim()||'…', sign=RV.sign.trim();
+  const sealY=H-230, bottom=sealY-150-(sign?70:0);
+  let fs=48,lines,lh,capW=0,capFs;
+  for(;fs>=24;fs-=2){
+    lh=fs*1.42;capFs=Math.round(lh*2.05);
+    x.font=`${capFs}px Forum, Georgia, serif`;capW=body.length>1?x.measureText(body[0]).width+16:0;
+    x.font=`${fs}px "Bad Script", cursive`;
+    lines=rvWrap(x,capW?body.slice(1):body,TW,capW,2);
+    const need=(salut?lh*1.6:0)+lines.length*lh;
+    if(y+need<=bottom)break;
+  }
+  if(salut){x.font=`${Math.round(fs*1.12)}px "Bad Script", cursive`;x.fillStyle=ink;x.textAlign='left';x.textBaseline='alphabetic';x.fillText(salut,L,y+fs);y+=lh*1.6}
+  x.font=`${fs}px "Bad Script", cursive`;x.fillStyle=ink;x.textAlign='left';x.textBaseline='alphabetic';
+  const maxLines=Math.max(1,Math.floor((bottom-y)/lh));
+  if(capW){x.save();x.font=`${capFs}px Forum, Georgia, serif`;x.fillStyle='#7a1d12';x.fillText(body[0],L,y+lh*1.72);x.restore();x.font=`${fs}px "Bad Script", cursive`}
+  lines.slice(0,maxLines).forEach((ln,i)=>{const last=i===maxLines-1&&lines.length>maxLines;x.fillText(last?ln.replace(/\s*\S*$/,'')+'…':ln,L+(i<2?capW:0),y+fs+i*lh)});
+  y+=Math.min(lines.length,maxLines)*lh;
+  if(sign){x.font=`${Math.round(fs*1.15)}px "Bad Script", cursive`;x.textAlign='right';x.fillText(sign,Rr,Math.min(y+lh*1.4,sealY-150))}
+  if(seal){rvWax(x,W/2,sealY,112,seal);x.font='30px Forum, Georgia, serif';x.textAlign='center';x.fillStyle='rgba(70,38,14,.75)';x.fillText(seal.name,W/2,sealY+165)}
+  else{x.setLineDash([8,10]);x.strokeStyle='rgba(90,50,18,.4)';x.lineWidth=3;x.beginPath();x.arc(W/2,sealY,100,0,Math.PI*2);x.stroke();x.setLineDash([]);x.font='28px Forum, Georgia, serif';x.textAlign='center';x.fillStyle='rgba(90,50,18,.55)';x.fillText('место для печати',W/2,sealY+10)}
+}
+let pdfReady=null;
+function loadPdf(){if(window.jspdf)return Promise.resolve();if(!pdfReady)pdfReady=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';sc.onload=res;sc.onerror=()=>{pdfReady=null;rej(new Error('lib'))};document.head.appendChild(sc)});return pdfReady}
+async function rvPdf(){
+  try{await document.fonts.load('48px "Bad Script"','Аа');await document.fonts.load('48px Forum','Аа')}catch(_){}
+  await loadPdf();
+  const c=document.createElement('canvas');c.width=1200;c.height=1700;rvDraw(c);
+  const f=document.createElement('canvas');f.width=c.width;f.height=c.height;const fx=f.getContext('2d');fx.fillStyle='#fff';fx.fillRect(0,0,f.width,f.height);fx.drawImage(c,0,0);
+  const doc=new window.jspdf.jsPDF({unit:'mm',format:'a5',orientation:'portrait'});
+  doc.addImage(f.toDataURL('image/jpeg',.82),'JPEG',0,0,148,210);
+  doc.setProperties({title:'Ворон — '+(rvSeal()||{}).name});
+  return doc.output('datauristring').split(',')[1];
+}
+async function rvSend(){
+  const seal=rvSeal(), rec=rvRecipients().find(x=>x.r.id===RV.to);
+  if(!seal){rvMsg({k:'err',t:'Выберите, под чьей печатью идёт письмо.'});return}
+  if(!rec){rvMsg({k:'err',t:'Выберите адресата.'});return}
+  if(!RV.text.trim()){rvMsg({k:'err',t:'Письмо пустое.'});return}
+  RVS.busy=true;rvMsg({k:'',t:'Запечатываю письмо…'});render();
+  let res;
+  try{const pdf=await rvPdf();rvMsg({k:'',t:'Ворон взлетает…'});
+    res=await rvFn({action:'send',to:rec.r.id,seal:seal.name,pdf,filename:'Ворон — '+seal.name});
+  }catch(e){res={ok:false,code:e&&e.message==='lib'?'lib':'net'}}
+  RVS.busy=false;
+  const bot=RVS.bot?'@'+RVS.bot:'бота «Ворон»';
+  const M={no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec.u}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
+  if(res&&res.ok){rvMsg({k:'ok',t:`Ворон улетел! Адресат: ${rec.r.name}.`});RV.text='';RV.salut='';}
+  else rvMsg({k:'err',t:M[res&&res.code]||('Ворон не долетел'+(res&&res.detail?': '+res.detail:'.'))});
+  if(res&&res.code==='not_connected'&&RVS.known)RVS.known.delete(rec.u.toLowerCase());
+  render();
+}
+async function rvSetup(){
+  RVS.busy=true;render();let r;
+  try{r=await rvFn({action:'setup',pin})}catch(_){r={ok:false,code:'net'}}
+  RVS.busy=false;
+  if(r&&r.ok){RVS.bot=r.bot||RVS.bot;rvMsg({k:'ok',t:'Бот подключён'+(r.bot?': @'+r.bot:'')+'. Игроки могут нажимать «Старт».'})}
+  else rvMsg({k:'err',t:{no_token:'В Supabase нет секрета TELEGRAM_BOT_TOKEN (шаг 2).',bad_pin:'Код мастера не подошёл. Войдите заново.',net:'Нет связи с сервером.'}[r&&r.code]||('Telegram ответил ошибкой'+(r&&r.detail?': '+r.detail:'.'))});
+  render();
+}
+async function rvSealIcon(sid,file){
+  const x=(S.seals||[]).find(y=>y.id===sid);if(!x)return;RVS.sealMsg='Загружаю герб…';render();
+  try{const d=await shrink(file,500,'png'),id=uid('c');const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    if(error)throw new Error(rpcErr(error));if(!data)throw new Error('Код мастера больше не подходит. Войдите заново.');
+    photos[id]=d;x.icon='ph:'+id;soft();RVS.sealMsg='Герб загружен. Нажмите «Сохранить».'}
+  catch(e){RVS.sealMsg=e.message||'Не получилось загрузить герб.'}
+  render();
 }
 async function uploadCover(file){
   const art=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!art) return;
@@ -2398,7 +2626,7 @@ async function save(){
 window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lgSavingN||grTimer||grSaving)){ev.preventDefault();ev.returnValue=''}});
 window.addEventListener('resize',measure);
 
-function photoIds(){return [...JSON.stringify(S).matchAll(/\[\[img:([\w-]+)/g)].map(m=>'ph:'+m[1]).concat(S.roles.map(r=>r.photo||'')).concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+function photoIds(){return [...JSON.stringify(S).matchAll(/\[\[img:([\w-]+)/g)].map(m=>'ph:'+m[1]).concat((S.seals||[]).map(x=>x.icon||''),S.roles.map(r=>r.photo||'')).concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
