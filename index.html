@@ -233,6 +233,15 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .rv-seal.off{opacity:.45;position:relative}.rv-seal.off .gw-offb{top:6px}
 .gw-facoff{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 12px;border:1px dashed var(--gold-line);border-radius:10px;font-size:14px;color:var(--gold-hi)}
 .gw-facoff.is-off{border-color:rgba(171,55,46,.6);color:#e8a99c}
+.gw-tip{position:fixed;z-index:80;display:none;grid-template-columns:150px minmax(0,1fr);gap:14px;width:min(440px,calc(100vw - 16px));padding:12px;background:linear-gradient(180deg,#2a1f13,#140e08);border:1px solid #c9a65e;border-radius:6px;box-shadow:inset 0 0 0 3px #0e0a06,inset 0 0 0 4px rgba(201,166,94,.3),0 18px 50px rgba(0,0,0,.75);pointer-events:none}
+.gw-tip.on{display:grid}
+.gw-tip-card .gc{--w:150px;width:150px;height:auto;aspect-ratio:3/4}.gw-tip-card .gc .gc-n{font-size:13px;padding:18px 6px 7px}
+.gw-tip-card .gc-r{right:5px;top:5px;bottom:auto}.gw-tip-card .gc-a{left:auto;right:5px;top:40px;bottom:auto}
+.gw-tip-b b{font-family:var(--display);font-size:20px;font-weight:400;color:var(--gold-hi);line-height:1.1;display:block}
+.gw-tip-sub{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12.5px;color:var(--muted);margin-top:2px}
+.gw-tip .gw-mtags{margin:8px 0 6px}.gw-tip .gw-mtags span{font-size:12px;padding:2px 8px;display:inline-flex;gap:4px;align-items:center}.gw-tip .gw-mtags s{color:var(--muted)}
+.gw-tip p{margin:0;font-size:13px;line-height:1.4;color:#d6cebd}.gw-tip p.gw-tip-mod{margin-top:6px;color:var(--gold-hi);font-size:12.5px}
+@media (max-width:520px){.gw-tip{grid-template-columns:96px minmax(0,1fr);gap:10px;padding:10px}.gw-tip-card .gc{--w:96px;width:96px}.gw-tip-card .gc-a{top:28px}.gw-tip-b b{font-size:17px}}
 .gw-edhint{font-size:14px;color:var(--gold-hi);border:1px dashed var(--gold-line);border-radius:10px;padding:10px 14px;margin:0 0 16px}
 .gw-pc .gc.open{cursor:pointer}.gw-pc .gc.open:hover{box-shadow:0 0 0 2px var(--gold-line)}
 .gw-pc{position:relative}.gw-pc.off{opacity:.45}.gw-offb{position:absolute;top:14px;left:50%;transform:translateX(-50%);background:#5a1d16;color:#f3d0c8;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
@@ -1778,9 +1787,11 @@ function gwAiMove(G){
 }
 
 /* ---- UI ---- */
+let GW_TIP={};
 function gwCard(c,o={}){
   const sp=c.special,img=sp?'':gwImg(c.img),pw=o.pow!==undefined?o.pow:c.power;
-  return `<div class="gc${c.hero?' hero':''}${sp?' sp':''}${c.ico?' ico':''}${o.cls?' '+o.cls:''}" ${o.attrs||''} title="${h(c.name)}${c.sub?' · '+h(c.sub):''}">`
+  const tipK=ui.tab==='banners'&&ui.gw==='game'&&GM?(c.uid||c.id):null;if(tipK)GW_TIP[tipK]={c,pow:pw};
+  return `<div class="gc${c.hero?' hero':''}${sp?' sp':''}${c.ico?' ico':''}${o.cls?' '+o.cls:''}" ${o.attrs||''} ${tipK?`data-gtip="${h(tipK)}"`:`title="${h(c.name)}${c.sub?' · '+h(c.sub):''}"`}>`
     +(img?`<img src="${img}" alt="" draggable="false">`:sp?`<span class="gc-sp">${gwIco(sp)}</span>`:`<span class="gc-ini">${h((c.name||'?').trim()[0]||'?')}</span>`)
     +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
     +(c.ability?`<span class="gc-a">${gwIco(c.ability)}</span>`:'')
@@ -1791,6 +1802,7 @@ function gwDesc(c){
   return [c.hero?GW_HERO:'',c.ability?`<b>${GW_AB[c.ability]}.</b> ${GW_ABD[c.ability]}`:'',`Ряд: ${GW_ROW[c.row]||'—'}. Сила: ${c.power}.`].filter(Boolean).join(' ');
 }
 function renderGwent(){
+  GW_TIP={};gwTipHide();
   const mode=ui.gw||'menu';
   if(mode==='game'&&GM)return gwBoard();
   return gwMenu();
@@ -1881,6 +1893,28 @@ function gwBoard(){
   <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
 }
+let gwTipEl=null,gwTipFor=null;
+function gwTipHide(){if(gwTipEl)gwTipEl.classList.remove('on');gwTipFor=null}
+function gwTipShow(el){
+  const k=el.dataset.gtip,t=GW_TIP[k];if(!t){gwTipHide();return}
+  if(!gwTipEl){gwTipEl=document.createElement('div');gwTipEl.className='gw-tip';gwTipEl.setAttribute('role','tooltip');document.body.appendChild(gwTipEl)}
+  const c=t.c,pw=t.pow,mod=!c.special&&pw!==c.power;
+  gwTipEl.innerHTML=`<div class="gw-tip-card">${gwCard(Object.assign({},c,{uid:null,id:null}),{name:true,pow:pw})}</div><div class="gw-tip-b"><b>${h(c.name)}</b>${c.sub?`<span class="gw-tip-sub">${h(c.sub)}</span>`:''}
+    <div class="gw-mtags">${c.special?'<span>Особая карта</span>':`<span>${gwIco(c.row)} ${GW_ROW[c.row]||''}</span><span>Сила ${pw}${mod?` <s>${c.power}</s>`:''}</span>${c.hero?`<span>${gwIco('hero')} Герой</span>`:''}${c.ability?`<span>${gwIco(c.ability)} ${GW_AB[c.ability]}</span>`:''}`}</div>
+    <p>${gwDesc(c)}</p>${mod?`<p class="gw-tip-mod">Сила сейчас ${pw>c.power?'выше':'ниже'} обычной из-за ${pw>c.power?'рога, боевого духа или братства':'погоды'}.</p>`:''}</div>`;
+  gwTipEl.classList.add('on');gwTipFor=el;
+  const r=el.getBoundingClientRect(),W=gwTipEl.offsetWidth,H=gwTipEl.offsetHeight,m=10;
+  let x,y;
+  if(r.right+m+W<=innerWidth-8){x=r.right+m;y=r.top+r.height/2-H/2}
+  else if(r.left-m-W>=8){x=r.left-m-W;y=r.top+r.height/2-H/2}
+  else{x=Math.max(8,Math.min(innerWidth-W-8,r.left+r.width/2-W/2));y=r.top-m-H>=8?r.top-m-H:r.bottom+m}
+  y=Math.max(8,Math.min(innerHeight-H-8,y));
+  gwTipEl.style.left=x+'px';gwTipEl.style.top=y+'px';
+}
+const gwHover=matchMedia('(hover:hover) and (pointer:fine)');
+document.addEventListener('mouseover',ev=>{if(!gwHover.matches)return;const el=ev.target.closest&&ev.target.closest('[data-gtip]');if(el){if(el!==gwTipFor)gwTipShow(el)}else if(gwTipFor)gwTipHide()});
+document.addEventListener('click',ev=>{if(gwHover.matches)return;const el=ev.target.closest&&ev.target.closest('.gw-board [data-gtip]:not([data-gwdecoy])');if(el){gwTipFor===el?gwTipHide():gwTipShow(el)}else if(gwTipFor&&!ev.target.closest('.gw-tip'))gwTipHide()},true);
+addEventListener('scroll',()=>{if(gwTipFor)gwTipHide()},true);
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
   if(gwTimer||!GM||ui.tab!=='banners')return;
