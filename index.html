@@ -273,6 +273,94 @@ body:has(.savebar) .music{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   .gw-deckbar{top:calc(var(--tb) + 2px)}
   .gw-pc-d{display:none}
 }
+
+/* ===== «Игра знамён»: стол в духе Вестероса ===== */
+.gi{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.14em;flex:none}
+.gi.fill{fill:currentColor;stroke:none}
+body.gwg main{padding-top:10px!important;padding-bottom:6px!important}
+body.gwg footer,body.gwg .edit-banner,body.gwg .music{display:none!important}
+.gw-game{max-width:1320px;margin:0 auto;height:calc(100dvh - var(--tb) - 18px);min-height:500px;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"op board" "ctl board" "me board" "tools dock";gap:10px 14px}
+.gw-op{grid-area:op}.gw-ctl{grid-area:ctl}.gw-me{grid-area:me}.gw-tools{grid-area:tools}.gw-board{grid-area:board}.gw-dock{grid-area:dock}
+.gw-board{container-type:size;min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr)) 16px repeat(3,minmax(0,1fr));gap:4px;padding:10px 12px;border-radius:6px;
+  background:radial-gradient(ellipse at 50% 50%,rgba(201,166,94,.09),transparent 62%),repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 2px,transparent 2px 58px),linear-gradient(180deg,#2b2015,#191209 50%,#2b2015);
+  border:1px solid #6a5228;box-shadow:inset 0 0 0 3px #120d08,inset 0 0 0 4px rgba(201,166,94,.4),inset 0 0 70px rgba(0,0,0,.75),0 12px 40px rgba(0,0,0,.55)}
+.gw-board .gw-row{min-height:0;display:flex;align-items:center;gap:8px;padding:3px 8px;border-radius:3px;background:linear-gradient(90deg,rgba(8,6,4,.6),rgba(8,6,4,.22));border:1px solid rgba(201,166,94,.12);position:relative;overflow:hidden}
+.gw-board .gw-row.op{background:linear-gradient(90deg,rgba(70,16,11,.38),rgba(8,6,4,.2))}
+.gw-row.wx-m{box-shadow:inset 0 0 34px rgba(170,210,255,.28)}.gw-row.wx-r{box-shadow:inset 0 0 34px rgba(200,200,200,.22)}.gw-row.wx-s{box-shadow:inset 0 0 34px rgba(90,140,220,.3)}
+.gw-rl{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;width:40px}
+.gw-board .gw-rs{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#f6dd96,#b98a30 62%,#7a5718);color:#1a1208;font-weight:700;font-size:14px;box-shadow:0 1px 3px #000,inset 0 0 0 1px rgba(255,240,200,.4)}
+.gw-board .gw-hn{width:auto;font-size:17px;color:rgba(201,166,94,.5);opacity:1}.gw-board .gw-hn.on{color:var(--gold-hi)}
+.gw-board .gw-units{display:flex;gap:4px;align-items:center;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding:0}
+.gw-board .gw-units::-webkit-scrollbar{display:none}
+.gw-board .gw-row .gc{--w:clamp(24px,calc((100cqh - 48px) / 6 / 1.36 - 7px),74px)}
+.gw-mid{display:flex;align-items:center;justify-content:center;border:0;padding:0;position:relative}
+.gw-mid::before{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,166,94,.75),transparent)}
+.gw-mid span{position:relative;background:#1b140c;padding:0 12px;font-family:var(--display);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hi);display:none}
+.gc{border:1px solid #8a6b32;border-radius:4px;background:radial-gradient(80% 60% at 50% 35%,#2b241a,#120e09);box-shadow:0 0 0 1px #000,0 3px 8px rgba(0,0,0,.6)}
+.gc.hero{border-color:#e2bd68;box-shadow:0 0 0 1px #000,0 0 0 2px rgba(226,189,104,.55),0 3px 10px rgba(226,189,104,.25)}
+.gc-p{background:radial-gradient(circle at 35% 30%,#fff7df,#d9c49a 60%,#9c8556);color:#1a1208;border:1px solid #3a2a12;font-family:var(--display)}
+.gc-p.hero{background:radial-gradient(circle at 35% 30%,#fff1b8,#d6a845 60%,#8d6418)}
+.gc-p.up{background:radial-gradient(circle at 35% 30%,#eaffde,#9fd18a 60%,#5c8f45)}.gc-p.down{background:radial-gradient(circle at 35% 30%,#ffe3dc,#e79a8a 60%,#a5513f)}
+.gc-r,.gc-a{width:calc(var(--w)*.28);height:calc(var(--w)*.28);min-width:13px;min-height:13px;padding:0;display:grid;place-items:center;border-radius:50%;background:rgba(12,9,5,.85);color:var(--gold-hi);border:1px solid rgba(201,166,94,.4);font-size:calc(var(--w)*.17)}
+.gc-sp{position:absolute;inset:0;display:grid;place-items:center;color:var(--gold-hi);font-size:calc(var(--w)*.48);background:radial-gradient(circle at 50% 40%,#3d2c17,#140e08 75%)}
+.gc-sp .gi{stroke-width:1.5;filter:drop-shadow(0 0 6px rgba(226,189,104,.35))}
+.gc.sp .gc-n{font-size:calc(var(--w)*.13);padding:10px 2px 3px}
+.gw-row .gc-n{display:none}
+.gw-board .gw-row .gc-r{display:none}
+.gw-info{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) auto;grid-template-areas:"sig nm tot" "sig meta tot";gap:3px 10px;align-items:center;padding:10px 12px;border:1px solid rgba(201,166,94,.35);border-radius:4px;background:linear-gradient(180deg,#231a11,#14100a);box-shadow:inset 0 0 0 3px #0e0a06,inset 0 0 0 4px rgba(201,166,94,.16);font-size:14px;color:var(--muted)}
+.gw-info.op{border-color:rgba(170,70,52,.55)}
+.gw-info.turn{box-shadow:inset 0 0 0 3px #0e0a06,inset 0 0 0 4px rgba(201,166,94,.16),0 0 0 2px var(--gold),0 0 22px rgba(201,166,94,.35)}
+.gw-sig{grid-area:sig;width:46px;height:46px;display:grid;place-items:center;color:var(--gold);font-size:28px}.gw-sig img{max-width:100%;max-height:100%;object-fit:contain}
+.gw-info .gw-nm{grid-area:nm}.gw-info .gw-nm b{font-family:var(--display);font-size:17px;letter-spacing:.04em;font-weight:400}
+.gw-meta{grid-area:meta;display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+.gw-info .gw-tot{grid-area:tot;margin:0;font-family:var(--display);font-size:36px;color:var(--gold-hi);text-shadow:0 0 14px rgba(201,166,94,.35);min-width:40px}
+.gw-info .gw-pass{position:absolute;top:-9px;right:10px;background:#6a1f17;color:#f6d6cc;font-size:10px;letter-spacing:.16em;padding:2px 8px;border-radius:2px;border:1px solid #a9483a}
+.gw-info .gw-dk::before{content:""}
+.gw-lives{gap:5px}.gw-lives i{width:13px;height:13px;border-radius:50%;background:#241b13;border:1px solid #5a4a30}
+.gw-lives i.on{background:radial-gradient(circle at 35% 30%,#ffb1a3,#c3261a 55%,#6d0d07);border-color:#e3b25a;box-shadow:0 0 6px rgba(220,60,40,.5)}
+.gw-ctl{display:flex;flex-direction:column;gap:12px;justify-content:center;min-height:0;overflow:hidden;padding:4px 2px}
+.gw-round{font-family:var(--display);font-size:22px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-hi);text-align:center;padding:8px 0;border-top:1px solid rgba(201,166,94,.4);border-bottom:1px solid rgba(201,166,94,.4);position:relative}
+.gw-round::before,.gw-round::after{content:"⚜";position:absolute;top:50%;transform:translateY(-50%);font-size:14px;color:var(--gold)}.gw-round::before{left:6px}.gw-round::after{right:6px}
+.gw-ctl .gw-wxs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:13px}
+.gw-ctl .gw-wxs span{border:1px solid rgba(201,166,94,.3);border-radius:999px;padding:3px 10px;color:#cfe0f5}.gw-ctl .gw-wxs .mut{color:var(--muted);border-color:transparent}
+.gw-ctl .gw-log{font-size:12.5px;line-height:1.35;color:var(--muted);gap:4px;overflow:hidden}
+.gw-tools{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.gw-tools .btn{display:inline-flex;gap:6px;align-items:center}
+.gw-game .gw-dock{position:static;margin:0;padding:0;background:none;min-width:0}
+.gw-game .gw-dock .gw-act{margin:0;border-color:rgba(201,166,94,.4);background:linear-gradient(180deg,#1f1810,#14100a);border-radius:4px;padding:8px 12px}
+.gw-game .gw-hand{padding:10px 4px 2px;gap:6px}
+.gw-game .gw-hand .gc{--w:clamp(50px,calc((100dvh - var(--tb)) / 8.4),90px)}
+.gw-game .gw-hand .gc-n{display:none}.gw-game .gw-hand .gc.sp .gc-n{display:block}
+.gw-btns .btn{display:inline-flex;gap:6px;align-items:center}
+.gw-banner{background:linear-gradient(180deg,#2b2014,#140e08);border:1px solid #c9a65e;border-radius:4px;box-shadow:inset 0 0 0 3px #0e0a06,inset 0 0 0 4px rgba(201,166,94,.35),0 24px 70px rgba(0,0,0,.75);letter-spacing:.06em;display:flex;gap:16px;align-items:center}
+.gw-bn-orn{font-size:.7em;color:var(--gold)}
+@media (max-width:820px){
+  .gw-game{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"op tools" "board board" "me me" "dock dock";height:calc(100dvh - var(--tb) - 10px);min-height:430px;gap:5px}
+  .gw-ctl{display:none}
+  .gw-mid span{display:inline-flex;gap:6px;align-items:center;font-size:10px}
+  .gw-tools{flex-direction:column;justify-content:center;gap:4px}.gw-tools .btn{font-size:0;padding:8px;gap:0}.gw-tools .btn .gi{font-size:16px}
+  .gw-board{padding:5px 6px;gap:3px;grid-template-rows:repeat(3,minmax(0,1fr)) 14px repeat(3,minmax(0,1fr))}
+  .gw-board .gw-row{padding:2px 4px;gap:5px}
+  .gw-board .gw-row .gc{--w:clamp(22px,calc((100cqh - 30px) / 6 / 1.36 - 5px),60px)}
+  .gw-rl{width:26px;gap:1px}.gw-board .gw-rs{width:22px;height:22px;font-size:11px}.gw-board .gw-hn{font-size:12px}
+  .gw-info{grid-template-columns:30px minmax(0,1fr) auto;padding:5px 8px;gap:0 8px;font-size:12px}
+  .gw-sig{width:30px;height:30px;font-size:20px}.gw-info .gw-nm b{font-size:14px}.gw-info .gw-nm span{font-size:11px}
+  .gw-meta{font-size:11.5px;gap:8px}.gw-info .gw-dk{display:none}.gw-info .gw-tot{font-size:26px}
+  .gw-lives i{width:10px;height:10px}
+  .gw-game .gw-dock .gw-act{padding:6px 8px;font-size:13px;gap:6px}
+  .gw-game .gw-hand{padding:8px 2px 0}
+  .gw-game .gw-hand .gc{--w:clamp(42px,13.5vw,62px)}
+  .gw-sel .gw-d{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;margin-top:2px}
+  .gw-sel b{font-size:14px}.gw-sel span{font-size:11.5px}
+  .gw-game .gw-btns{gap:5px}.gw-game .gw-btns .btn{padding:6px 9px;font-size:12.5px}
+  .gw-board .gw-hn{display:none}.gw-rl{width:22px}.gw-board .gw-rs{width:20px;height:20px;font-size:10.5px}
+  .gw-board .gw-row .gc-a{min-width:10px;min-height:10px;font-size:8px}
+  .gw-board .gw-row .gc-p{min-width:13px;height:13px;font-size:9px;left:1px;top:1px}
+  .gw-info{grid-template-columns:24px minmax(0,1fr) auto auto;grid-template-areas:"sig nm meta tot";padding:4px 10px;gap:0 8px}
+  .gw-sig{width:24px;height:24px;font-size:18px}.gw-info .gw-nm span{display:none}.gw-info .gw-nm b{font-size:13.5px}.gw-info .gw-tot{font-size:22px;min-width:30px}
+  .gw-info .gw-pass{top:-7px;font-size:9px}
+  .gw-game{grid-template-rows:auto minmax(150px,1fr) auto auto}
+}
 .lore-grp-ey{font-family:var(--display);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
 .lore-article h2{font-size:clamp(32px,5vw,46px);margin-bottom:18px}
 
@@ -822,7 +910,7 @@ function render(){
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   {const at=document.querySelector('.tabs .tab[aria-selected="true"]'),tb=at&&at.parentNode;if(tb&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2)}
-  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners') gwTick();
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners') gwTick(); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -1238,9 +1326,9 @@ document.addEventListener('submit',async ev=>{
 // ---------- background music for lore articles ----------
 const mus={el:null,box:null,key:null,url:null,cache:{},off:false,blocked:false};
 try{mus.off=localStorage.getItem('vpv-music-off')==='1'}catch(_){}
-function audioIds(){return (S.lore||[]).concat(S.rules||[]).map(a=>(a.music&&a.music.src)||'').filter(x=>x.startsWith('au:')).map(x=>x.slice(3))}
-async function uploadMusic(file){
-  const a=(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!a) return;
+function audioIds(){return (S.lore||[]).concat(S.rules||[],[S.gwent||{}]).map(a=>(a.music&&a.music.src)||'').filter(x=>x.startsWith('au:')).map(x=>x.slice(3))}
+async function uploadMusic(file,tgt){
+  const a=tgt||(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!a) return;
   if(file.size>8*1024*1024){ui.musMsg='Файл больше 8 МБ. Сожмите его (например, mp3 128 кбит/с) или дайте ссылку.';render();return}
   ui.musUp=true;ui.musMsg='';render();
   try{
@@ -1273,6 +1361,7 @@ function musEnsure(){
   if(mus.el) return;
   mus.el=new Audio(); mus.el.loop=true; mus.el.preload='auto';
   mus.el.addEventListener('play',musUi); mus.el.addEventListener('pause',musUi);
+  const gwSync=()=>{const b=document.getElementById('gw-mus');if(b){const on=!mus.el.paused;b.setAttribute('aria-pressed',on);b.innerHTML=gwIco('music')+(on?' Музыка: вкл':' Музыка: выкл')}};mus.el.addEventListener('play',gwSync);mus.el.addEventListener('pause',gwSync);
   mus.box=document.createElement('div'); mus.box.className='music'; mus.box.hidden=true;
   mus.box.innerHTML='<button id="mu-play" class="mu-btn"></button><span class="mu-name"></span><input id="mu-vol" type="range" min="0" max="100" aria-label="Громкость">';
   document.body.appendChild(mus.box);
@@ -1282,7 +1371,7 @@ function musEnsure(){
   mus.box.querySelector('#mu-vol').addEventListener('input',ev=>{mus.el.volume=+ev.target.value/100});
 }
 function syncMusic(){
-  const X=(ui.tab==='lore'||ui.tab==='rules')?SEC():null, a=X&&(S[X.k]||[]).find(x=>x.id===ui[X.c]);
+  const X=(ui.tab==='lore'||ui.tab==='rules')?SEC():null, a=ui.tab==='banners'?S.gwent:X&&(S[X.k]||[]).find(x=>x.id===ui[X.c]);
   const m=a&&a.music&&a.music.src?a.music:null, key=m?m.src:null;
   if(key===mus.key){if(mus.box&&m)mus.box.querySelector('.mu-name').textContent='♪ '+(m.name||'Музыка');return}
   musEnsure();
@@ -1688,10 +1777,10 @@ function gwAiMove(G){
 function gwCard(c,o={}){
   const sp=c.special,img=sp?'':gwImg(c.img),pw=o.pow!==undefined?o.pow:c.power;
   return `<div class="gc${c.hero?' hero':''}${sp?' sp':''}${c.ico?' ico':''}${o.cls?' '+o.cls:''}" ${o.attrs||''} title="${h(c.name)}${c.sub?' · '+h(c.sub):''}">`
-    +(img?`<img src="${img}" alt="" draggable="false">`:`<span class="gc-ini">${sp?GW_SP[sp].icon:h((c.name||'?').trim()[0]||'?')}</span>`)
-    +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${c.hero?'♛':GW_RI[c.row]||''}</span>`)
-    +(c.ability?`<span class="gc-a">${GW_AI[c.ability]}</span>`:'')
-    +(o.name?`<span class="gc-n">${h(c.name)}</span>`:'')+`</div>`;
+    +(img?`<img src="${img}" alt="" draggable="false">`:sp?`<span class="gc-sp">${gwIco(sp)}</span>`:`<span class="gc-ini">${h((c.name||'?').trim()[0]||'?')}</span>`)
+    +(sp?'':`<span class="gc-p${c.hero?' hero':''}${pw>c.power?' up':pw<c.power?' down':''}">${pw}</span><span class="gc-r">${gwIco(c.hero?'hero':c.row)}</span>`)
+    +(c.ability?`<span class="gc-a">${gwIco(c.ability)}</span>`:'')
+    +(o.name||sp?`<span class="gc-n">${h(c.name)}</span>`:'')+`</div>`;
 }
 function gwDesc(c){
   if(c.special)return GW_SP[c.special].d;
@@ -1727,34 +1816,64 @@ function gwMenu(){
   ${sect('Персонажи',defs.filter(c=>c.kind==='role'))}${sect('Карты мастера',defs.filter(c=>c.kind==='extra'),ed&&['gw-x-add','Новая карта'])}${sect('Отряды фракции',defs.filter(c=>c.kind==='troop'),ed&&['gw-t-add','Новый отряд'])}${sect('Особые карты',defs.filter(c=>c.kind==='special'))}
   ${gwMasterEd()}</section>`;
 }
+const GW_SVG={m:'M19 4 8.5 14.5M19 4h-3.5M19 4v3.5M6.5 12.5l5 5M8 16l-4 4',
+  r:'M6 3c8 1.5 13.5 7 15 15M6 3l15 15M3 21l10-10M13 11h-3.5M13 11v3.5',
+  s:'M4 21V9h3V6h3v3h4V6h3v3h3v12ZM10 21v-5h4v5',
+  a:'M4 8h15l-3.5-3.5M20 16H5l3.5 3.5',
+  spy:'M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12ZM12 9.2a2.8 2.8 0 1 0 0 5.6 2.8 2.8 0 0 0 0-5.6Z',
+  medic:'M12 4.5v15M4.5 12h15',
+  muster:'M6 21V3.5M6 4h12l-2.5 4L18 12H6',
+  bond:'M9.5 14.5 7.5 16.5a3.2 3.2 0 0 1-4.5-4.5l3-3a3.2 3.2 0 0 1 4.5 0M14.5 9.5l2-2a3.2 3.2 0 0 1 4.5 4.5l-3 3a3.2 3.2 0 0 1-4.5 0M9.5 14.5l5-5',
+  morale:'M12 3.5l2.5 5.3 5.8.7-4.3 4 1.1 5.8L12 16.5l-5.1 2.8 1.1-5.8-4.3-4 5.8-.7Z',
+  horn:'M3.5 9.5v5l3.5.8L19 20V4L7 8.7ZM7 8.7v6.6',
+  hero:'M3.5 18.5h17M4.5 18.5 3.5 7.5l5 4L12 4.5l3.5 7 5-4-1 11',
+  frost:'M12 2.5v19M3.8 7.2l16.4 9.6M20.2 7.2 3.8 16.8M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5',
+  fog:'M3 8h12.5M6.5 12H21M3 16h12.5M8 20h10M17 4.5h3',
+  rain:'M7 14.5a4 4 0 1 1 1.1-7.8A5.2 5.2 0 0 1 18 8.2a3.2 3.2 0 0 1 0 6.3ZM8.5 17.5l-1 3M12.5 17.5l-1 3M16.5 17.5l-1 3',
+  clear:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8',
+  decoy:'M5.5 4h13v6.5a6.5 6.5 0 0 1-13 0ZM9 9h.01M15 9h.01M9 13.5c2 1.6 4 1.6 6 0',
+  scorch:'M12 2.5c1 4 6.5 6.2 6.5 11.5a6.5 6.5 0 0 1-13 0c0-3.2 2-4.6 3.2-6.6.2 2 1.2 3.4 2.6 3.4-.3-3.2-.1-5.6.7-8.3Z',
+  music:'M9 18V5.5l11-2V16M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM20 16a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z',
+  flag:'M5 21V4M5 4.5h12l-2 4 2 4H5'};
+function gwIco(k,cls){const d=GW_SVG[k];return d?`<svg class="gi${cls?' '+cls:''}${k==='morale'?' fill':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`:''}
+const GW_ROMAN=['','I','II','III','IV','V','VI','VII','VIII','IX'];
 function gwBoard(){
   const G=GM,me=G.p[0],op=G.p[1],my=G.turn===0&&G.phase==='play'&&!G.pick;
   const sel=G.sel?me.hand.find(c=>c.uid===G.sel):null;
-  const lives=s=>`<span class="gw-lives">${[0,1].map(k=>`<i class="${k<s.lives?'on':''}"></i>`).join('')}</span>`;
-  const info=(s,i)=>`<div class="gw-info ${i?'op':'me'}${G.turn===i&&G.phase==='play'?' turn':''}"><div class="gw-nm"><b>${h(s.name)}</b><span>${h(s.title||'')}</span></div>${lives(s)}<span class="gw-hc" title="Карт в руке">🂠 ${s.hand.length}</span><span class="gw-dk" title="Карт в колоде">${s.deck.length}</span>${s.passed?'<span class="gw-pass">пас</span>':''}<span class="gw-tot">${gwTotal(G,i)}</span></div>`;
+  const lives=s=>`<span class="gw-lives" title="Жизни: ${s.lives}">${[0,1].map(k=>`<i class="${k<s.lives?'on':''}"></i>`).join('')}</span>`;
+  const teamIc=s=>{const t=S.teams.find(x=>x.id===s.faction),src=t&&photoSrc(t.icon);return src?`<img src="${gwImg(src)}" alt="">`:gwIco('flag')};
+  const info=(s,i)=>`<div class="gw-info ${i?'op':'me'}${G.turn===i&&G.phase==='play'?' turn':''}">
+    <span class="gw-sig">${teamIc(s)}</span><div class="gw-nm"><b>${h(s.name)}</b><span>${h(s.title||'')}</span></div>
+    <div class="gw-meta">${lives(s)}<span title="Карт в руке">${gwIco('flag','sm')} ${s.hand.length}</span><span class="gw-dk" title="Карт в колоде">колода ${s.deck.length}</span></div>
+    ${s.passed?'<span class="gw-pass">пас</span>':''}<span class="gw-tot" title="Сила на поле">${gwTotal(G,i)}</span></div>`;
   const decoyMode=sel&&sel.special==='decoy'&&my;
-  const row=(i,r)=>{const s=G.p[i];return `<div class="gw-row${G.weather[r]?' wx':''}${i?' op':''}"><span class="gw-rs">${gwRowSum(G,i,r)}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':''}">${s.horn[r]?'📯':GW_RI[r]}</span><div class="gw-units">${s.rows[r].map(c=>gwCard(c,{pow:gwPow(G,s,r,c),cls:(decoyMode&&i===0&&!c.hero&&!c.special?'pick':''),attrs:decoyMode&&i===0&&!c.hero&&!c.special?`data-gwdecoy="${c.uid}" role="button" tabindex="0"`:''})).join('')}</div>${G.weather[r]?`<span class="gw-wx">${{m:'❄',r:'🌫',s:'🌧'}[r]}</span>`:''}</div>`};
+  const row=(i,r)=>{const s=G.p[i];return `<div class="gw-row${G.weather[r]?' wx wx-'+r:''}${i?' op':''}"><span class="gw-rl"><span class="gw-rs">${gwRowSum(G,i,r)}</span><span class="gw-hn${s.horn[r]?' on':''}" title="${s.horn[r]?'Боевой рог':GW_ROW[r]}">${gwIco(s.horn[r]?'horn':r)}</span></span><div class="gw-units">${s.rows[r].map(c=>gwCard(c,{pow:gwPow(G,s,r,c),cls:(decoyMode&&i===0&&!c.hero&&!c.special?'pick':''),attrs:decoyMode&&i===0&&!c.hero&&!c.special?`data-gwdecoy="${c.uid}" role="button" tabindex="0"`:''})).join('')}</div></div>`};
   let act='';
   if(G.phase==='mulligan')act=`<div class="gw-act"><span>Можно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
-  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`Р${k+1}: ${x[0]}:${x[1]}`).join(' · ')}</span><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div>`;
+  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div></div>`;
   else if(G.pick&&G.pick.type==='medic')act=`<div class="gw-act col"><span>Исцеление: выберите карту из сброса, которая вернётся на поле.</span><div class="gw-gr">${me.grave.filter(x=>!x.hero&&!x.special).map(c=>gwCard(c,{attrs:`data-gwmedic="${c.uid}" role="button" tabindex="0"`,cls:'pick',name:true})).join('')}</div><button class="btn small" id="gw-medic-skip">Не возвращать</button></div>`;
   else if(sel&&my){
     const b=[];
-    if(sel.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])b.push(`<button class="btn small gold" data-gwplay="${r}">${GW_RI[r]} ${GW_ROW[r]}</button>`)});
+    if(sel.special==='horn')GW_ROWS.forEach(r=>{if(!me.horn[r])b.push(`<button class="btn small gold" data-gwplay="${r}">${gwIco(r)} ${GW_ROW[r]}</button>`)});
     else if(sel.special==='decoy')b.push('<span class="gw-hint">Нажмите на свою карту на поле.</span>');
     else if(sel.special)b.push('<button class="btn small gold" data-gwplay="-">Сыграть</button>');
-    else (sel.row==='a'?['m','r']:[sel.row]).forEach(r=>b.push(`<button class="btn small gold" data-gwplay="${r}">${sel.ability==='spy'?'Подослать шпиона: ':''}${GW_RI[r]} ${GW_ROW[r]}</button>`));
-    act=`<div class="gw-act"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?` · <span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
-  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?'Ваш ход: выберите карту или спасуйте.':me.passed?'Вы спасовали. Компьютер доигрывает раунд…':'Ходит компьютер…'}</span>${my?'<button class="btn small" id="gw-pass">Пас</button>':''}<button class="btn small ghost" id="gw-quit">Сдаться</button></div>`;
-  const mullMode=G.phase==='mulligan';
+    else (sel.row==='a'?['m','r']:[sel.row]).forEach(r=>b.push(`<button class="btn small gold" data-gwplay="${r}">${sel.ability==='spy'?'Шпион: ':''}${gwIco(r)} ${GW_ROW[r]}</button>`));
+    act=`<div class="gw-act"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?`<span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
+  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?'Ваш ход: выберите карту или спасуйте.':me.passed?'Вы спасовали. Компьютер доигрывает раунд…':'Ходит компьютер…'}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
+  const mullMode=G.phase==='mulligan', gm=gwData().music, hasMus=!!(gm&&gm.src);
+  const wx=GW_ROWS.filter(r=>G.weather[r]);
   return `<section class="gw gw-game">
-  ${G.banner?`<div class="gw-banner" id="gw-banner">${h(G.banner)}</div>`:''}
-  <div class="gw-board">${info(op,1)}${['s','r','m'].map(r=>row(1,r)).join('')}
-  <div class="gw-mid"><span>Раунд ${G.round}</span><span class="gw-wxs">${GW_ROWS.filter(r=>G.weather[r]).map(r=>({m:'❄ мороз',r:'🌫 туман',s:'🌧 дождь'})[r]).join(' · ')||'погода ясная'}</span></div>
-  ${['m','r','s'].map(r=>row(0,r)).join('')}${info(me,0)}</div>
+  ${G.banner?`<div class="gw-banner" id="gw-banner"><span class="gw-bn-orn">⚜</span>${h(G.banner)}<span class="gw-bn-orn">⚜</span></div>`:''}
+  <div class="gw-op">${info(op,1)}</div>
+  <div class="gw-ctl"><div class="gw-round">Битва ${GW_ROMAN[G.round]||G.round}</div>
+    <div class="gw-wxs">${wx.length?wx.map(r=>`<span>${gwIco({m:'frost',r:'fog',s:'rain'}[r])} ${({m:'Мороз',r:'Туман',s:'Дождь'})[r]}</span>`).join(''):'<span class="mut">Небо ясное</span>'}</div>
+    <div class="gw-log">${G.log.slice(0,4).map(t=>`<div>${h(t)}</div>`).join('')}</div></div>
+  <div class="gw-me">${info(me,0)}</div>
+  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
+  <div class="gw-board">${['s','r','m'].map(r=>row(1,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(0,r)).join('')}</div>
   <div class="gw-dock">${act}
   <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
-  <div class="gw-log">${G.log.slice(0,5).map(t=>`<div>${h(t)}</div>`).join('')}</div></section>`;
+  </section>`;
 }
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
@@ -1800,7 +1919,14 @@ function gwModalObj(id){ // → {kind, obj, def}
 function gwMasterEd(){
   const M=ui.gwModal&&gwModalObj(ui.gwModal.id);
   if(ui.gwModal&&!M)ui.gwModal=null;
-  const tools=ui.edit&&pin?`<div class="gw-mtools"><button class="btn small" id="gw-reauto">Вернуть автоматические статы всем ролям</button><button class="btn small" id="gw-t-reset">Вернуть стандартные отряды</button></div>`:'';
+  const gm=gwData().music;
+  const tools=ui.edit&&pin?`<div class="gw-mtools"><button class="btn small" id="gw-reauto">Вернуть автоматические статы всем ролям</button><button class="btn small" id="gw-t-reset">Вернуть стандартные отряды</button></div>
+  <div class="field gw-mused"><span class="lbl">Фоновая музыка игры</span><div class="mus-edit">
+    <div class="mus-now">${gm&&gm.src?`♪ ${h(gm.name||'Музыка')}`:'Музыки нет'}</div>
+    <div class="mus-row"><label class="btn small gold" for="gw-music-file">${ui.musUp?'Загружаю…':gm&&gm.src?'Заменить файл':'Загрузить файл'}</label><input type="file" id="gw-music-file" accept="audio/*,.mp3,.ogg,.m4a,.wav" hidden>${gm&&gm.src?'<button class="btn small" id="gw-music-clear">Убрать музыку</button>':''}</div>
+    <input id="gw-music-url" type="url" placeholder="…или ссылка на mp3-файл (https://…)" value="${h(gm&&/^https?:/.test(gm.src||'')?gm.src:'')}" autocomplete="off">
+    ${gm&&gm.src?`<span class="mus-vol-l">Громкость по умолчанию <input id="gw-music-vol" type="range" min="0" max="100" value="${Math.round((gm.vol??0.4)*100)}" aria-label="Громкость"></span>`:''}
+    <span class="hint">${h(ui.musMsg||'Играет по кругу на вкладке «Игра знамён». Файл до 8 МБ. Игрок может выключить её кнопкой на поле.')}</span></div></div>`:'';
   if(!M)return tools;
   const ed=!!(ui.edit&&pin),{kind,obj,def}=M;
   const sel=(f,val,opts)=>`<select data-gm="${f}">${opts.map(([v,l])=>`<option value="${v}"${String(val)===String(v)?' selected':''}>${h(l)}</option>`).join('')}</select>`;
@@ -1832,6 +1958,9 @@ function gwMasterEd(){
 }
 function gwChange(t){
   if(t.id==='gw-op'){ui.gwOp=t.value;return true}
+  if(t.id==='gw-music-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMusic(f,gwData());return true}
+  if(t.id==='gw-music-url'){const g=gwData(),v=t.value.trim();if(!v){if(g.music&&/^https?:/.test(g.music.src||''))delete g.music;ui.musMsg=''}else if(!/^https:\/\/\S+$/i.test(v))ui.musMsg='Ссылка должна начинаться с https://';else{g.music={src:v,name:decodeURIComponent(v.split(/[?#]/)[0].split('/').pop()||'Музыка').replace(/\.[a-z0-9]{2,4}$/i,''),vol:g.music?.vol??0.4};ui.musMsg='Ссылка добавлена. Не забудьте сохранить.'}soft();render();return true}
+  if(t.id==='gw-music-vol'){const g=gwData();if(g.music){g.music.vol=Math.max(0,Math.min(1,+t.value/100));soft();if(mus.key===g.music.src&&mus.el)mus.el.volume=g.music.vol}return true}
   if(t.id==='gw-m-img'&&t.files&&t.files[0]){const M=gwModalObj(ui.gwModal&&ui.gwModal.id),f=t.files[0];t.value='';if(M&&M.obj)gwXImg(M.obj.id,f,M.kind==='troop');return true}
   const f=t.dataset&&t.dataset.gm;if(!f)return false;
   const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(!M)return true;
@@ -1855,6 +1984,8 @@ function gwMasterClick(t,ds){
   if(t.id==='gw-m-noimg'){const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(M&&M.obj){const x=M.kind==='troop'?gwTroopsEdit().find(y=>y.id===M.obj.id):M.obj;x.img=''}soft();render();return true}
   if(t.id==='gw-m-auto'){const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(M&&M.kind==='role'){const g=gwData(),off=g.cards[M.obj.id]&&g.cards[M.obj.id].off;delete g.cards[M.obj.id];if(off)g.cards[M.obj.id]={off:true}}soft();render();return true}
   if(t.id==='gw-reauto'){gwData().cards={};soft();render();return true}
+  if(t.id==='gw-music-clear'){delete gwData().music;ui.musMsg='Музыка убрана. Не забудьте сохранить.';soft();render();return true}
+  if(t.id==='gw-mus'){const b=document.getElementById('mu-play');if(b)b.click();return true}
   if(t.id==='gw-t-reset'){const g=gwData();delete g.troopList;delete g.troops;soft();render();return true}
   return false;
 }
