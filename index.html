@@ -940,6 +940,52 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
   .lg-status{margin-left:0;width:100%}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== «Игра знамён» на телефоне: альбомная ориентация ===== */
+.gw-rot,.gw-exit{display:none}
+@media (orientation:portrait) and (max-width:600px){
+  .gw-game:not(.pok) .gw-rot{display:grid;position:fixed;inset:0;z-index:90;place-items:center;padding:24px;background:rgba(8,7,6,.94)}
+  .gw-rot-in{display:grid;justify-items:center;gap:12px;text-align:center;max-width:320px}
+  .gw-rot-in b{font-family:var(--display);font-weight:400;font-size:24px;color:var(--gold-hi)}
+  .gw-rot-in p{margin:0;color:var(--muted);font-size:15px}
+  .gw-rot-ph{width:70px;height:110px;display:grid;place-items:center;border:2px solid var(--gold);border-radius:12px;color:var(--gold);font-size:30px;animation:gwRotPh 2.2s ease-in-out infinite}
+  @keyframes gwRotPh{0%,25%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+}
+@media (orientation:landscape) and (max-height:520px){
+  body.gwg .topbar{display:none}
+  body.gwg main{padding:4px 8px 0!important}
+  .gw-game{max-width:none;height:calc(100vh - 6px);height:calc(100dvh - 6px);min-height:0;grid-template-columns:clamp(150px,22vw,200px) minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"op board" "ctl board" "me board" "tools dock";gap:4px 8px}
+  .gw-ctl{display:flex;gap:4px;padding:0;justify-content:center}
+  .gw-ctl .gw-log{display:none}
+  .gw-round{font-size:14px;padding:3px 0;letter-spacing:.12em}.gw-round::before,.gw-round::after{font-size:10px}
+  .gw-ctl .gw-wxs{font-size:11px}.gw-ctl .gw-wxs span{padding:1px 6px}
+  .gw-info{grid-template-columns:24px minmax(0,1fr) auto;grid-template-areas:"sig nm tot" "sig meta tot";padding:4px 8px;gap:0 6px;font-size:11px}
+  .gw-sig{width:24px;height:24px;font-size:16px}.gw-info .gw-nm b{font-size:13px}.gw-info .gw-nm span{display:none}
+  .gw-meta{font-size:11px;gap:6px}.gw-info .gw-dk{display:none}.gw-info .gw-tot{font-size:22px;min-width:26px}
+  .gw-lives i{width:9px;height:9px}
+  .gw-tools{flex-direction:row;flex-wrap:wrap;gap:4px;align-items:flex-end}
+  .gw-tools .btn{font-size:0;padding:7px;gap:0}.gw-tools .btn .gi{font-size:15px}
+  .gw-exit{display:inline-flex}
+  .gw-mid span{display:none}
+  .gw-board{padding:3px 5px;gap:2px;grid-template-rows:repeat(3,minmax(0,1fr)) 6px repeat(3,minmax(0,1fr))}
+  .gw-board .gw-row{padding:1px 4px;gap:4px;--rw:clamp(18px,calc((100vh - 90px) / 6 / 1.36 - 4px),46px)}
+  @supports (container-type:size){.gw-board .gw-row{--rw:clamp(18px,calc((100cqh - 20px) / 6 / 1.36 - 3px),52px)}}
+  .gw-board .gw-row .gc .gc-n{display:none!important}
+  .gw-rl{width:22px}.gw-board .gw-rs{width:20px;height:20px;font-size:10px}.gw-board .gw-hn{display:none}
+  .gw-board .gw-row .gc-a{min-width:9px;min-height:9px;font-size:7px}
+  .gw-board .gw-row .gc-p{min-width:12px;height:12px;font-size:8px;left:1px;top:1px}
+  .gw-game .gw-dock .gw-act{padding:4px 8px;font-size:12px;gap:6px;flex-wrap:nowrap}
+  .gw-game .gw-dock .gw-act>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .gw-sel{flex:1 1 auto}.gw-sel span,.gw-sel .gw-d{display:none!important}.gw-sel b{font-size:13px;white-space:nowrap}
+  .gw-game .gw-btns{gap:4px;flex-wrap:nowrap}.gw-game .gw-btns .btn{padding:5px 8px;font-size:12px}
+  .gw-game .gw-hand{padding:6px 2px 2px;gap:4px}
+  .gw-game .gw-hand .gc{--w:clamp(38px,calc(100dvh / 7.2),58px)}
+  .gw-act.col .gw-gr .gc{--w:52px}
+  .gw-banner{font-size:20px;padding:12px 20px}
+  .gw-reveal{padding:10px 16px}.gw-rv-card .gc{--w:90px;width:90px}.gw-reveal b{font-size:18px}
+  .gw-tip{grid-template-columns:80px minmax(0,1fr);width:min(380px,calc(100vw - 16px));padding:8px;gap:8px}.gw-tip-card .gc{--w:80px;width:80px}.gw-tip p{font-size:12px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -2075,7 +2121,9 @@ function gwBoard(){
   const prev=`<div class="gw-prev">${sel&&my?`<div class="gw-prev-card">${gwCard(sel,{name:true})}</div><b>${h(sel.name)}</b>${sel.sub?`<span class="gw-prev-sub">${h(sel.sub)}</span>`:''}<p>${gwDesc(sel)}</p><div class="gw-btns">${selBtns}<button class="btn small" id="gw-unsel2">Отмена</button></div><span class="gw-prev-h">${sel.special==='decoy'||sel.special==='poison'?'':'Или нажмите на подсвеченный ряд.'}</span>`
     :`<div class="gw-prev-e">${G.phase==='mulligan'?'Нажмите на карту в руке, чтобы заменить её.':my?'Выберите карту в руке или перетащите её на поле.':G.phase==='over'?'Бой окончен.':'Ждём хода соперника…'}</div>`}</div>`;
   const wx=GW_ROWS.filter(r=>G.weather[r]);
-  const html=`<section class="gw gw-game">
+  const html=`<section class="gw gw-game${ui.gwPortrait?' pok':''}">
+  <div class="gw-rot"><div class="gw-rot-in"><div class="gw-rot-ph">${gwIco('flag')}</div><b>Поверните телефон горизонтально</b><p>Поле, рука и карты помещаются гораздо удобнее в альбомной ориентации.</p>
+    <button class="btn gold" id="gw-rotate">Развернуть экран</button><button class="btn small ghost" id="gw-portrait">Играть вертикально</button></div></div>
   ${G.banner?`<div class="gw-banner" id="gw-banner"><span class="gw-bn-orn">⚜</span>${h(G.banner)}<span class="gw-bn-orn">⚜</span></div>`:''}
   ${G.reveal&&!G.banner?`<div class="gw-reveal" id="gw-reveal"><div class="gw-rv-card">${gwCard(G.reveal.c,{name:true})}</div><div class="gw-rv-t">${h(G.reveal.who)}: ${h(G.reveal.t||'')}</div><b>${h(G.reveal.c.name)}</b></div>`:''}
   ${lead(op,'op')}${piles(op,'op')}${prev}${lead(me,'me')}${piles(me,'me')}
@@ -2084,7 +2132,7 @@ function gwBoard(){
     <div class="gw-wxs gw-wslot">${wx.length?wx.map(r=>`<span>${gwIco({m:'frost',r:'fog',s:'rain'}[r])} ${({m:'Мороз',r:'Туман',s:'Дождь'})[r]}</span>`).join(''):'<span class="mut">Небо ясное</span>'}</div>
     <div class="gw-log">${G.log.slice(0,4).map(t=>`<div>${h(t)}</div>`).join('')}</div></div>
   <div class="gw-me">${info(me,v)}</div>
-  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
+  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small gw-exit" id="gw-exit" title="К колоде">${gwIco('a')} Меню</button><button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
   <div class="gw-board">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
   <div class="gw-dock">${act}
   <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
@@ -2265,6 +2313,11 @@ function gwClick(t,ds){
   if(t.id==='gw-pass'){G.sel=null;gwPass(G,A);render();gwTick();return true}
   if(t.id==='gw-quit'){G.phase='over';G.winner=1-A;G.banner=G.mode==='hot'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
   if(t.id==='gw-again'){const F=G.p[0].faction,o=G.mode==='hot'?G.p[1].faction:ui.gwOp;gwStart(F,o,G.mode);render();gwMusicGo();return true}
+  if(t.id==='gw-rotate'){const el=document.documentElement;const go=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(_){}};
+    try{const r=el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen?el.webkitRequestFullscreen():null;if(r&&r.then)r.then(go,go);else go()}catch(_){go()}
+    setTimeout(()=>{if(matchMedia('(orientation:portrait)').matches){const b=document.getElementById('gw-rotate');if(b)b.textContent='Поверните телефон вручную (проверьте, что автоповорот включён)'}},900);return true}
+  if(t.id==='gw-portrait'){ui.gwPortrait=true;render();return true}
+  if(t.id==='gw-exit'){if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});GM=null;ui.gw='menu';render();return true}
   if(t.id==='gw-menu'){GM=null;ui.gw='menu';render();return true}
   if(t.id==='gw-reveal'){G.reveal=null;clearTimeout(gwTimer);gwTimer=0;render();return true}
   if(t.id==='gw-banner'&&G.phase!=='over'){G.banner='';clearTimeout(gwTimer);gwTimer=0;render();return true}
