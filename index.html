@@ -1218,6 +1218,8 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-board .gw-hslot{border-style:dashed;opacity:.8}
 .gw-game .gw-hand .gc+.gc{margin-left:var(--ov,6px)!important}
 .gw-game .gw-hand{justify-content:safe center;gap:0!important}
+.gw-pl{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:100%}.gw-pl li{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
+.gw-pl-n{flex:1;min-width:160px;color:var(--gold-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gw-pl input[type=range]{width:90px;accent-color:var(--gold)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -1744,7 +1746,7 @@ document.addEventListener('submit',async ev=>{
 // ---------- background music for lore articles ----------
 const mus={el:null,box:null,key:null,url:null,cache:{},off:false,blocked:false};
 try{mus.off=localStorage.getItem('vpv-music-off')==='1'}catch(_){}
-function audioIds(){return (S.lore||[]).concat(S.rules||[],[S.gwent||{}]).map(a=>(a.music&&a.music.src)||'').filter(x=>x.startsWith('au:')).map(x=>x.slice(3))}
+function audioIds(){return (S.lore||[]).concat(S.rules||[],[S.gwent||{}],((S.gwent||{}).tracks||[]).map(m=>({music:m}))).map(a=>(a.music&&a.music.src)||'').filter(x=>x.startsWith('au:')).map(x=>x.slice(3))}
 async function uploadMusic(file,tgt){
   const a=tgt||(S[SEC().k]||[]).find(x=>x.id===ui[SEC().c]); if(!a) return;
   if(file.size>8*1024*1024){ui.musMsg='Файл больше 8 МБ. Сожмите его (например, mp3 128 кбит/с) или дайте ссылку.';render();return}
@@ -1779,6 +1781,7 @@ function musEnsure(){
   if(mus.el) return;
   mus.el=new Audio(); mus.el.loop=true; mus.el.preload='auto';
   mus.el.addEventListener('play',musUi); mus.el.addEventListener('pause',musUi);
+  mus.el.addEventListener('ended',()=>{if(ui.tab==='banners')gwNextTrack(1)});
   const gwSync=()=>{const b=document.getElementById('gw-mus');if(b){const on=!mus.el.paused;b.setAttribute('aria-pressed',on);if(!b.classList.contains('gw-dp-mus'))b.innerHTML=gwIco('music')+(on?' Музыка: вкл':' Музыка: выкл')}};mus.el.addEventListener('play',gwSync);mus.el.addEventListener('pause',gwSync);
   mus.box=document.createElement('div'); mus.box.className='music'; mus.box.hidden=true;
   mus.box.innerHTML='<button id="mu-play" class="mu-btn"></button><span class="mu-name"></span><input id="mu-vol" type="range" min="0" max="100" aria-label="Громкость">';
@@ -1788,14 +1791,19 @@ function musEnsure(){
     try{localStorage.setItem('vpv-music-off',mus.off?'1':'0')}catch(_){} });
   mus.box.querySelector('#mu-vol').addEventListener('input',ev=>{mus.el.volume=+ev.target.value/100});
 }
+// game playlist: several tracks that take turns
+function gwTracks(){const g=gwData();if(!Array.isArray(g.tracks)){g.tracks=g.music&&g.music.src?[g.music]:[];delete g.music}return g.tracks}
+function gwCurTrack(){const L=gwTracks().filter(m=>m&&m.src);if(!L.length)return null;mus.gwi=((mus.gwi||0)%L.length+L.length)%L.length;return L[mus.gwi]}
+function gwNextTrack(d){const L=gwTracks().filter(m=>m&&m.src);if(L.length<2)return;mus.gwi=(mus.gwi||0)+(d||1);mus.want=true;syncMusic()}
 function syncMusic(){
-  const X=(ui.tab==='lore'||ui.tab==='rules')?SEC():null, a=ui.tab==='banners'?S.gwent:X&&(S[X.k]||[]).find(x=>x.id===ui[X.c]);
+  const X=(ui.tab==='lore'||ui.tab==='rules')?SEC():null, a=ui.tab==='banners'?{music:gwCurTrack()}:X&&(S[X.k]||[]).find(x=>x.id===ui[X.c]);
   const m=a&&a.music&&a.music.src?a.music:null, key=m?m.src:null;
   if(key===mus.key){if(mus.box&&m)mus.box.querySelector('.mu-name').textContent='♪ '+(m.name||'Музыка');return}
   musEnsure();
   mus.el.pause(); if(mus.url&&mus.url.startsWith('blob:'))URL.revokeObjectURL(mus.url); mus.url=null; mus.key=key;
   if(!m){mus.box.hidden=true;mus.el.removeAttribute('src');return}
   mus.box.hidden=false; mus.box.querySelector('.mu-name').textContent='♪ '+(m.name||'Музыка');
+  mus.el.loop=!(ui.tab==='banners'&&gwTracks().filter(x=>x&&x.src).length>1);
   mus.el.volume=m.vol??0.5; mus.box.querySelector('#mu-vol').value=Math.round(mus.el.volume*100); musUi();
   musSrc(key).then(u=>{if(mus.key!==key){if(u.startsWith('blob:'))URL.revokeObjectURL(u);return}
     mus.url=u; mus.el.src=u;
@@ -2303,7 +2311,7 @@ function gwMenu(){
     </div>
     <aside class="gw-deckp${ui.gwDeckOpen?' open':''}">
       <div class="gw-dp-head"><span class="gw-dp-ic">${fIc(fT)}</span><div><span class="gw-dp-cap">Колода</span><b>${h(fT.name||'')}</b></div>
-        ${gwData().music&&gwData().music.src?`<button class="gw-cc-b gw-dp-mus" id="gw-mus" title="Музыка" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')}</button>`:''}
+        ${gwCurTrack()?`<button class="gw-cc-b gw-dp-mus" id="gw-mus" title="Музыка" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')}</button>`:''}
         <button class="gw-dp-tog" id="gw-dp-tog" aria-expanded="${!!ui.gwDeckOpen}">${units.length+sps.length?`${st.units+st.sp} карт`:'пусто'} <span>▾</span></button></div>
       <div class="gw-dp-stats">
         <div class="${need?'bad':''}"><span>Отряды</span><b>${st.units}<small>/${GW_MIN_UNITS}+</small></b>${bar(st.units,GW_MIN_UNITS,need)}</div>
@@ -2401,7 +2409,7 @@ function gwBoard(){
     selBtns=b.join('');
     act=`<div class="gw-act selact"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?`<span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
   }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: перетащите карту на поле или нажмите на неё.':'Ваш ход: перетащите карту на поле или нажмите на неё.'):me.passed?(G.mode==='hot'?'Вы спасовали.':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode==='hot'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
-  const mullMode=G.phase==='mulligan', gm=gwData().music, hasMus=!!(gm&&gm.src);
+  const mullMode=G.phase==='mulligan', hasMus=!!gwCurTrack(), multi=gwTracks().filter(x=>x&&x.src).length>1;
   const prev=`<div class="gw-prev">${sel&&my?`<div class="gw-prev-card">${gwCard(sel,{name:true})}</div><b>${h(sel.name)}</b>${sel.sub?`<span class="gw-prev-sub">${h(sel.sub)}</span>`:''}<p>${gwDesc(sel)}</p><div class="gw-btns">${selBtns}<button class="btn small" id="gw-unsel2">Отмена</button></div><span class="gw-prev-h">${sel.special==='decoy'||sel.special==='poison'?'':'Или нажмите на подсвеченный ряд.'}</span>`
     :`<div class="gw-prev-e">${G.phase==='mulligan'?'Нажмите на карту в руке, чтобы заменить её.':my?'Выберите карту в руке или перетащите её на поле.':G.phase==='over'?'Бой окончен.':'Ждём хода соперника…'}</div>`}</div>`;
   const wx=GW_ROWS.filter(r=>G.weather[r]);
@@ -2416,7 +2424,7 @@ function gwBoard(){
     <div class="gw-wxs gw-wslot">${wx.length?wx.map(r=>`<span>${gwIco({m:'frost',r:'fog',s:'rain'}[r])} ${({m:'Мороз',r:'Туман',s:'Дождь'})[r]}</span>`).join(''):'<span class="mut">Небо ясное</span>'}</div>
     <div class="gw-log">${G.log.slice(0,4).map(t=>`<div>${h(t)}</div>`).join('')}</div></div>
   <div class="gw-me">${info(me,v)}</div>
-  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small gw-exit" id="gw-exit" title="К колоде">${gwIco('a')} Меню</button><button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
+  <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}${multi?`<button class="btn small" id="gw-mnext" title="Следующая мелодия">${gwIco('a')} Дальше</button>`:''}<button class="btn small gw-exit" id="gw-exit" title="К колоде">${gwIco('a')} Меню</button><button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
   <div class="gw-board" style="grid-template-rows:${['s','r','m'].map(r=>G.p[1-v].rows[r].length?'minmax(0,3fr)':'minmax(20px,1fr)').join(' ')} var(--midh,12px) ${['m','r','s'].map(r=>G.p[v].rows[r].length?'minmax(0,3fr)':'minmax(20px,1fr)').join(' ')}">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
   <div class="gw-dock">${act}
   <div class="gw-hand" style="--n:${Math.max(2,me.hand.length)}">${me.hand.map(c=>gwCard(c,{name:true,cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
@@ -2450,7 +2458,7 @@ document.addEventListener('click',ev=>{if(gwHover.matches)return;const el=ev.tar
 addEventListener('scroll',()=>{if(gwTipFor)gwTipHide()},true);
 // game start = the player's click, so the browser lets the music play
 function gwMusicGo(){
-  const g=gwData().music;if(!g||!g.src)return;
+  const L=gwTracks().filter(x=>x&&x.src);if(!L.length)return;mus.off=false;try{localStorage.setItem('vpv-music-off','0')}catch(_){}if(L.length>1&&mus.gwShuf!==GM){mus.gwShuf=GM;const k=Math.floor(Math.random()*L.length);if(k!==mus.gwi){mus.gwi=k;mus.want=true;syncMusic();return}}const g=gwCurTrack();
   mus.off=false;try{localStorage.setItem('vpv-music-off','0')}catch(_){}
   if(mus.el&&mus.key===g.src&&mus.el.src){mus.el.play().catch(()=>{})}else mus.want=true;
 }
@@ -2634,14 +2642,16 @@ function gwModalObj(id){ // → {kind, obj, def}
 function gwMasterEd(){
   const M=ui.gwModal&&gwModalObj(ui.gwModal.id);
   if(ui.gwModal&&!M)ui.gwModal=null;
-  const gm=gwData().music;
+  const TR=ui.edit&&pin?gwTracks():[];
   const tools=ui.edit&&pin?`<div class="gw-mtools"><button class="btn small" id="gw-reauto">Вернуть автоматические статы всем ролям</button><button class="btn small" id="gw-t-reset">Вернуть стандартные отряды</button></div>
-  <div class="field gw-mused"><span class="lbl">Фоновая музыка игры</span><div class="mus-edit">
-    <div class="mus-now">${gm&&gm.src?`♪ ${h(gm.name||'Музыка')}`:'Музыки нет'}</div>
-    <div class="mus-row"><label class="btn small gold" for="gw-music-file">${ui.musUp?'Загружаю…':gm&&gm.src?'Заменить файл':'Загрузить файл'}</label><input type="file" id="gw-music-file" accept="audio/*,.mp3,.ogg,.m4a,.wav" hidden>${gm&&gm.src?'<button class="btn small" id="gw-music-clear">Убрать музыку</button>':''}</div>
-    <input id="gw-music-url" type="url" placeholder="…или ссылка на mp3-файл (https://…)" value="${h(gm&&/^https?:/.test(gm.src||'')?gm.src:'')}" autocomplete="off">
-    ${gm&&gm.src?`<span class="mus-vol-l">Громкость по умолчанию <input id="gw-music-vol" type="range" min="0" max="100" value="${Math.round((gm.vol??0.4)*100)}" aria-label="Громкость"></span>`:''}
-    <span class="hint">${h(ui.musMsg||'Играет по кругу на вкладке «Игра знамён». Файл до 8 МБ. Игрок может выключить её кнопкой на поле.')}</span></div></div>`:'';
+  <div class="field gw-mused"><span class="lbl">Фоновая музыка игры — плейлист</span><div class="mus-edit">
+    ${TR.length?`<ol class="gw-pl">${TR.map((m,i)=>`<li><span class="gw-pl-n">♪ ${h(m.name||'Мелодия')}</span>
+      <input type="range" min="0" max="100" value="${Math.round((m.vol??0.4)*100)}" data-gwtvol="${i}" aria-label="Громкость">
+      <button class="mv" data-gwtmove="${i}" data-dir="-1" aria-label="Выше"${i?'':' disabled'}>▲</button><button class="mv" data-gwtmove="${i}" data-dir="1" aria-label="Ниже"${i<TR.length-1?'':' disabled'}>▼</button>
+      <button class="btn small" data-gwtplay="${i}">▶</button><button class="btn small danger" data-gwtdel="${i}">Убрать</button></li>`).join('')}</ol>`:'<div class="mus-now">Мелодий нет</div>'}
+    <div class="mus-row"><label class="btn small gold" for="gw-music-file">${ui.musUp?'Загружаю…':'+ Добавить файлы'}</label><input type="file" id="gw-music-file" accept="audio/*,.mp3,.ogg,.m4a,.wav" multiple hidden></div>
+    <input id="gw-music-url" type="url" placeholder="…или вставьте ссылку на mp3 (https://…) и нажмите Enter" value="" autocomplete="off">
+    <span class="hint">${h(ui.musMsg||'Мелодии играют по очереди, каждая партия начинается со случайной. Файл до 8 МБ. Игрок может выключить музыку или переключить на следующую кнопкой на поле.')}</span></div></div>`:'';
   if(!M)return tools;
   const ed=!!(ui.edit&&pin),{kind,obj,def}=M;
   const sel=(f,val,opts)=>`<select data-gm="${f}">${opts.map(([v,l])=>`<option value="${v}"${String(val)===String(v)?' selected':''}>${h(l)}</option>`).join('')}</select>`;
@@ -2679,9 +2689,9 @@ function gwMasterEd(){
 }
 function gwChange(t){
   if(t.id==='gw-op'){ui.gwOp=t.value;return true}
-  if(t.id==='gw-music-file'&&t.files&&t.files[0]){const f=t.files[0];t.value='';uploadMusic(f,gwData());return true}
-  if(t.id==='gw-music-url'){const g=gwData(),v=t.value.trim();if(!v){if(g.music&&/^https?:/.test(g.music.src||''))delete g.music;ui.musMsg=''}else if(!/^https:\/\/\S+$/i.test(v))ui.musMsg='Ссылка должна начинаться с https://';else{g.music={src:v,name:decodeURIComponent(v.split(/[?#]/)[0].split('/').pop()||'Музыка').replace(/\.[a-z0-9]{2,4}$/i,''),vol:g.music?.vol??0.4};ui.musMsg='Ссылка добавлена. Не забудьте сохранить.'}soft();render();return true}
-  if(t.id==='gw-music-vol'){const g=gwData();if(g.music){g.music.vol=Math.max(0,Math.min(1,+t.value/100));soft();if(mus.key===g.music.src&&mus.el)mus.el.volume=g.music.vol}return true}
+  if(t.id==='gw-music-file'&&t.files&&t.files.length){const fs=[...t.files];t.value='';(async()=>{for(const f of fs){const tmp={};await uploadMusic(f,tmp);if(tmp.music){tmp.music.vol=0.4;gwTracks().push(tmp.music);soft();render()}}})();return true}
+  if(t.dataset&&t.dataset.gwtvol!==undefined){const m=gwTracks()[+t.dataset.gwtvol];if(m){m.vol=Math.max(0,Math.min(1,+t.value/100));soft();if(mus.key===m.src&&mus.el)mus.el.volume=m.vol}return true}
+  if(t.id==='gw-music-url'){const v=t.value.trim();if(!v)return true;if(!/^https:\/\/\S+$/i.test(v))ui.musMsg='Ссылка должна начинаться с https://';else{gwTracks().push({src:v,name:decodeURIComponent(v.split(/[?#]/)[0].split('/').pop()||'Мелодия').replace(/\.[a-z0-9]{2,4}$/i,''),vol:0.4});ui.musMsg='Мелодия добавлена. Не забудьте сохранить.';soft()}render();return true}
   if(t.id==='gw-m-img'&&t.files&&t.files[0]){const M=gwModalObj(ui.gwModal&&ui.gwModal.id),f=t.files[0];t.value='';if(M&&M.obj)gwXImg(M.obj.id,f,M.kind==='troop'?true:M.kind==='special'?'sp':M.kind==='merc'?'merc':false);return true}
   const f=t.dataset&&t.dataset.gm;if(!f)return false;
   const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(!M)return true;
@@ -2708,8 +2718,11 @@ function gwMasterClick(t,ds){
   if(t.id==='gw-m-auto'){const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(M&&M.kind==='role'){const g=gwData(),off=g.cards[M.obj.id]&&g.cards[M.obj.id].off;delete g.cards[M.obj.id];if(off)g.cards[M.obj.id]={off:true}}soft();render();return true}
   if(t.id==='gw-reauto'){gwData().cards={};soft();render();return true}
   if(t.id==='gw-facoff'){const g=gwData(),F=ui.gwF,L=g.offTeams=g.offTeams||[];if(L.includes(F))g.offTeams=L.filter(x=>x!==F);else L.push(F);if(ui.gwOp===F)ui.gwOp='';soft();render();return true}
-  if(t.id==='gw-music-clear'){delete gwData().music;ui.musMsg='Музыка убрана. Не забудьте сохранить.';soft();render();return true}
+  if(ds.gwtdel!==undefined){gwTracks().splice(+ds.gwtdel,1);ui.musMsg='Мелодия убрана. Не забудьте сохранить.';soft();syncMusic();render();return true}
+  if(ds.gwtmove!==undefined){const L=gwTracks(),i=+ds.gwtmove,j=i+(+ds.dir);if(j>=0&&j<L.length){[L[i],L[j]]=[L[j],L[i]];soft();render()}return true}
+  if(ds.gwtplay!==undefined){mus.gwi=+ds.gwtplay;mus.off=false;mus.want=true;mus.key=null;syncMusic();return true}
   if(t.id==='gw-sfx'){SFX.on=!SFX.on;try{localStorage.setItem('vpv-sfx',SFX.on?'1':'0')}catch(_){}if(SFX.on)gwSfx(['pick']);render();return true}
+  if(t.id==='gw-mnext'){gwNextTrack(1);return true}
   if(t.id==='gw-mus'){const b=document.getElementById('mu-play');if(b)b.click();return true}
   if(t.id==='gw-t-reset'){const g=gwData();delete g.troopList;delete g.troops;soft();render();return true}
   return false;
