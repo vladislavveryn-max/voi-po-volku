@@ -1179,6 +1179,23 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-play-u{display:none;font-family:inherit;font-size:12px;opacity:.75;margin-right:4px}
 @media (max-width:900px){.gw-deckp:not(.open) .gw-play-u{display:inline}}
 .gw-cc .gw-cc-note{color:var(--gold-hi)}
+
+/* ===== аудит интерфейса: устранение наложений ===== */
+.gw-info .gw-nm{min-width:0;overflow:hidden}
+.gw-info .gw-nm b,.gw-info .gw-nm span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gw-info .gw-meta{min-width:0;flex-wrap:wrap;row-gap:0;column-gap:8px}
+.gw-info .gw-meta>span{white-space:nowrap}
+.gw-info .gw-pass{z-index:2}
+@container (max-height:52px){.gw-board .gw-rl .gw-hn{display:none!important}}
+.gw-board .gw-rl{justify-content:center;max-height:100%}
+.gw-prev-card .gc .gc-r,.gw-prev-card .gc .gc-a,.gw-tip-card .gc .gc-r,.gw-tip-card .gc .gc-a,.gw-mcard .gc .gc-r,.gw-mcard .gc .gc-a,.gw-rv-card .gc .gc-r,.gw-rv-card .gc .gc-a{left:auto!important;right:6px!important;bottom:auto!important}
+.gw-prev-card .gc .gc-r,.gw-tip-card .gc .gc-r,.gw-mcard .gc .gc-r,.gw-rv-card .gc .gc-r{top:6px!important}
+.gw-prev-card .gc .gc-a,.gw-tip-card .gc .gc-a,.gw-mcard .gc .gc-a,.gw-rv-card .gc .gc-a{top:calc(var(--w)*.3 + 6px)!important}
+.gw-pile .gc .gc-n{display:none}.gw-pile .gc .gc-r,.gw-pile .gc .gc-a{display:none}
+@media (max-width:1099px){.gw-tools .btn{font-size:0;padding:9px;gap:0}.gw-tools .btn .gi{font-size:17px}.gw-tools{flex-wrap:wrap;gap:6px;align-content:end}}
+
+@media (min-width:1100px){.gw-game{grid-template-columns:clamp(220px,16vw,270px) minmax(0,1fr) clamp(170px,14vw,220px)}}
+@media (orientation:landscape) and (max-height:520px){.gw-game .gw-ctl{visibility:hidden}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -2378,7 +2395,7 @@ function gwBoard(){
     <div class="gw-log">${G.log.slice(0,4).map(t=>`<div>${h(t)}</div>`).join('')}</div></div>
   <div class="gw-me">${info(me,v)}</div>
   <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small gw-exit" id="gw-exit" title="К колоде">${gwIco('a')} Меню</button><button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
-  <div class="gw-board" style="grid-template-rows:${['s','r','m'].map(r=>G.p[1-v].rows[r].length?'minmax(0,3fr)':'minmax(0,1fr)').join(' ')} var(--midh,12px) ${['m','r','s'].map(r=>G.p[v].rows[r].length?'minmax(0,3fr)':'minmax(0,1fr)').join(' ')}">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
+  <div class="gw-board" style="grid-template-rows:${['s','r','m'].map(r=>G.p[1-v].rows[r].length?'minmax(0,3fr)':'minmax(20px,1fr)').join(' ')} var(--midh,12px) ${['m','r','s'].map(r=>G.p[v].rows[r].length?'minmax(0,3fr)':'minmax(20px,1fr)').join(' ')}">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
   <div class="gw-dock">${act}
   <div class="gw-hand" style="--n:${Math.max(2,me.hand.length)}">${me.hand.map(c=>gwCard(c,{name:true,cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
@@ -2398,7 +2415,8 @@ function gwTipShow(el){
   gwTipEl.classList.add('on');gwTipFor=el;
   const r=el.getBoundingClientRect(),W=gwTipEl.offsetWidth,H=gwTipEl.offsetHeight,m=10;
   let x,y;
-  if(r.right+m+W<=innerWidth-8){x=r.right+m;y=r.top+r.height/2-H/2}
+  if(el.closest('.gw-hand')&&r.top-m-H>=8){x=Math.max(8,Math.min(innerWidth-W-8,r.left+r.width/2-W/2));y=r.top-m-H}
+  else if(r.right+m+W<=innerWidth-8){x=r.right+m;y=r.top+r.height/2-H/2}
   else if(r.left-m-W>=8){x=r.left-m-W;y=r.top+r.height/2-H/2}
   else{x=Math.max(8,Math.min(innerWidth-W-8,r.left+r.width/2-W/2));y=r.top-m-H>=8?r.top-m-H:r.bottom+m}
   y=Math.max(8,Math.min(innerHeight-H-8,y));
