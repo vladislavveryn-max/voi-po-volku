@@ -1196,6 +1196,28 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 
 @media (min-width:1100px){.gw-game{grid-template-columns:clamp(220px,16vw,270px) minmax(0,1fr) clamp(170px,14vw,220px)}}
 @media (orientation:landscape) and (max-height:520px){.gw-game .gw-ctl{visibility:hidden}}
+
+/* ===== поле боя: ровная сетка (рука и действия строго под полем, колода и сброс — рядом с рукой) ===== */
+@media (min-width:1100px){
+  .gw-game{grid-template-columns:clamp(220px,16vw,270px) minmax(0,1fr) clamp(190px,14vw,230px);
+    grid-template-rows:auto minmax(0,1fr) auto auto;grid-template-areas:"op board opp" "ctl board prev" "me board prev" "tools dock mep";gap:10px 16px}
+  .gw-op{align-self:start}.gw-me{align-self:end}
+  .gw-ctl{align-self:center;justify-content:center;padding:0}
+  .gw-ctl .gw-log{max-height:9.5em}
+  .gw-tools{align-self:end;justify-content:flex-start}
+  .gw-game .gw-dock{grid-area:dock;align-self:end}
+  .gw-game .gw-hand{margin:0}
+  .gw-piles{align-self:start;justify-content:center;gap:14px;padding-top:2px}
+  .gw-piles.me{grid-area:mep;align-self:end;padding-bottom:6px}
+  .gw-pile{width:74px;height:100px}.gw-pile .gc{--w:74px;width:74px;height:100px}
+  .gw-pile-e{border-radius:5px}
+  .gw-prev{align-self:stretch;justify-content:safe center;min-height:0;overflow:auto}
+  .gw-prev-card .gc{--w:130px!important;width:min(100%,calc((100dvh - 14px) * .16))!important}
+  .gw-prev-e{margin:0}
+}
+.gw-board .gw-hslot{border-style:dashed;opacity:.8}
+.gw-game .gw-hand .gc+.gc{margin-left:var(--ov,6px)!important}
+.gw-game .gw-hand{justify-content:safe center;gap:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -1306,7 +1328,7 @@ function render(){
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   {const at=document.querySelector('.tabs .tab[aria-selected="true"]'),tb=at&&at.parentNode;if(tb&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2)}
-  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners') gwTick(); document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners'){gwTick();requestAnimationFrame(gwFan)} document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);if(ui.tab==='banners')gwFan();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -2546,6 +2568,11 @@ function gwSfx(list){
     const seen=new Set();list.forEach((k,n)=>{if(seen.has(k)||!SFX_LIB[k])return;seen.add(k);setTimeout(()=>{try{SFX_LIB[k]()}catch(_){}},n*90)})}catch(_){}
 }
 document.addEventListener('pointerdown',()=>{if(ui.tab==='banners'&&SFX.on)sfxCtx()},{passive:true});
+// fan the hand: overlap cards just enough that the whole hand fits its strip
+function gwFan(){const hd=document.querySelector('.gw-game .gw-hand');if(!hd)return;const cs=[...hd.querySelectorAll(':scope>.gc')];if(cs.length<2){hd.style.removeProperty('--ov');return}
+  const st=getComputedStyle(hd),avail=hd.clientWidth-parseFloat(st.paddingLeft)-parseFloat(st.paddingRight)-4,w=cs[0].offsetWidth,n=cs.length;
+  const gap=Math.min(6,(avail-n*w)/(n-1));hd.style.setProperty('--ov',Math.max(-w*.7,gap)+'px')}
+addEventListener('resize',()=>{if(ui.tab==='banners')gwFan()});
 let gwTimer=0;
 function gwTick(){ // one pending timer at a time: clears round banners, then lets the computer move
   if(gwTimer||!GM||ui.tab!=='banners')return;
