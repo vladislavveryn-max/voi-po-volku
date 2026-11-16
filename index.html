@@ -1007,6 +1007,38 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
   .gw-game .gw-hand .gc.sel{z-index:2}
   .gw-game .gw-hand .gc .gc-n{font-size:max(8px,calc(var(--w)*.13))}
 }
+
+/* ===== «Игра знамён» на телефонах: карты на поле — «фишки» (портрет + сила), читаемая рука ===== */
+@media (max-width:820px),(orientation:landscape) and (max-height:520px){
+  .gw-board .gw-row{--ph:28px}
+  @supports (container-type:size){.gw-board .gw-row{--ph:clamp(20px,calc((100cqh - 30px) / 6 - 5px),42px)}}
+  .gw-board .gw-units{gap:4px;align-items:center}
+  .gw-board .gw-row .gc{--w:var(--ph);width:auto;height:var(--ph);min-width:0;aspect-ratio:auto;display:flex;align-items:center;gap:2px;padding:0 6px 0 0;border-radius:999px;overflow:visible;flex:none}
+  .gw-board .gw-row .gc>img,.gw-board .gw-row .gc>.gc-ini,.gw-board .gw-row .gc>.gc-sp{position:relative;inset:auto;flex:none;width:var(--ph);height:var(--ph);border-radius:50%;object-fit:cover;padding:0;opacity:1;font-size:calc(var(--ph)*.5);display:grid;place-items:center}
+  .gw-board .gw-row .gc.ico>img{object-fit:contain;padding:3px;background:#1a130b}
+  .gw-board .gw-row .gc .gc-p,.gw-board .gw-row .gc .gc-p.sab{position:static;min-width:0;width:auto;height:auto;padding:0 0 0 3px;background:none!important;border:0;box-shadow:none;color:#f3e6c4;font-size:calc(var(--ph)*.52);line-height:1;font-weight:700}
+  .gw-board .gw-row .gc .gc-p.hero{color:#ffd66e}.gw-board .gw-row .gc .gc-p.up{color:#a8f08a}.gw-board .gw-row .gc .gc-p.down,.gw-board .gw-row .gc .gc-p.sab{color:#ff9d8a}
+  .gw-board .gw-row .gc .gc-r,.gw-board .gw-row .gc .gc-n{display:none!important}
+  .gw-board .gw-row .gc .gc-a{position:static;display:grid;width:auto;height:auto;min-width:0;min-height:0;padding:0 0 0 2px;border:0;background:none;color:var(--gold);font-size:calc(var(--ph)*.36)}
+  .gw-board .gw-rs{width:24px;height:24px;font-size:11px}
+  .gw-game .gw-hand .gc .gc-n{display:block!important;font-size:max(9px,calc(var(--w)*.135));padding:12px 2px 3px;line-height:1.1}
+  .gw-game .gw-hand .gc .gc-p{min-width:calc(var(--w)*.32);height:calc(var(--w)*.32);font-size:calc(var(--w)*.2)}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .gw-sel span{display:none!important}
+  .gw-sel .gw-d{display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:11px;color:#d6cebd;margin-top:2px}
+  .gw-game{--hw:clamp(50px,calc(100dvh * .2),82px);grid-template-rows:auto minmax(0,1fr) auto minmax(0,auto) calc(var(--hw) * 1.36 + 16px)}
+  .gw-game .gw-hand .gc{--w:var(--hw)}
+  .gw-game .gw-hand{min-height:0;overflow-y:hidden}
+  .gw-game .gw-dock .gw-act{min-height:0;overflow:auto}
+  .gw-tools .btn{padding:8px}.gw-tools .btn .gi{font-size:16px}
+}
+@media (max-width:820px) and (orientation:portrait){
+  .gw-game .gw-hand .gc{--w:clamp(54px,16vw,68px)}
+  .gw-game{grid-template-rows:auto minmax(120px,1fr) auto auto}
+  .gw-tools{display:grid;grid-template-columns:repeat(2,auto);gap:4px;align-content:center}
+  .gw-tools .btn{padding:7px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -2156,7 +2188,7 @@ function gwBoard(){
   <div class="gw-tools">${hasMus?`<button class="btn small" id="gw-mus" aria-pressed="${!!(mus.el&&!mus.el.paused)}">${gwIco('music')} ${mus.el&&!mus.el.paused?'Музыка: вкл':'Музыка: выкл'}</button>`:''}<button class="btn small gw-exit" id="gw-exit" title="К колоде">${gwIco('a')} Меню</button><button class="btn small" id="gw-sfx" aria-pressed="${SFX.on}">${gwIco('horn')} ${SFX.on?'Звуки: вкл':'Звуки: выкл'}</button>${G.phase==='play'?`<button class="btn small ghost" id="gw-quit" title="Сдаться">${gwIco('flag')} Сдаться</button>`:''}</div>
   <div class="gw-board">${['s','r','m'].map(r=>row(1-v,r)).join('')}<div class="gw-mid"><span>Битва ${GW_ROMAN[G.round]||G.round}${wx.length?' · '+wx.map(r=>gwIco({m:'frost',r:'fog',s:'rain'}[r])).join(' '):''}</span></div>${['m','r','s'].map(r=>row(v,r)).join('')}</div>
   <div class="gw-dock">${act}
-  <div class="gw-hand">${me.hand.map(c=>gwCard(c,{cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
+  <div class="gw-hand">${me.hand.map(c=>gwCard(c,{name:true,cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
   GW_FX=nfx;
   {const q=(G.sfx||[]).splice(0);if(!q.some(k=>['frost','fog','rain','clear','scorch','poison'].includes(k))){if(fxSnd.up)q.push('up');if(fxSnd.down)q.push('down')}if(q.length)setTimeout(()=>gwSfx(q),30)}
