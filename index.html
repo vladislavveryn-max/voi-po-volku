@@ -121,7 +121,7 @@ main.col{padding-block:36px 140px}
 .lore-gh .ar{display:inline-block;color:var(--gold);font-size:11px;transition:transform .15s}
 .lore-gh[aria-expanded="true"] .ar{transform:rotate(90deg)}
 .lore-gh .gn{flex:1;min-width:0}
-.lore-gh .gc{font-size:11px;color:var(--muted);letter-spacing:0}
+.lore-gh .lgc{font-size:11px;color:var(--muted);letter-spacing:0}
 .lore-item.in-grp .lore-link{padding-left:28px}
 .music{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 32px);background:rgba(14,15,18,.92);backdrop-filter:blur(6px);border:1px solid var(--gold-line);border-radius:999px;padding:6px 14px 6px 6px;box-shadow:0 6px 24px rgba(0,0,0,.5);font-size:14px;color:var(--muted)}
 .music[hidden]{display:none}
@@ -1356,7 +1356,7 @@ function renderLore(){
   const open=ui.grpOpen=ui.grpOpen||{};
   let nav=(q&&!hits.length?`<p class="empty" style="padding:6px 12px;font-size:14px">Ничего не найдено</p>`:'')+hits.filter(o=>!grpOf(o.x)).map(o=>item(o,false)).join('')
     +groups.map(g=>{const its=hits.filter(o=>grpOf(o.x)===g), key=X.k+'|'+g, isOpen=q?true:key in open?open[key]:its.some(o=>o.x.id===ui[X.c]);
-      return `<button class="lore-gh" data-lgrp="${h(key)}" aria-expanded="${isOpen}"><span class="ar">▸</span><span class="gn">${h(g)}</span><span class="gc">${its.length}</span></button>`+(isOpen?its.map(o=>item(o,true)).join(''):'')}).join('');
+      return `<button class="lore-gh" data-lgrp="${h(key)}" aria-expanded="${isOpen}"><span class="ar">▸</span><span class="gn">${h(g)}</span><span class="lgc">${its.length}</span></button>`+(isOpen?its.map(o=>item(o,true)).join(''):'')}).join('');
   if(ui.edit) nav+=`<div class="lore-item"><button class="btn small gold" id="lore-add" style="margin:8px 12px">${X.add}</button></div>`;
   let body;
   if(!a) body=`<p class="empty">${ui.edit?X.emptyEdit:X.empty}</p>`;
