@@ -2111,7 +2111,7 @@ const GW_SP={frost:{name:'Трескучий мороз',icon:'❄',row:'m',d:'�
   clear:{name:'Ясное небо',icon:'☀',d:'Убирает с поля всю погоду.'},
   horn:{name:'Боевой рог',icon:'📯',d:'Удваивает силу карт в выбранном вашем ряду (кроме героев).'},
   decoy:{name:'Двойник',icon:'🎭',d:'Встаёт на место вашей карты на поле, а та возвращается в руку.'},
-  scorch:{name:'Драконье пламя',icon:'🔥',d:'Сжигает самую сильную карту (или карты) на всём поле, кроме героев.'},
+  scorch:{name:'Дикий огонь',icon:'🔥',d:'Сжигает самую сильную карту (или карты) на всём поле, кроме героев.'},
   poison:{name:'Яд',icon:'☠',d:'Убивает выбранную карту противника на поле (кроме героев).'},
   raven:{name:'Ворон',icon:'🐦',d:'Забирает случайную карту из руки противника в вашу руку (если рука пуста — из его колоды).'},
   dragon:{name:'Дракон',icon:'🐉',rare:25,d:'Сжигает все карты противника на поле (кроме героев). Редкая карта: её нельзя взять в колоду — она сама случайно выпадает в колоду в начале боя.'},
@@ -2224,7 +2224,7 @@ function gwApply(G,i,c,row,target,auto){
     if(GW_SP[sp].row){G.weather[GW_SP[sp].row]=true;if(G.weather.m&&G.weather.r&&G.weather.s)gwFeat(G,'weather3');me.grave.push(c);L(`${who}: ${c.name} (${GW_ROW[GW_SP[sp].row].toLowerCase()}).`)}
     else if(sp==='clear'){G.weather={m:false,r:false,s:false};me.grave.push(c);L(`${who}: ясное небо.`)}
     else if(sp==='horn'){me.horn[row]=c;L(`${who}: боевой рог — ${GW_ROW[row].toLowerCase()}.`)}
-    else if(sp==='scorch'){const n=gwScorch(G);if(i===0&&(G.lastScorch||[]).includes(0))gwFeat(G,'scorchself');me.grave.push(c);L(`${who}: драконье пламя — сгорело карт: ${n}.`)}
+    else if(sp==='scorch'){const n=gwScorch(G);if(i===0&&(G.lastScorch||[]).includes(0))gwFeat(G,'scorchself');me.grave.push(c);L(`${who}: «${c.name}» — сгорело карт: ${n}.`)}
     else if(sp==='decoy'){const f=gwFindUnit(me,target);if(f){const R=me.rows[f.r];R.splice(R.indexOf(f.c),1,c);me.hand.push(f.c);L(`${who}: двойник вместо «${f.c.name}».`)}else me.grave.push(c)}
     else if(sp==='dragon'||sp==='faceless'){me.grave.push(c);let n=0;const kill=sp==='dragon'?(x=>!x.hero&&!x.special):(x=>x.hero);
       GW_ROWS.forEach(r=>{const dead=op.rows[r].filter(kill);n+=dead.length;op.rows[r]=op.rows[r].filter(x=>!kill(x));op.grave.push(...dead)});
@@ -4150,11 +4150,11 @@ function plChip(){const n=PL.me?PL.me.name:'';
 const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['vs','Побед против фракции…'],['pair','Побед за фракцию… против фракции…'],['beaten','Разных побеждённых фракций'],['special','Побед с особой картой…'],['feat','Необычный розыгрыш…']];
 const ACH_GRP=['Общие','Дома','Противостояния','Необычные'];
 const FEATS={dragon5:'Дракон сжигает 5 и больше карт за один раз',faceless2:'Безликие убивают сразу 2 и больше героев',ravenplay:'Сыграйте карту, которую ваш Ворон украл у соперника',
-  scorchself:'Ваше Драконье пламя сжигает и вашу собственную карту',close1:'Выиграйте битву с перевесом ровно в одно очко',rout:'Выиграйте битву с перевесом в 30 и больше очков',
+  scorchself:'Ваш «{scorch}» сжигает и вашу собственную карту',close1:'Выиграйте битву с перевесом ровно в одно очко',rout:'Выиграйте битву с перевесом в 30 и больше очков',
   onecard:'Выиграйте битву, выложив в ней всего одну карту',power100:'Наберите 100 и больше силы в одной битве',weather3:'Мороз, туман и дождь на поле одновременно',
   spy3:'Сыграйте трёх шпионов за одну партию',sab2:'Подбросьте сопернику двух саботажников за партию',heal3:'Верните исцелением три карты за одну партию',
   noheroes:'Победите, не сыграв ни одного героя',hand5:'Победите, оставив в руке 5 и больше карт',allin:'Победите, выложив все карты до последней',draw:'Сведите партию вничью'};
-const ACH_ODD=[['dragon5','🐉','Дракарис'],['faceless2','🎭','У человека нет лица'],['ravenplay','🐦','Чужие письма'],['scorchself','🔥','Сам себе дракон'],
+const ACH_ODD=[['dragon5','🐉','Дракарис'],['faceless2','🎭','У человека нет лица'],['ravenplay','🐦','Чужие письма'],['scorchself','🟢','Безумный король'],
   ['close1','🪶','На волосок от гибели'],['rout','💀','Разгром'],['onecard','🗡','Один в поле воин'],['power100','📯','Сто знамён'],
   ['weather3','❄','Долгая ночь'],['spy3','🕷','Маленькие пташки'],['sab2','🔪','Нож в спину'],['heal3','🕯','Владыка Света'],
   ['noheroes','🌾','Простой люд'],['hand5','🃏','Козырь в рукаве'],['allin','⚖','Всё или ничего'],['draw','🕊','Мир, которого никто не хотел']];
@@ -4163,7 +4163,7 @@ const ACH_HOUSE={north:/север/i,crown:/королевск|свит/i,river:
 const ACH_HOUSE_W=[['north','🐺','Зима близко'],['crown','👑','Трон без железа'],['river','🐟','Семья, долг, честь'],['storm','🦌','Нам ярость!'],['west','🦁','Слушай мой рёв!'],
   ['reach','🔥','В пламени рождённые'],['iron','🦑','Мы не сеем'],['vale','🦅','Высокий, как честь'],['dorne','☀','Непокорённые, несгибаемые, несломленные']];
 const ACH_RIVAL=[['north','west','⚔','Север помнит'],['west','north','🗡','Ланнистеры шлют привет'],['river','north','🍷','Красная свадьба'],['iron','north','🦑','Что мертво, умереть не может'],
-  ['north','iron','🏰','Ров Кейлин'],['storm','crown','🔥','Битва на Черноводной'],['crown','storm','🟢','Дикий огонь'],['dorne','crown','🐍','Месть за Элию'],
+  ['north','iron','🏰','Ров Кейлин'],['storm','crown','🔥','Битва на Черноводной'],['crown','storm','⛓','Цепь над Черноводной'],['dorne','crown','🐍','Месть за Элию'],
   ['reach','dorne','🏹','Войны на Марках'],['dorne','reach','🏜','Принцев перевал'],['west','river','🐎','Гора за рекой'],['river','iron','🔥','Пепел Харренхолла'],['vale','crown','🦅','Восстание Джона Аррена']];
 function achHouse(){const T=k=>S.teams.find(t=>ACH_HOUSE[k].test(t.name||'')),out=[];
   ACH_HOUSE_W.forEach(([k,ic,nm])=>{const t=T(k);if(t)out.push({id:'h-'+k,icon:ic,name:nm,type:'faction',arg:t.id,n:3,grp:'Дома'})});
@@ -4203,7 +4203,7 @@ function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),
     case 'faction':{const t=S.teams.find(x=>x.id===a.arg);return `Победите за фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
     case 'vs':{const t=S.teams.find(x=>x.id===a.arg);return `Победите фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
     case 'pair':{const [f,o]=String(a.arg||'').split('>'),tf=S.teams.find(x=>x.id===f),to=S.teams.find(x=>x.id===o);return `Победите «${to?to.name:'?'}», играя за «${tf?tf.name:'?'}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
-    case 'feat':return (FEATS[a.arg]||'?')+(n>1?` — ${P(['раз','раза','раз'])}`:'')+'.';
+    case 'feat':return (FEATS[a.arg]||'?').replace('{scorch}',((gwData().spMeta||{}).scorch||{}).name||GW_SP.scorch.name)+(n>1?` — ${P(['раз','раза','раз'])}`:'')+'.';
     case 'beaten':return `Победите ${P(['фракцию','разные фракции','разных фракций'])}.`;
     case 'special':{const k=a.arg,nm=GW_SP[k]?((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name:'?';return `Победите в партии, где вы сыграли карту «${nm}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
   }return ''}
