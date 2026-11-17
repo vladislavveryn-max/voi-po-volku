@@ -4145,22 +4145,22 @@ const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно па�
 const ACH_GRP=['Общие','Дома','Противостояния'];
 // houses are found by name, so the achievements follow whatever factions the master has
 const ACH_HOUSE={north:/север/i,crown:/королевск|свит/i,river:/речн/i,storm:/штормов/i,west:/западн/i,reach:/простор/i,iron:/железн/i,vale:/долин|аррен/i,dorne:/дорн/i};
-const ACH_HOUSE_W=[['north','🐺','Зима близко'],['crown','👑','Железный трон'],['river','🐟','Семья, долг, честь'],['storm','🦌','Нам ярость!'],['west','🦁','Слушай мой рёв!'],
-  ['reach','🌹','Вырастая — крепнем'],['iron','🦑','Мы не сеем'],['vale','🦅','Высокий, как честь'],['dorne','☀','Непокорённые, несгибаемые, несломленные']];
-const ACH_RIVAL=[['north','west','⚔','Король Севера'],['west','north','🗡','Ланнистеры шлют привет'],['river','north','🍷','Красная свадьба'],['iron','north','🦑','Что мертво, умереть не может'],
+const ACH_HOUSE_W=[['north','🐺','Зима близко'],['crown','👑','Трон без железа'],['river','🐟','Семья, долг, честь'],['storm','🦌','Нам ярость!'],['west','🦁','Слушай мой рёв!'],
+  ['reach','🔥','В пламени рождённые'],['iron','🦑','Мы не сеем'],['vale','🦅','Высокий, как честь'],['dorne','☀','Непокорённые, несгибаемые, несломленные']];
+const ACH_RIVAL=[['north','west','⚔','Север помнит'],['west','north','🗡','Ланнистеры шлют привет'],['river','north','🍷','Красная свадьба'],['iron','north','🦑','Что мертво, умереть не может'],
   ['north','iron','🏰','Ров Кейлин'],['storm','crown','🔥','Битва на Черноводной'],['crown','storm','🟢','Дикий огонь'],['dorne','crown','🐍','Месть за Элию'],
-  ['reach','dorne','🌹','Войны на Марках'],['dorne','reach','🏜','Принцев перевал'],['west','river','🐎','Гора за рекой'],['river','iron','🔥','Пепел Харренхолла'],['vale','crown','🦅','Восстание Джона Аррена']];
+  ['reach','dorne','🏹','Войны на Марках'],['dorne','reach','🏜','Принцев перевал'],['west','river','🐎','Гора за рекой'],['river','iron','🔥','Пепел Харренхолла'],['vale','crown','🦅','Восстание Джона Аррена']];
 function achHouse(){const T=k=>S.teams.find(t=>ACH_HOUSE[k].test(t.name||'')),out=[];
   ACH_HOUSE_W.forEach(([k,ic,nm])=>{const t=T(k);if(t)out.push({id:'h-'+k,icon:ic,name:nm,type:'faction',arg:t.id,n:3,grp:'Дома'})});
   ACH_RIVAL.forEach(([a,b,ic,nm])=>{const ta=T(a),tb=T(b);if(ta&&tb)out.push({id:'p-'+a+'-'+b,icon:ic,name:nm,type:'pair',arg:ta.id+'>'+tb.id,n:1,grp:'Противостояния'})});
-  out.push({id:'b4',icon:'🛡',name:'Щит, что хранит королевства',type:'beaten',n:4,grp:'Противостояния'},{id:'b7',icon:'🗡',name:'Гроза Семи Королевств',type:'beaten',n:7,grp:'Противостояния'},{id:'f6',icon:'🏰',name:'Объединитель',type:'factions',n:6,grp:'Дома'});
+  out.push({id:'b4',icon:'🛡',name:'Щит, что хранит королевства',type:'beaten',n:4,grp:'Противостояния'},{id:'b7',icon:'🗡',name:'Гроза всех королевств',type:'beaten',n:7,grp:'Противостояния'},{id:'f6',icon:'🏰',name:'Объединитель',type:'factions',n:6,grp:'Дома'});
   return out}
 const achDefaults=()=>JSON.parse(JSON.stringify(ACH_DEF)).concat(achHouse());
 const ACH_DEF=[
   {id:'w1',icon:'🩸',name:'Первая кровь',type:'wins',n:1},
   {id:'w5',icon:'⚔',name:'Знаменосец',type:'wins',n:5},
   {id:'w15',icon:'🛡',name:'Лорд-командующий',type:'wins',n:15},
-  {id:'w30',icon:'👑',name:'Король Семи Королевств',type:'wins',n:30},
+  {id:'w30',icon:'👑',name:'Король Шести Королевств',type:'wins',n:30},
   {id:'fl',icon:'✨',name:'Без единой царапины',type:'flawless',n:1},
   {id:'st3',icon:'🐺',name:'Стая выживает',type:'streak',n:3},
   {id:'cb',icon:'🦁',name:'Ланнистеры платят долги',type:'comeback',n:1},
