@@ -4242,7 +4242,7 @@ function achEarned(p){return achList().filter(a=>achDone(p,a))}
 
 /* reward cards */
 function gwNeed(c){return Math.max(0,Math.floor(+c.need||0))}
-function gwLocked(c){const n=gwNeed(c);return n>0&&!pin&&plWins()<n}
+function gwLocked(c){const n=gwNeed(c);return n>0&&!(pin&&ui.edit)&&plWins()<n} // the master sees every card only while editing; in play the wins count for everyone
 function gwRewardDefs(){const seen=new Map(),out=[]; // a troop shared by every faction is one card, not one per faction
   S.teams.forEach(t=>gwDefs(t.id,!!pin).forEach(c=>{if(!gwNeed(c)||c.off)return;const key=c.kind==='troop'?'troop:'+c.id.split(':').slice(2).join(':'):c.id;
     const was=seen.get(key);if(was){if(was.sub!==c.sub)was.sub='Все фракции';return}const d=Object.assign({},c);seen.set(key,d);out.push(d)}));
