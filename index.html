@@ -2207,27 +2207,32 @@ function gwScorch(G){
   G.p.forEach((s,i)=>GW_ROWS.forEach(r=>s.rows[r].forEach(c=>{if(c.hero||c.special)return;const p=gwPow(G,s,r,c);all.push({i,r,c,p});if(p>max)max=p})));
   if(max<=0)return 0;
   const dead=all.filter(x=>x.p===max);
+  G.lastScorch=dead.map(x=>x.i);
   dead.forEach(({i,r,c})=>{const s=G.p[i];s.rows[r]=s.rows[r].filter(x=>x!==c);s.grave.push(c)});
   return dead.length;
 }
 function gwFindUnit(side,u){for(const r of GW_ROWS){const c=side.rows[r].find(x=>x.uid===u);if(c)return {r,c}}return null}
 // play card c (already taken from hand) for side i. auto=true → medic picks by itself (AI and simulations)
+function gwFeat(G,k){(G.feats=G.feats||{})[k]=1}
 function gwApply(G,i,c,row,target,auto){
   const me=G.p[i],op=G.p[1-i],L=t=>G.log.unshift(t),who=me.name,Q=k=>{(G.sfx=G.sfx||[]).push(k)};
   if(c.snd)Q('snd:'+c.snd);
+  if(i===0){G.rc0=(G.rc0||0)+1;if(c.stolen)gwFeat(G,'ravenplay');if(c.hero)G.hero0=true;
+    if(c.ability==='spy'&&(G.spy0=(G.spy0||0)+1)>=3)gwFeat(G,'spy3');if(c.ability==='sab'&&(G.sab0=(G.sab0||0)+1)>=2)gwFeat(G,'sab2')}
   if(c.special){
     const sp=c.special;Q(sp);if(i===0)(G.spUsed=G.spUsed||[]).push(sp);
-    if(GW_SP[sp].row){G.weather[GW_SP[sp].row]=true;me.grave.push(c);L(`${who}: ${c.name} (${GW_ROW[GW_SP[sp].row].toLowerCase()}).`)}
+    if(GW_SP[sp].row){G.weather[GW_SP[sp].row]=true;if(G.weather.m&&G.weather.r&&G.weather.s)gwFeat(G,'weather3');me.grave.push(c);L(`${who}: ${c.name} (${GW_ROW[GW_SP[sp].row].toLowerCase()}).`)}
     else if(sp==='clear'){G.weather={m:false,r:false,s:false};me.grave.push(c);L(`${who}: ясное небо.`)}
     else if(sp==='horn'){me.horn[row]=c;L(`${who}: боевой рог — ${GW_ROW[row].toLowerCase()}.`)}
-    else if(sp==='scorch'){const n=gwScorch(G);me.grave.push(c);L(`${who}: драконье пламя — сгорело карт: ${n}.`)}
+    else if(sp==='scorch'){const n=gwScorch(G);if(i===0&&(G.lastScorch||[]).includes(0))gwFeat(G,'scorchself');me.grave.push(c);L(`${who}: драконье пламя — сгорело карт: ${n}.`)}
     else if(sp==='decoy'){const f=gwFindUnit(me,target);if(f){const R=me.rows[f.r];R.splice(R.indexOf(f.c),1,c);me.hand.push(f.c);L(`${who}: двойник вместо «${f.c.name}».`)}else me.grave.push(c)}
     else if(sp==='dragon'||sp==='faceless'){me.grave.push(c);let n=0;const kill=sp==='dragon'?(x=>!x.hero&&!x.special):(x=>x.hero);
       GW_ROWS.forEach(r=>{const dead=op.rows[r].filter(kill);n+=dead.length;op.rows[r]=op.rows[r].filter(x=>!kill(x));op.grave.push(...dead)});
+      if(i===0&&(sp==='dragon'?n>=5:n>=2))gwFeat(G,sp==='dragon'?'dragon5':'faceless2');
       L(sp==='dragon'?`${who}: дракон выжигает войско соперника — сгорело карт: ${n}.`:`${who}: Безликие убивают героев соперника — погибло: ${n}.`)}
     else if(sp==='poison'){me.grave.push(c);const f=gwFindUnit(op,target);if(f&&!f.c.hero){op.rows[f.r]=op.rows[f.r].filter(x=>x!==f.c);op.grave.push(f.c);L(`${who}: яд убивает «${f.c.name}».`)}else L(`${who}: яд пропал впустую.`)}
     else if(sp==='raven'){me.grave.push(c);const src=op.hand.length?op.hand:op.deck;if(!src.length){L(`${who}: ворон вернулся ни с чем.`);return null}
-      const k=Math.floor(Math.random()*src.length),got=src.splice(k,1)[0];me.hand.push(got);G.reveal={c:got,who,t:'ворон принёс карту соперника'};L(`${who}: ворон похищает «${got.name}».`)}
+      const k=Math.floor(Math.random()*src.length),got=src.splice(k,1)[0];if(i===0)got.stolen=true;me.hand.push(got);G.reveal={c:got,who,t:'ворон принёс карту соперника'};L(`${who}: ворон похищает «${got.name}».`)}
     else if(sp==='merc'){me.grave.push(c);const all=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef),cpu=i===1&&G.mode!=='hot',ok=all.filter(d=>cpu?!gwNeed(d):!gwLocked(d)),pool=ok.length?ok:all;
       if(!pool.length){L(`${who}: наёмников не нашлось.`);return null}
       const got=pool[Math.floor(Math.random()*pool.length)];G.reveal={c:got,who,t:'на зов откликнулись'};
@@ -2266,6 +2271,7 @@ const gwClone=G=>JSON.parse(JSON.stringify(G));
 function gwPlayFromHand(G,i,idx,row,target,auto){const c=G.p[i].hand.splice(idx,1)[0];return gwApply(G,i,c,row,target,auto)}
 function gwRoundEnd(G){
   const a=gwTotal(G,0),b=gwTotal(G,1);G.rounds.push([a,b]);
+  if(a>b){if(a-b===1)gwFeat(G,'close1');if(a-b>=30)gwFeat(G,'rout');if((G.rc0||0)===1)gwFeat(G,'onecard')}if(a>=100)gwFeat(G,'power100');G.rc0=0;
   let msg;
   const hot=G.mode==='hot';
   if(a>b){G.p[1].lives--;msg=hot?`Битва ${G.round}: побеждает ${G.p[0].name}, ${a} : ${b}`:`Раунд ${G.round} за вами: ${a} : ${b}`}
@@ -2711,10 +2717,10 @@ function gwClick(t,ds){
   if(ds.gwplay&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);if(k<0)return true;G.sel=null;G.banner='';let pr=ds.gwplay==='-'?null:ds.gwplay,tg=null;if(pr&&pr.includes('|')){const q=pr.split('|');tg=+q[0];pr=q[1]}const res=gwPlayFromHand(G,A,k,pr,tg,false);if(res==='medic'){G.pick={type:'medic'};render();return true}if(res==='merc'){render();return true}gwNext(G,A);render();gwTick();return true}
   if(ds.gwpoison&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(G.p[1-A],ds.gwpoison);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwpoison,false);gwNext(G,A);render();gwTick();return true}
   if(ds.gwdecoy&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(me,ds.gwdecoy);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwdecoy,false);gwNext(G,A);render();gwTick();return true}
-  if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);(G.sfx=G.sfx||[]).push('medic');const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
+  if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);(G.sfx=G.sfx||[]).push('medic');if(A===0&&(G.heal0=(G.heal0||0)+1)>=3)gwFeat(G,'heal3');const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-medic-skip'){G.pick=null;gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-pass'){G.sel=null;gwPass(G,A);render();gwTick();return true}
-  if(t.id==='gw-quit'){G.phase='over';G.winner=1-A;G.banner=G.mode==='hot'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
+  if(t.id==='gw-quit'){G.phase='over';G.surrender=true;G.winner=1-A;G.banner=G.mode==='hot'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
   if(t.id==='gw-again'){const F=G.p[0].faction,o=G.mode==='hot'?G.p[1].faction:ui.gwOp;gwStart(F,o,G.mode);render();gwMusicGo();return true}
   if(t.id==='gw-rotate'){const el=document.documentElement;const go=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(_){}};
     try{const r=el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen?el.webkitRequestFullscreen():null;if(r&&r.then)r.then(go,go);else go()}catch(_){go()}
@@ -4141,8 +4147,17 @@ function plChip(){const n=PL.me?PL.me.name:'';
   return `<button class="icon-btn pl-chip${PL.me?' in':''}" data-plopen="1" aria-label="${PL.me?'Мой профиль: '+h(n):'Войти игроку'}">${ICON_CROWN}<span class="lbl">${PL.me?h(n)+` · ${PL.me.wins}`:'Войти'}</span></button>`}
 
 /* achievements */
-const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['vs','Побед против фракции…'],['pair','Побед за фракцию… против фракции…'],['beaten','Разных побеждённых фракций'],['special','Побед с особой картой…']];
-const ACH_GRP=['Общие','Дома','Противостояния'];
+const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['vs','Побед против фракции…'],['pair','Побед за фракцию… против фракции…'],['beaten','Разных побеждённых фракций'],['special','Побед с особой картой…'],['feat','Необычный розыгрыш…']];
+const ACH_GRP=['Общие','Дома','Противостояния','Необычные'];
+const FEATS={dragon5:'Дракон сжигает 5 и больше карт за один раз',faceless2:'Безликие убивают сразу 2 и больше героев',ravenplay:'Сыграйте карту, которую ваш Ворон украл у соперника',
+  scorchself:'Ваше Драконье пламя сжигает и вашу собственную карту',close1:'Выиграйте битву с перевесом ровно в одно очко',rout:'Выиграйте битву с перевесом в 30 и больше очков',
+  onecard:'Выиграйте битву, выложив в ней всего одну карту',power100:'Наберите 100 и больше силы в одной битве',weather3:'Мороз, туман и дождь на поле одновременно',
+  spy3:'Сыграйте трёх шпионов за одну партию',sab2:'Подбросьте сопернику двух саботажников за партию',heal3:'Верните исцелением три карты за одну партию',
+  noheroes:'Победите, не сыграв ни одного героя',hand5:'Победите, оставив в руке 5 и больше карт',allin:'Победите, выложив все карты до последней',draw:'Сведите партию вничью'};
+const ACH_ODD=[['dragon5','🐉','Дракарис'],['faceless2','🎭','У человека нет лица'],['ravenplay','🐦','Чужие письма'],['scorchself','🔥','Сам себе дракон'],
+  ['close1','🪶','На волосок от гибели'],['rout','💀','Разгром'],['onecard','🗡','Один в поле воин'],['power100','📯','Сто знамён'],
+  ['weather3','❄','Долгая ночь'],['spy3','🕷','Маленькие пташки'],['sab2','🔪','Нож в спину'],['heal3','🕯','Владыка Света'],
+  ['noheroes','🌾','Простой люд'],['hand5','🃏','Козырь в рукаве'],['allin','⚖','Всё или ничего'],['draw','🕊','Мир, которого никто не хотел']];
 // houses are found by name, so the achievements follow whatever factions the master has
 const ACH_HOUSE={north:/север/i,crown:/королевск|свит/i,river:/речн/i,storm:/штормов/i,west:/западн/i,reach:/простор/i,iron:/железн/i,vale:/долин|аррен/i,dorne:/дорн/i};
 const ACH_HOUSE_W=[['north','🐺','Зима близко'],['crown','👑','Трон без железа'],['river','🐟','Семья, долг, честь'],['storm','🦌','Нам ярость!'],['west','🦁','Слушай мой рёв!'],
@@ -4154,6 +4169,7 @@ function achHouse(){const T=k=>S.teams.find(t=>ACH_HOUSE[k].test(t.name||'')),ou
   ACH_HOUSE_W.forEach(([k,ic,nm])=>{const t=T(k);if(t)out.push({id:'h-'+k,icon:ic,name:nm,type:'faction',arg:t.id,n:3,grp:'Дома'})});
   ACH_RIVAL.forEach(([a,b,ic,nm])=>{const ta=T(a),tb=T(b);if(ta&&tb)out.push({id:'p-'+a+'-'+b,icon:ic,name:nm,type:'pair',arg:ta.id+'>'+tb.id,n:1,grp:'Противостояния'})});
   out.push({id:'b4',icon:'🛡',name:'Щит, что хранит королевства',type:'beaten',n:4,grp:'Противостояния'},{id:'b7',icon:'🗡',name:'Гроза всех королевств',type:'beaten',n:7,grp:'Противостояния'},{id:'f6',icon:'🏰',name:'Объединитель',type:'factions',n:6,grp:'Дома'});
+  ACH_ODD.forEach(([k,ic,nm])=>out.push({id:'o-'+k,icon:ic,name:nm,type:'feat',arg:k,n:1,grp:'Необычные'}));
   return out}
 const achDefaults=()=>JSON.parse(JSON.stringify(ACH_DEF)).concat(achHouse());
 const ACH_DEF=[
@@ -4173,7 +4189,7 @@ function achEdit(){const g=gwData();if(!Array.isArray(g.ach))g.ach=achDefaults()
 function achVal(p,a){if(!p)return 0;const o=p.fac||{},s=p.sp||{};
   return a.type==='wins'?p.wins:a.type==='games'?p.games:a.type==='flawless'?p.flawless:a.type==='streak'?p.best_streak:a.type==='comeback'?p.comeback
     :a.type==='factions'?Object.values(o).filter(v=>v>0).length:a.type==='faction'?+o[a.arg]||0:a.type==='special'?+s[a.arg]||0
-    :a.type==='vs'?+(p.vs||{})[a.arg]||0:a.type==='pair'?+(p.pairs||{})[a.arg]||0:a.type==='beaten'?Object.values(p.vs||{}).filter(v=>v>0).length:0}
+    :a.type==='vs'?+(p.vs||{})[a.arg]||0:a.type==='pair'?+(p.pairs||{})[a.arg]||0:a.type==='beaten'?Object.values(p.vs||{}).filter(v=>v>0).length:a.type==='feat'?+(p.feats||{})[a.arg]||0:0}
 const achN=a=>Math.max(1,+a.n||1);
 const achDone=(p,a)=>achVal(p,a)>=achN(a);
 function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),P=(w)=>n+' '+plural(n,...w);
@@ -4187,6 +4203,7 @@ function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),
     case 'faction':{const t=S.teams.find(x=>x.id===a.arg);return `Победите за фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
     case 'vs':{const t=S.teams.find(x=>x.id===a.arg);return `Победите фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
     case 'pair':{const [f,o]=String(a.arg||'').split('>'),tf=S.teams.find(x=>x.id===f),to=S.teams.find(x=>x.id===o);return `Победите «${to?to.name:'?'}», играя за «${tf?tf.name:'?'}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
+    case 'feat':return (FEATS[a.arg]||'?')+(n>1?` — ${P(['раз','раза','раз'])}`:'')+'.';
     case 'beaten':return `Победите ${P(['фракцию','разные фракции','разных фракций'])}.`;
     case 'special':{const k=a.arg,nm=GW_SP[k]?((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name:'?';return `Победите в партии, где вы сыграли карту «${nm}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
   }return ''}
@@ -4206,7 +4223,9 @@ function gwMaybeReport(){
   const res=G.winner===0?'win':G.winner===1?'loss':'draw';
   if(!PL.me){G.rep={msg:PL.session?'Представьтесь, чтобы победы шли в Зал славы.':'Войдите, чтобы победы шли в Зал славы.',login:true};render();return}
   const before=gwSnapshot(PL.me);G.rep={msg:'Записываю результат в Зал славы…'};render();
-  sbu.rpc('gw_report',{p_res:{result:res,faction:G.p[0].faction,op:G.p[1].faction,rounds:G.rounds,sp:[...new Set(G.spUsed||[])]}}).then(({data,error})=>{
+  const ft=Object.assign({},G.feats||{}),hand=G.p[0].hand.length;
+  if(res==='win'&&!G.surrender){if(!G.hero0)ft.noheroes=1;if(hand>=5)ft.hand5=1;if(hand===0)ft.allin=1}if(res==='draw')ft.draw=1;
+  sbu.rpc('gw_report',{p_res:{result:res,faction:G.p[0].faction,op:G.p[1].faction,rounds:G.rounds,sp:[...new Set(G.spUsed||[])],feats:Object.keys(ft)}}).then(({data,error})=>{
     if(error||!data||!data.ok){G.rep={msg:error?plErr(error):data&&data.code==='too_fast'?'Партия слишком короткая — в Зал славы не записана.':'Не удалось записать результат.'};render();return}
     PL.me=data.me;PL.boardAt=0;const now=achEarned(PL.me).filter(a=>!before.ach.has(a.id));
     const cards=gwRewardDefs().filter(c=>gwNeed(c)>before.wins&&gwNeed(c)<=PL.me.wins);
@@ -4261,6 +4280,7 @@ function gwAchPage(){
       ${ea.type==='faction'?`<label class="gw-mf-w">Фракция<select data-ach="arg">${opt(S.teams.map(t=>[t.id,t.name]),ea.arg)}</select></label>`:''}
       ${ea.type==='vs'?`<label class="gw-mf-w">Против фракции<select data-ach="arg">${opt(S.teams.map(t=>[t.id,t.name]),ea.arg)}</select></label>`:''}
       ${ea.type==='pair'?`<label class="gw-mf-w">Играя за<select data-ach="argF">${opt(S.teams.map(t=>[t.id,t.name]),String(ea.arg||'').split('>')[0])}</select></label><label class="gw-mf-w">Против<select data-ach="argO">${opt(S.teams.map(t=>[t.id,t.name]),String(ea.arg||'').split('>')[1])}</select></label>`:''}
+      ${ea.type==='feat'?`<label class="gw-mf-w">Розыгрыш<select data-ach="arg">${opt(Object.entries(FEATS),ea.arg)}</select></label>`:''}
       <label class="gw-mf-w">Раздел<select data-ach="grp">${opt(ACH_GRP.map(g=>[g,g]),ea.grp||'Общие')}</select></label>
       ${ea.type==='special'?`<label class="gw-mf-w">Особая карта<select data-ach="arg">${opt(Object.keys(GW_SP).map(k=>[k,((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name]),ea.arg)}</select></label>`:''}
       <label>Сколько<input type="number" data-ach="n" min="1" max="999" value="${achN(ea)}"></label>
@@ -4295,7 +4315,7 @@ function gwHallClick(t,ds){
 function gwHallChange(t){const f=t.dataset&&t.dataset.ach;if(!f)return false;const a=achEdit()[ui.achEd];if(!a)return true;
   if(f==='argF'||f==='argO'){const q=String(a.arg||'').split('>');q[f==='argF'?0:1]=t.value;a.arg=q[0]+'>'+(q[1]||'');soft();render();return true}
   a[f]=f==='n'?Math.max(1,Math.min(999,Math.floor(+t.value||1))):t.value;
-  if(f==='type'){const t0=(S.teams[0]||{}).id||'',t1=(S.teams[1]||S.teams[0]||{}).id||'';a.arg=a.type==='faction'||a.type==='vs'?t0:a.type==='pair'?t0+'>'+t1:a.type==='special'?'dragon':undefined;if(a.arg===undefined)delete a.arg}
+  if(f==='type'){const t0=(S.teams[0]||{}).id||'',t1=(S.teams[1]||S.teams[0]||{}).id||'';a.arg=a.type==='faction'||a.type==='vs'?t0:a.type==='pair'?t0+'>'+t1:a.type==='special'?'dragon':a.type==='feat'?'close1':undefined;if(a.arg===undefined)delete a.arg}
   soft();render();return true}
 
 /* the player modal */
