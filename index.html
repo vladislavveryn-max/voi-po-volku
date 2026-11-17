@@ -1153,7 +1153,7 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-ds.pop{animation:gwDsPop .5s ease-out}@keyframes gwDsPop{0%{background:#5a4420;box-shadow:0 0 14px rgba(226,189,104,.7)}100%{}}
 .gw-dp-tools{display:flex;gap:6px}.gw-dp-tools .btn{flex:1;justify-content:center}
 .gw-dp-go{display:grid;gap:8px;padding-top:10px;border-top:1px solid rgba(201,166,94,.2)}
-.gw-seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(201,166,94,.3);border-radius:999px;overflow:hidden}
+.gw-seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid rgba(201,166,94,.3);border-radius:999px;overflow:hidden}
 .gw-seg button{font:inherit;font-size:13px;padding:7px 6px;cursor:pointer;background:none;border:0;color:var(--muted)}.gw-seg button[aria-pressed="true"]{background:rgba(201,166,94,.2);color:var(--gold-hi)}
 .gw-dp-go select{width:100%}
 .btn.gw-play{font-size:18px;padding:12px;justify-content:center;gap:8px;letter-spacing:.06em;font-family:var(--display)}
@@ -1223,6 +1223,16 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-msnd{padding-top:10px;border-top:1px solid var(--line)}
 .gw-cc .gc[data-gsnd]::after{content:'♪';position:absolute;left:6px;bottom:30px;font-size:13px;color:var(--gold-hi);text-shadow:0 1px 3px #000;opacity:.8}
 /* hall of fame */
+.gw-net{display:flex;flex-direction:column;gap:10px}
+.gw-net-join{display:flex;gap:8px}.gw-net-join input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:18px;letter-spacing:.3em;text-transform:uppercase;text-align:center;color:var(--fg);font-family:var(--display)}
+.gw-net-code{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed var(--gold-line);border-radius:10px;background:rgba(201,166,94,.06)}
+.gw-net-code span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.gw-net-code b{font-family:var(--display);font-weight:400;font-size:30px;letter-spacing:.25em;color:var(--gold-hi)}
+.gw-net-st{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}.gw-net-st b{color:var(--fg);font-weight:400}
+.gw-net-st i{flex:none;width:9px;height:9px;border-radius:50%;background:#7a6a4a;animation:netPulse 1.4s ease-in-out infinite}.gw-net-st.ok i{background:#6fbf73;animation:none}
+@keyframes netPulse{50%{opacity:.3}}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.gw-netgone{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:70;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;max-width:92vw;padding:10px 16px;border-radius:12px;background:rgba(60,20,16,.95);border:1px solid rgba(171,55,46,.7);color:#f3d0c8;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.gw-netgone b{font-family:var(--display);font-weight:400;font-size:17px}
 .pl-seg{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;margin:4px 0 14px;background:var(--bg-2)}
 .pl-seg button{flex:1;border:0;background:none;color:var(--muted);padding:8px;border-radius:7px;font:inherit;font-size:15px;cursor:pointer}
 .pl-seg button[aria-selected=true]{background:var(--raised);color:var(--gold-hi);box-shadow:inset 0 0 0 1px var(--gold-line)}
@@ -1415,7 +1425,7 @@ function render(){
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   {const at=document.querySelector('.tabs .tab[aria-selected="true"]'),tb=at&&at.parentNode;if(tb&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2)}
-  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners'){gwTick();requestAnimationFrame(gwFan);gwMaybeReport()} document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);if(ui.tab==='banners')gwFan();
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners'){gwTick();requestAnimationFrame(gwFan);gwMaybeReport()} netAfterRender(); document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);if(ui.tab==='banners')gwFan();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
@@ -2239,7 +2249,7 @@ function gwApply(G,i,c,row,target,auto){
     else if(sp==='poison'){me.grave.push(c);const f=gwFindUnit(op,target);if(f&&!f.c.hero){op.rows[f.r]=op.rows[f.r].filter(x=>x!==f.c);op.grave.push(f.c);L(`${who}: яд убивает «${f.c.name}».`)}else L(`${who}: яд пропал впустую.`)}
     else if(sp==='raven'){me.grave.push(c);const src=op.hand.length?op.hand:op.deck;if(!src.length){L(`${who}: ворон вернулся ни с чем.`);return null}
       const k=Math.floor(Math.random()*src.length),got=src.splice(k,1)[0];if(i===0)got.stolen=true;me.hand.push(got);G.reveal={c:got,who,t:'ворон принёс карту соперника'};L(`${who}: ворон похищает «${got.name}».`)}
-    else if(sp==='merc'){me.grave.push(c);const all=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef),cpu=i===1&&G.mode!=='hot',ok=all.filter(d=>cpu?!gwNeed(d):!gwLocked(d)),pool=ok.length?ok:all;
+    else if(sp==='merc'){me.grave.push(c);const all=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef),cpu=i===1&&G.mode==='ai',ok=all.filter(d=>cpu?!gwNeed(d):!gwLocked(d)),pool=ok.length?ok:all;
       if(!pool.length){L(`${who}: наёмников не нашлось.`);return null}
       const got=pool[Math.floor(Math.random()*pool.length)];G.reveal={c:got,who,t:'на зов откликнулись'};
       return gwHire(G,i,got,auto);}
@@ -2279,18 +2289,18 @@ function gwRoundEnd(G){
   const a=gwTotal(G,0),b=gwTotal(G,1);G.rounds.push([a,b]);
   if(a>b){if(a-b===1)gwFeat(G,'close1');if(a-b>=30)gwFeat(G,'rout');if((G.rc0||0)===1)gwFeat(G,'onecard')}if(a>=100)gwFeat(G,'power100');G.rc0=0;
   let msg;
-  const hot=G.mode==='hot';
+  const hot=G.mode!=='ai';
   if(a>b){G.p[1].lives--;msg=hot?`Битва ${G.round}: побеждает ${G.p[0].name}, ${a} : ${b}`:`Раунд ${G.round} за вами: ${a} : ${b}`}
   else if(b>a){G.p[0].lives--;msg=hot?`Битва ${G.round}: побеждает ${G.p[1].name}, ${b} : ${a}`:`Раунд ${G.round} за компьютером: ${a} : ${b}`}
   else{G.p[0].lives--;G.p[1].lives--;msg=`Ничья в раунде ${G.round}: ${a} : ${b}`}
   G.log.unshift(msg+'.');
-  {const hv=G.mode==='hot'?(a===b?-1:a>b?0:1):0;(G.sfx=G.sfx||[]).push(a===b?'roundLose':G.mode==='hot'||a>b===(hv===0)?'roundWin':'roundLose')}
+  {const hv=G.mode!=='ai'?(a===b?-1:a>b?0:1):0;(G.sfx=G.sfx||[]).push(a===b?'roundLose':G.mode!=='ai'||a>b===(hv===0)?'roundWin':'roundLose')}
   G.p.forEach(s=>{GW_ROWS.forEach(r=>{s.grave.push(...s.rows[r]);s.rows[r]=[];if(s.horn[r]){s.grave.push(s.horn[r]);s.horn[r]=null}});s.passed=false});
   G.weather={m:false,r:false,s:false};
   if(G.p[0].lives<=0||G.p[1].lives<=0){
     G.phase='over';G.winner=G.p[0].lives>0?0:G.p[1].lives>0?1:-1;
-    G.sfx.push(G.winner===0||G.mode==='hot'&&G.winner>=0?'victory':'defeat');
-    G.banner=G.winner<0?'Ничья':G.mode==='hot'?`Победа: ${G.p[G.winner].name} (${G.p[G.winner].title})`:G.winner===0?'Победа!':'Поражение';return;
+    if(G.mode!=='net')G.sfx.push(G.winner===0||G.mode==='hot'&&G.winner>=0?'victory':'defeat');
+    G.banner=G.winner<0?'Ничья':G.mode!=='ai'?`Победа: ${G.p[G.winner].name} (${G.p[G.winner].title})`:G.winner===0?'Победа!':'Поражение';return;
   }
   G.round++;G.turn=a>b?1:b>a?0:(Math.random()<.5?0:1);G.banner=msg;
 }
@@ -2302,10 +2312,10 @@ function gwNext(G,i){
   if(!s.hand.length&&!s.passed){s.passed=true;G.log.unshift(s.name+': карт нет — пас.');gwNext(G,G.turn)}
 }
 function gwPass(G,i){(G.sfx=G.sfx||[]).push('pass');G.p[i].passed=true;G.log.unshift(G.p[i].name+': пас.');gwNext(G,i)}
-function gwActor(G){return G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.turn):0}
-function gwView(G){return G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.shown):0}
+function gwActor(G){return G.mode==='net'?NET.side:G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.turn):0}
+function gwView(G){return G.mode==='net'?NET.side:G.mode==='hot'?(G.phase==='mulligan'?G.mside:G.shown):0}
 function gwHandover(G){return G.mode==='hot'&&G.phase!=='over'&&(G.phase==='mulligan'?G.shown!==G.mside:G.shown!==G.turn)}
-function gwMullDone(G){if(G.mode==='hot'&&G.mside===0){G.mside=1;G.mull=2;return}gwBegin(G)}
+function gwMullDone(G){if((G.mode==='hot'||G.mode==='net')&&G.mside===0){G.mside=1;G.mull=2;return}gwBegin(G)}
 function gwAiMove(G){
   const me=G.p[1],op=G.p[0];
   if(!me.hand.length)return gwPass(G,1);
@@ -2416,10 +2426,11 @@ function gwMenu(){
       <div class="gw-dp-list">${units.length?`<div class="gw-dp-sub">Войска</div>${units.map(strip).join('')}`:''}${sps.length?`<div class="gw-dp-sub">Особые</div>${sps.map(strip).join('')}`:''}${units.length+sps.length?'':'<p class="gw-dp-empty">Колода пуста. Нажимайте на карты слева, чтобы добавить их.</p>'}</div>
       <div class="gw-dp-tools"><button class="btn small" id="gw-all">Взять всё</button><button class="btn small" id="gw-clear">Очистить</button></div>
       <div class="gw-dp-go">
-        <div class="gw-seg" role="group" aria-label="Режим игры"><button id="gw-mode-ai" aria-pressed="${ui.gwMode!=='hot'}">Против компьютера</button><button id="gw-mode-hot" aria-pressed="${ui.gwMode==='hot'}">Вдвоём</button></div>
+        <div class="gw-seg" role="group" aria-label="Режим игры"><button id="gw-mode-ai" aria-pressed="${ui.gwMode!=='hot'&&ui.gwMode!=='net'}">Против компьютера</button><button id="gw-mode-hot" aria-pressed="${ui.gwMode==='hot'}">Вдвоём</button><button id="gw-mode-net" aria-pressed="${ui.gwMode==='net'}">По сети</button></div>
+        ${ui.gwMode==='net'?netLobby(ok):`
         <select id="gw-op" aria-label="Соперник"><option value="">${ui.gwMode==='hot'?'Игрок 2':'Соперник'}: случайная фракция</option>${fsPlay.filter(t=>t.id!==F).map(t=>`<option value="${t.id}"${opF===t.id?' selected':''}>${ui.gwMode==='hot'?'Игрок 2':'Соперник'}: ${h(t.name)}</option>`).join('')}</select>
         ${ui.gwMode==='hot'?'<span class="hint">Игрок 2 играет сохранённой колодой выбранной фракции. Между ходами экран закрывается, чтобы передать устройство.</span>':''}
-        <button class="btn gold gw-play" id="gw-play"${ok?'':' disabled'}><span class="gw-play-u">${st.units}/${GW_MIN_UNITS}</span>${gwIco('flag')} В бой</button>
+        <button class="btn gold gw-play" id="gw-play"${ok?'':' disabled'}><span class="gw-play-u">${st.units}/${GW_MIN_UNITS}</span>${gwIco('flag')} В бой</button>`}
         ${ok?'':`<span class="gw-why">${fOff?'Фракция скрыта от игроков.':need?`Добавьте ещё ${need} ${need===1?'отряд':need<5?'отряда':'отрядов'}.`:`Особых карт не больше ${GW_MAX_SP}.`}</span>`}
       </div>
     </aside>
@@ -2491,8 +2502,10 @@ function gwBoard(){
       const pz=poisonMode&&i!==v&&!c.hero&&!c.special;
       return gwCard(c,{name:true,pow:pw,fx:badge,cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':'')+(pz?' pick poison':'')+anim,attrs:`data-gwu="${c.uid}"`+(decoyMode&&i===v&&!c.hero&&!c.special?` data-gwdecoy="${c.uid}" role="button" tabindex="0"`:'')+(pz?` data-gwpoison="${c.uid}" role="button" tabindex="0"`:'')})}).join('')}</div></div>`};
   let act='',selBtns='';
-  if(G.phase==='mulligan')act=`<div class="gw-act"><span>${G.mode==='hot'?h(me.name)+': м':'М'}ожно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
-  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div>${G.mode==='ai'?gwRepHtml(G):''}</div>`;
+  if(G.phase==='mulligan'&&G.mode==='net'&&G.mside!==v)act=`<div class="gw-act"><span>${h(G.p[G.mside].name)} меняет карты перед боем… ${G.mside>v?'Вы уже готовы.':'Потом ваша очередь.'}</span></div>`;
+  else if(G.phase==='mulligan')act=`<div class="gw-act"><span>${G.mode==='hot'?h(me.name)+': м':'М'}ожно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
+  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again"${G.mode==='net'&&NET.side===1&&NET.againSent?' disabled':''}>${G.mode==='net'&&NET.side===1&&NET.againSent?'Ждём соперника…':'Сыграть ещё'}</button><button class="btn small" id="gw-menu">К колоде</button></div>${G.mode==='ai'?gwRepHtml(G):''}</div>`;
+  else if(G.pick&&G.mode==='net'&&G.turn!==v)act=`<div class="gw-act"><span>Ходит ${h(G.p[G.turn].name)}…</span></div>`;
   else if(G.pick&&G.pick.type==='merc')act=`<div class="gw-act col"><span>Наёмники: выберите отряд, который вступит в бой.</span><div class="gw-gr">${G.pick.opts.map((c,k)=>`<div class="gw-mopt">${gwCard(c,{attrs:`data-gwmerc="${k}" role="button" tabindex="0"`,cls:'pick',name:true})}<span>${c.ability?GW_AB[c.ability]+' · ':''}${GW_ROW[c.row]}</span></div>`).join('')}</div></div>`;
   else if(G.pick&&G.pick.type==='medic')act=`<div class="gw-act col"><span>Исцеление: выберите карту из сброса, которая вернётся на поле.</span><div class="gw-gr">${me.grave.filter(x=>!x.hero&&!x.special).map(c=>gwCard(c,{attrs:`data-gwmedic="${c.uid}" role="button" tabindex="0"`,cls:'pick',name:true})).join('')}</div><button class="btn small" id="gw-medic-skip">Не возвращать</button></div>`;
   else if(sel&&my){
@@ -2504,7 +2517,7 @@ function gwBoard(){
     else (sel.row==='a'?['m','r']:[sel.row]).forEach(r=>b.push(`<button class="btn small gold" data-gwplay="${r}">${sel.ability==='spy'?'Шпион: ':''}${gwIco(r)} ${GW_ROW[r]}</button>`));
     selBtns=b.join('');
     act=`<div class="gw-act selact"><div class="gw-sel"><b>${h(sel.name)}</b>${sel.sub?`<span>${h(sel.sub)}</span>`:''}<div class="gw-d">${gwDesc(sel)}</div></div><div class="gw-btns">${b.join('')}<button class="btn small" id="gw-unsel">Отмена</button></div></div>`;
-  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: перетащите карту на поле или нажмите на неё.':'Ваш ход: перетащите карту на поле или нажмите на неё.'):me.passed?(G.mode==='hot'?'Вы спасовали.':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode==='hot'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
+  }else if(G.phase==='play')act=`<div class="gw-act"><span>${my?(G.mode==='hot'?h(me.name)+', ваш ход: перетащите карту на поле или нажмите на неё.':'Ваш ход: перетащите карту на поле или нажмите на неё.'):me.passed?(G.mode==='hot'?'Вы спасовали.':G.mode==='net'?'Вы спасовали. Соперник доигрывает раунд…':'Вы спасовали. Компьютер доигрывает раунд…'):(G.mode!=='ai'?'Ходит '+h(G.p[G.turn].name)+'…':'Ходит компьютер…')}</span>${my?'<button class="btn small gold" id="gw-pass">Пас</button>':''}</div>`;
   const mullMode=G.phase==='mulligan', hasMus=!!gwCurTrack(), multi=gwTracks().filter(x=>x&&x.src).length>1;
   const prev=`<div class="gw-prev">${sel&&my?`<div class="gw-prev-card">${gwCard(sel,{name:true})}</div><b>${h(sel.name)}</b>${sel.sub?`<span class="gw-prev-sub">${h(sel.sub)}</span>`:''}<p>${gwDesc(sel)}</p><div class="gw-btns">${selBtns}<button class="btn small" id="gw-unsel2">Отмена</button></div><span class="gw-prev-h">${sel.special==='decoy'||sel.special==='poison'?'':'Или нажмите на подсвеченный ряд.'}</span>`
     :`<div class="gw-prev-e">${G.phase==='mulligan'?'Нажмите на карту в руке, чтобы заменить её.':my?'Выберите карту в руке или перетащите её на поле.':G.phase==='over'?'Бой окончен.':'Ждём хода соперника…'}</div>`}</div>`;
@@ -2512,6 +2525,7 @@ function gwBoard(){
   const html=`<section class="gw gw-game${ui.gwPortrait?' pok':''}">
   <div class="gw-rot"><div class="gw-rot-in"><div class="gw-rot-ph">${gwIco('flag')}</div><b>Поверните телефон горизонтально</b><p>Поле, рука и карты помещаются гораздо удобнее в альбомной ориентации.</p>
     <button class="btn gold" id="gw-rotate">Развернуть экран</button><button class="btn small ghost" id="gw-portrait">Играть вертикально</button></div></div>
+  ${G.mode==='net'&&!NET.peer&&G.phase!=='over'?`<div class="gw-netgone"><b>Соперник отключился</b><span>Если он откроет ссылку-приглашение снова, бой продолжится.</span><button class="btn small" id="gw-menu">Выйти к колоде</button></div>`:''}
   ${G.banner?`<div class="gw-banner" id="gw-banner"><span class="gw-bn-orn">⚜</span>${h(G.banner)}<span class="gw-bn-orn">⚜</span></div>`:''}
   ${G.reveal&&!G.banner?`<div class="gw-reveal" id="gw-reveal"><div class="gw-rv-card">${gwCard(G.reveal.c,{name:true})}</div><div class="gw-rv-t">${h(G.reveal.who)}: ${h(G.reveal.t||'')}</div><b>${h(G.reveal.c.name)}</b></div>`:''}
   ${lead(op,'op')}${piles(op,'op')}${prev}${lead(me,'me')}${piles(me,'me')}
@@ -2526,7 +2540,7 @@ function gwBoard(){
   <div class="gw-hand" style="--n:${Math.max(2,me.hand.length)}">${me.hand.map(c=>gwCard(c,{name:true,cls:(G.sel===c.uid?'sel':'')+(mullMode?' mull':''),attrs:`data-gwhand="${c.uid}" role="button" tabindex="0"`})).join('')||'<span class="gw-hint">Карт в руке нет.</span>'}</div></div>
   </section>`;
   GW_FX=nfx;
-  {const q=(G.sfx||[]).splice(0);if(!q.some(k=>['frost','fog','rain','clear','scorch','poison'].includes(k))){if(fxSnd.up)q.push('up');if(fxSnd.down)q.push('down')}if(q.length)setTimeout(()=>gwSfx(q),30)}
+  {const q=(G.sfx||[]).splice(0);if(G.mode==='net'&&!NET.mute)NET.sfxOut.push(...q.filter(k=>typeof k==='string'));if(!q.some(k=>['frost','fog','rain','clear','scorch','poison'].includes(k))){if(fxSnd.up)q.push('up');if(fxSnd.down)q.push('down')}if(q.length)setTimeout(()=>gwSfx(q),30)}
   return html;
 }
 let gwTipEl=null,gwTipFor=null;
@@ -2696,7 +2710,7 @@ function gwTick(){ // one pending timer at a time: clears round banners, then le
   if(gwTimer||!GM||ui.tab!=='banners')return;
   if(GM.banner&&GM.phase!=='over'){gwTimer=setTimeout(()=>{gwTimer=0;if(GM&&GM.phase!=='over'){GM.banner='';render()}},1700);return}
   if(GM.reveal){gwTimer=setTimeout(()=>{gwTimer=0;if(GM){GM.reveal=null;render()}},1700);return}
-  if(GM.mode!=='hot'&&GM.phase==='play'&&GM.turn===1&&!GM.pick)gwTimer=setTimeout(()=>{gwTimer=0;if(!GM||GM.turn!==1||GM.phase!=='play'||ui.tab!=='banners')return;gwAiMove(GM);render()},900);
+  if(GM.mode==='ai'&&GM.phase==='play'&&GM.turn===1&&!GM.pick)gwTimer=setTimeout(()=>{gwTimer=0;if(!GM||GM.turn!==1||GM.phase!=='play'||ui.tab!=='banners')return;gwAiMove(GM);render()},900);
 }
 function gwClick(t,ds){
   if(ds.gwf){ui.gwF=ds.gwf;render();return true}
@@ -2708,32 +2722,35 @@ function gwClick(t,ds){
   if(t.id==='gw-dp-tog'){ui.gwDeckOpen=!ui.gwDeckOpen;render();return true}
   if(t.id==='gw-all'){const F=ui.gwF,d=gwDeck(F);gwDefs(F).forEach(c=>{if(!c.special&&!c.off&&!gwLocked(c))d[c.id]=c.max});gwSaveDeck(F,d);render();return true}
   if(t.id==='gw-clear'){gwSaveDeck(ui.gwF,{});render();return true}
-  if(t.id==='gw-mode-ai'||t.id==='gw-mode-hot'){ui.gwMode=t.id==='gw-mode-hot'?'hot':'ai';render();return true}
+  if(t.id==='gw-mode-ai'||t.id==='gw-mode-hot'||t.id==='gw-mode-net'){ui.gwMode=t.id.slice(8);render();if(ui.gwMode==='net')setTimeout(()=>document.querySelector('.gw-net')?.scrollIntoView({block:'nearest',behavior:'smooth'}),50);return true}
+  if(netClick(t))return true;
   if(t.id==='gw-play'){gwStart(ui.gwF,ui.gwOp,ui.gwMode);render();gwMusicGo();window.scrollTo(0,0);return true}
   if(!GM)return false;
   const G=GM,A=gwActor(G),me=G.p[A];
   if(t.id==='gw-ready'){G.shown=G.phase==='mulligan'?G.mside:G.turn;G.sel=null;render();window.scrollTo(0,0);return true}
   if(gwHandover(G)&&(ds.gwhand||ds.gwplay||ds.gwdecoy||ds.gwpoison||ds.gwmedic||ds.gwmerc||t.id==='gw-pass'))return true;
-  if(ds.gwmerc!==undefined&&G.pick&&G.pick.type==='merc'){const def=G.pick.opts[+ds.gwmerc];G.pick=null;if(def){const res=gwHire(G,A,def,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
+  if(ds.gwmerc!==undefined&&G.pick&&G.pick.type==='merc'){if(G.mode==='net'&&G.turn!==A)return true;const def=G.pick.opts[+ds.gwmerc];G.pick=null;if(def){const res=gwHire(G,A,def,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
   if(ds.gwhand){
+    if(G.phase==='mulligan'&&G.mode==='net'&&G.mside!==A)return true;
     if(G.phase==='mulligan'){const k=me.hand.findIndex(c=>c.uid===ds.gwhand);if(k>=0&&G.mull>0&&me.deck.length){const old=me.hand[k];me.hand[k]=me.deck.shift();me.deck.splice(Math.floor(Math.random()*(me.deck.length+1)),0,old);G.mull--;G.log.unshift(G.mode==='hot'?me.name+': замена карты.':'Вы заменили карту.');if(!G.mull)gwMullDone(G)}render();gwTick();return true}
     if(G.phase==='play'&&G.turn===A&&!G.pick){G.sel=G.sel===ds.gwhand?null:ds.gwhand;if(G.sel)gwSfx(['pick']);render()}return true}
-  if(t.id==='gw-mull-done'){gwMullDone(G);render();gwTick();return true}
+  if(t.id==='gw-mull-done'){if(G.mode==='net'&&G.mside!==A)return true;gwMullDone(G);render();gwTick();return true}
   if(t.id==='gw-unsel'||t.id==='gw-unsel2'){G.sel=null;render();return true}
   if(ds.gwplay&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);if(k<0)return true;G.sel=null;G.banner='';let pr=ds.gwplay==='-'?null:ds.gwplay,tg=null;if(pr&&pr.includes('|')){const q=pr.split('|');tg=+q[0];pr=q[1]}const res=gwPlayFromHand(G,A,k,pr,tg,false);if(res==='medic'){G.pick={type:'medic'};render();return true}if(res==='merc'){render();return true}gwNext(G,A);render();gwTick();return true}
   if(ds.gwpoison&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(G.p[1-A],ds.gwpoison);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwpoison,false);gwNext(G,A);render();gwTick();return true}
   if(ds.gwdecoy&&G.sel){const k=me.hand.findIndex(c=>c.uid===G.sel);const f=gwFindUnit(me,ds.gwdecoy);if(k<0||!f)return true;G.sel=null;gwPlayFromHand(G,A,k,f.r,ds.gwdecoy,false);gwNext(G,A);render();gwTick();return true}
-  if(ds.gwmedic&&G.pick){const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);(G.sfx=G.sfx||[]).push('medic');if(A===0&&(G.heal0=(G.heal0||0)+1)>=3)gwFeat(G,'heal3');const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
-  if(t.id==='gw-medic-skip'){G.pick=null;gwNext(G,A);render();gwTick();return true}
+  if(ds.gwmedic&&G.pick){if(G.mode==='net'&&G.turn!==A)return true;const c=me.grave.find(x=>x.uid===ds.gwmedic);G.pick=null;if(c){me.grave.splice(me.grave.indexOf(c),1);G.log.unshift(`${me.name}: исцеление возвращает «${c.name}».`);(G.sfx=G.sfx||[]).push('medic');if(A===0&&(G.heal0=(G.heal0||0)+1)>=3)gwFeat(G,'heal3');const res=gwApply(G,A,c,c.row==='a'?'m':c.row,null,false);if(res==='medic'){G.pick={type:'medic'};render();return true}}gwNext(G,A);render();gwTick();return true}
+  if(t.id==='gw-medic-skip'){if(G.mode==='net'&&G.turn!==A)return true;G.pick=null;gwNext(G,A);render();gwTick();return true}
   if(t.id==='gw-pass'){G.sel=null;gwPass(G,A);render();gwTick();return true}
-  if(t.id==='gw-quit'){G.phase='over';G.surrender=true;G.winner=1-A;G.banner=G.mode==='hot'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
+  if(t.id==='gw-quit'){G.phase='over';G.surrender=true;G.winner=1-A;G.banner=G.mode!=='ai'?`${me.name} сдаётся. Победа: ${G.p[1-A].name}`:'Вы сдались';G.p[A].lives=0;render();return true}
+  if(t.id==='gw-again'&&G.mode==='net'){netAgain();return true}
   if(t.id==='gw-again'){const F=G.p[0].faction,o=G.mode==='hot'?G.p[1].faction:ui.gwOp;gwStart(F,o,G.mode);render();gwMusicGo();return true}
   if(t.id==='gw-rotate'){const el=document.documentElement;const go=()=>{try{screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})}catch(_){}};
     try{const r=el.requestFullscreen?el.requestFullscreen():el.webkitRequestFullscreen?el.webkitRequestFullscreen():null;if(r&&r.then)r.then(go,go);else go()}catch(_){go()}
     setTimeout(()=>{if(matchMedia('(orientation:portrait)').matches){const b=document.getElementById('gw-rotate');if(b)b.textContent='Поверните телефон вручную (проверьте, что автоповорот включён)'}},900);return true}
   if(t.id==='gw-portrait'){ui.gwPortrait=true;render();return true}
-  if(t.id==='gw-exit'){if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});GM=null;ui.gw='menu';render();return true}
-  if(t.id==='gw-menu'){GM=null;ui.gw='menu';render();return true}
+  if(t.id==='gw-exit'){if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});if(G.mode==='net')netToMenu(true);GM=null;ui.gw='menu';render();return true}
+  if(t.id==='gw-menu'){if(G.mode==='net')netToMenu(true);GM=null;ui.gw='menu';render();return true}
   if(t.id==='gw-reveal'){G.reveal=null;clearTimeout(gwTimer);gwTimer=0;render();return true}
   if(t.id==='gw-banner'&&G.phase!=='over'){G.banner='';clearTimeout(gwTimer);gwTimer=0;render();return true}
   return false;
@@ -4147,7 +4164,7 @@ sbu.auth.getSession().then(({data})=>{if(!data||!data.session){PL.ready=true;set
 }catch(e){PL.ready=true;console.warn('player login unavailable',e)}
 function plHello(){ // first visit: invite the player to introduce themselves
   let seen=false;try{seen=localStorage.getItem('vpv-pl-hello')==='1'}catch(_){seen=true}
-  if(seen||PL.session||pin)return;
+  if(seen||PL.session||pin||NET.joinWanted||NET.code)return;
   if(PL.boardErr||PL.missing)return; // the hall is not set up on the server yet
   if(!PL.board){plLoadBoard();setTimeout(plHello,1500);return}
   if(ui.loading||ui.modal||ui.gw==='game'){setTimeout(plHello,2000);return}
@@ -4419,14 +4436,113 @@ function hallMini(){
     ${PL.me?'':'<p class="hint">Войдите, чтобы ваши победы попали в таблицу. <button class="btn small" data-plopen="1">Войти</button></p>'}</div>`;
 }
 
+
+/* ---------------- online duel: two devices, one room code (Supabase Realtime broadcast) ---------------- */
+// The game is turn-based, so whoever acts runs the engine locally and sends the whole state to the other device.
+const NET={code:'',host:false,side:0,ch:null,peer:null,id:'',status:'',last:'',sfxOut:[],mute:false,againSent:false,endPlayed:null,joinWanted:''};
+const NET_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const netName=()=>PL.me?PL.me.name:NET.host?'Хозяин комнаты':'Гость';
+function netKey(G){return JSON.stringify(G,(k,v)=>k==='sel'||k==='sfx'||k==='banner'||k==='reveal'||k==='shown'||k==='rep'?undefined:v)}
+function netSend(o){if(NET.ch)try{NET.ch.send({type:'broadcast',event:'m',payload:Object.assign({from:NET.id},o)})}catch(e){console.warn(e)}}
+function netOpen(code,host){
+  netClose();NET.code=code;NET.host=host;NET.side=host?0:1;NET.id=uid('n');NET.peer=null;NET.status=host?'wait':'joining';NET.againSent=false;
+  let ch;try{ch=sbu.channel('gw-duel-'+code,{config:{broadcast:{self:false,ack:false},presence:{key:NET.id}}})}catch(e){NET.status='error';NET.err='Сетевая игра сейчас недоступна.';render();return}
+  NET.ch=ch;
+  ch.on('broadcast',{event:'m'},({payload})=>netOnMsg(payload||{}));
+  ch.on('presence',{event:'sync'},()=>{const st=ch.presenceState(),others=[];Object.keys(st).forEach(k=>{if(k!==NET.id)(st[k]||[]).forEach(x=>others.push(Object.assign({key:k},x)))});
+    const hosts=others.filter(x=>x.host),guests=others.filter(x=>!x.host);
+    if(!NET.host&&NET.status==='joining'){
+      if(!hosts.length){NET.status='nohost';render();return}
+      if(guests.length){NET.status='full';netClose(true);render();return}}
+    const prev=NET.peer;NET.peer=(NET.host?guests[0]:hosts[0])||null;
+    if(!NET.host&&NET.peer&&NET.status==='joining')NET.status='in';
+    if(NET.host&&NET.peer&&(!prev||prev.key!==NET.peer.key)&&GM&&GM.mode==='net')netPushState(true); // the guest came back: give them the board
+    render()});
+  ch.subscribe(st=>{if(st==='SUBSCRIBED'){ch.track({name:netName(),host:NET.host});if(!NET.host)setTimeout(()=>{if(NET.status==='joining'&&NET.code===code){NET.status='nohost';render()}},6000)}
+    else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'){NET.status='error';NET.err='Не удалось подключиться к комнате. Проверьте интернет.';render()}});
+  render();
+}
+function netClose(keepStatus){if(NET.ch){try{NET.ch.untrack&&NET.ch.untrack()}catch(_){}try{sbu.removeChannel(NET.ch)}catch(_){}}NET.ch=null;NET.peer=null;if(!keepStatus){NET.code='';NET.status=''}}
+function netCreate(){let c='';for(let i=0;i<4;i++)c+=NET_ABC[Math.floor(Math.random()*NET_ABC.length)];netOpen(c,true)}
+function netJoin(code){code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==4){NET.status='badcode';render();return}netOpen(code,false)}
+function netLink(){return location.origin+location.pathname+'#duel-'+NET.code}
+function netPushState(force){if(!GM)return;const k=netKey(GM);if(!force&&k===NET.last)return;NET.last=k;
+  const g=JSON.parse(JSON.stringify(GM,(kk,v)=>kk==='sel'||kk==='rep'?undefined:v));delete g.sfx;
+  netSend({t:'state',g,sfx:NET.sfxOut.splice(0)})}
+function netAfterRender(){
+  NET.mute=false;
+  if(!GM||GM.mode!=='net')return;
+  netPushState(false);
+  if(GM.phase==='over'&&NET.endPlayed!==GM){NET.endPlayed=GM;if(GM.winner>=0)gwSfx([GM.winner===NET.side?'victory':'defeat'])}
+}
+function netStart(){ // host: ask the guest for their deck, the game starts when it arrives
+  if(!NET.host||!NET.peer)return;NET.status='asking';netSend({t:'req'});render();
+  setTimeout(()=>{if(NET.status==='asking'){NET.status='in';NET.err='Соперник не ответил. Попробуйте ещё раз.';render()}},7000)}
+function netNewGame(gF,gDeck,gName){
+  const F=ui.gwF,me=S.teams.find(t=>t.id===F),op=S.teams.find(t=>t.id===gF);
+  GM={mode:'net',p:[gwSide(netName(),F,gwDeck(F)),gwSide(gName||'Гость',gF,gDeck)],turn:Math.random()<.5?0:1,round:1,weather:{m:false,r:false,s:false},
+    log:[],phase:'mulligan',mull:2,mside:0,shown:0,sel:null,pick:null,banner:'',rounds:[],winner:null};
+  GM.p[0].title=me?me.name:'';GM.p[1].title=op?op.name:'';
+  GM.log.unshift('Монетка: первым ходит '+GM.p[GM.turn].name+'.');
+  NET.status='in';NET.err='';NET.againSent=false;ui.gw='game';ui.gwModal=null;render();gwMusicGo();window.scrollTo(0,0);
+}
+function netAgain(){if(NET.host){if(NET.peer)netStart();else toast('Соперник отключился.')}else{NET.againSent=true;netSend({t:'again'});render()}}
+function netToMenu(tell){if(tell)netSend({t:'menu'});NET.againSent=false;NET.last=''}
+function netOnMsg(m){
+  if(m.from===NET.id)return;
+  if(m.t==='req'&&!NET.host){const F=ui.gwF,d=gwDeck(F),st=gwDeckStats(F,d);
+    if(gwTeamOff(F)||st.units<GW_MIN_UNITS||st.sp>GW_MAX_SP){netSend({t:'deck',bad:true});toast('Соперник зовёт в бой, но ваша колода не готова.');return}
+    netSend({t:'deck',F,d,name:netName()});return}
+  if(m.t==='deck'&&NET.host){if(m.bad){NET.status='in';NET.err='Колода соперника не готова: в ней мало отрядов или слишком много особых карт.';render();return}
+    if(!S.teams.some(t=>t.id===m.F)){NET.status='in';NET.err='У соперника фракция, которой нет на этом сайте. Пусть обновит страницу.';render();return}
+    netNewGame(m.F,m.d||{},String(m.name||'Гость').slice(0,24));return}
+  if(m.t==='state'&&m.g){const g=m.g,keep=GM&&GM.mode==='net'&&GM.sel?GM.sel:null,first=!GM||GM.mode!=='net';
+    g.sel=keep&&g.p[NET.side].hand.some(c=>c.uid===keep)&&g.turn===NET.side?keep:null;g.sfx=first?[]:(m.sfx||[]);
+    if(GW_FX&&GW_FX.gm&&GW_FX.round===g.round)GW_FX.gm=g; // keep card animations across the swap
+    GM=g;NET.last=netKey(GM);NET.mute=true;NET.status='in';NET.againSent=false;
+    if(first){ui.gw='game';ui.gwModal=null;if(ui.tab!=='banners')ui.tab='banners';render();gwMusicGo();window.scrollTo(0,0)}else render();return}
+  if(m.t==='again'&&NET.host){if(GM&&GM.phase==='over')netStart();return}
+  if(m.t==='menu'){if(GM&&GM.mode==='net'){GM=null;ui.gw='menu';toast('Соперник вернулся к колоде.')}NET.status='in';render();return}
+}
+function netLobby(ok){
+  const st=NET.status,code=NET.code,peer=NET.peer,err=NET.err?`<span class="gw-why">${h(NET.err)}</span>`:'';
+  if(!code||st==='nohost'||st==='full'||st==='badcode'||st==='error'){
+    const msg=st==='nohost'?'Комната не найдена: проверьте код или попросите соперника создать её заново.':st==='full'?'В этой комнате уже идёт бой.':st==='badcode'?'Код — 4 символа, например K7QD.':st==='error'?NET.err:'';
+    return `<div class="gw-net"><p class="hint">Соберите колоду, затем создайте комнату и отправьте сопернику код или ссылку. Каждый играет своей колодой со своего устройства.</p>
+      <button class="btn gold gw-play" id="net-create"${ok?'':' disabled'}>${gwIco('flag')} Создать комнату</button>
+      <div class="gw-net-join"><input id="net-code" maxlength="4" placeholder="КОД" autocomplete="off" autocapitalize="characters" value="${h(NET.joinWanted||'')}" aria-label="Код комнаты"><button class="btn small" id="net-join"${ok?'':' disabled'}>Войти</button></div>
+      ${msg?`<span class="gw-why">${h(msg)}</span>`:''}</div>`}
+  if(NET.host)return `<div class="gw-net"><div class="gw-net-code"><span>Код комнаты</span><b>${h(code)}</b></div>
+      <button class="btn small" id="net-copy">Скопировать ссылку-приглашение</button>
+      <div class="gw-net-st${peer?' ok':''}">${peer?`<i></i><span>Соперник: <b>${h(peer.name||'Гость')}</b></span>`:'<i></i><span>Ждём соперника…</span>'}</div>
+      <button class="btn gold gw-play" id="net-start"${peer&&ok&&st!=='asking'?'':' disabled'}>${gwIco('flag')} ${st==='asking'?'Зовём соперника…':'В бой'}</button>${err}
+      <button class="btn small ghost" id="net-leave">Закрыть комнату</button></div>`;
+  return `<div class="gw-net"><div class="gw-net-code"><span>Комната</span><b>${h(code)}</b></div>
+      <div class="gw-net-st${peer?' ok':''}">${st==='joining'?'<i></i><span>Подключаюсь…</span>':peer?`<i></i><span>Хозяин: <b>${h(peer.name||'Соперник')}</b>. Он начнёт бой — ваша колода уйдёт в игру как есть.</span>`:'<i></i><span>Хозяин отключился…</span>'}</div>
+      ${ok?'':'<span class="gw-why">Ваша колода пока не готова.</span>'}${err}
+      <button class="btn small ghost" id="net-leave">Выйти из комнаты</button></div>`;
+}
+function netClick(t){
+  if(t.id==='net-create'){NET.err='';netCreate();return true}
+  if(t.id==='net-join'){NET.err='';const v=(document.getElementById('net-code')||{}).value||'';NET.joinWanted=v;netJoin(v);return true}
+  if(t.id==='net-start'){NET.err='';netStart();return true}
+  if(t.id==='net-leave'){if(GM&&GM.mode==='net')GM=null;netClose();NET.err='';render();return true}
+  if(t.id==='net-copy'){const v=netLink(),done=()=>toast('Ссылка скопирована — отправьте её сопернику');try{navigator.clipboard.writeText(v).then(done,()=>{fallbackCopy(v);done()})}catch(_){fallbackCopy(v);done()}return true}
+  return false;
+}
+document.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&ev.target&&ev.target.id==='net-code'){ev.preventDefault();document.getElementById('net-join')?.click()}});
+window.addEventListener('pagehide',()=>{if(NET.ch)netClose()});
+
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
 if(tabs().some(([k])=>k===hash))ui.tab=hash;
+if(/^duel-[A-Za-z0-9]{4}$/.test(hash)){ui.tab='banners';ui.gwMode='net';NET.joinWanted=hash.slice(5).toUpperCase()}
 render();
 sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,error})=>{
   if(error){ui.loadErr=true}
   else if(data&&data.data){S=Object.assign({hero:{eyebrow:'',title:'',text:''},about:'',lore:[],rules:[],teams:[],roles:[],map:{}},data.data);saved=JSON.stringify(S)}
   ui.loading=false;render();
+  if(NET.joinWanted&&!NET.code){ui.gwDeckOpen=true;netJoin(NET.joinWanted);setTimeout(()=>document.querySelector('.gw-net')?.scrollIntoView({block:'center',behavior:'smooth'}),400)}
   sb.rpc('list_pinned_roles').then(({data,error})=>{if(!error&&Array.isArray(data)){PINNED=new Set(data);render()}});
   const ids=photoIds();
   // photos in small batches: the page fills in quickly instead of waiting for one huge response
