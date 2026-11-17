@@ -1222,6 +1222,81 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-pl-n{flex:1;min-width:160px;color:var(--gold-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gw-pl input[type=range]{width:90px;accent-color:var(--gold)}
 .gw-msnd{padding-top:10px;border-top:1px solid var(--line)}
 .gw-cc .gc[data-gsnd]::after{content:'♪';position:absolute;left:6px;bottom:30px;font-size:13px;color:var(--gold-hi);text-shadow:0 1px 3px #000;opacity:.8}
+/* hall of fame */
+.pl-chip.in{color:var(--gold-hi);border-color:var(--gold-line)}
+.pl-chip .lbl{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.pl-lead{color:#d6cebd;margin:6px 0 16px;font-size:16px}
+.pl-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}
+.pl-stats div{border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center;background:var(--bg-2)}
+.pl-stats b{display:block;font-family:var(--display);font-weight:400;font-size:26px;color:var(--gold-hi);line-height:1.1}.pl-stats span{font-size:12px;color:var(--muted)}
+.pl-sec{margin:12px 0}.pl-ach{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pl-ach span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--gold-line);border-radius:999px;padding:3px 10px 3px 6px;font-size:13px;color:#e8dcc0}.pl-ach i{font-style:normal}
+.pl-ach em{color:var(--muted);font-size:14px}
+.modal .foot{flex-wrap:wrap}
+.gw-pages{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 16px;padding:6px;border:1px solid var(--gold-line);border-radius:12px;background:linear-gradient(180deg,rgba(201,166,94,.07),rgba(201,166,94,.02))}
+.gw-page{display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;background:none;color:var(--muted);border-radius:8px;padding:8px 14px;font:inherit;font-size:15px;cursor:pointer;font-family:var(--display);letter-spacing:.05em}
+.gw-page:hover{color:var(--fg)}.gw-page[aria-selected=true]{color:var(--gold-hi);border-color:var(--gold-line);background:rgba(201,166,94,.12)}
+.gw-page-ic{display:inline-grid;place-items:center;width:16px;height:16px}.gw-page-ic svg{width:16px;height:16px}
+.gw-me{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;border:0;background:none;color:var(--fg);cursor:pointer;padding:2px 8px;font:inherit;line-height:1.2}
+.gw-me b{font-family:var(--display);font-weight:400;color:var(--gold-hi);font-size:16px}.gw-me span{font-size:12px;color:var(--muted)}.gw-me-in{margin-left:auto}
+.gw-hall-me{display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--gold-line);border-radius:12px;background:var(--surface);margin-bottom:14px}
+.gw-hall-me div{flex:1;display:flex;flex-direction:column}.gw-hall-me b{font-family:var(--display);font-weight:400;font-size:20px;color:var(--gold-hi)}.gw-hall-me span{color:var(--muted);font-size:14px}
+.gw-hall-pos{font-family:var(--display);font-size:34px;color:var(--gold-hi);min-width:56px;text-align:center}
+.gw-htab-w{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.gw-htab{width:100%;border-collapse:collapse;font-size:15px}
+.gw-htab th{text-align:left;font-weight:400;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 10px;border-bottom:1px solid var(--gold-line);background:var(--bg-2)}
+.gw-htab td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.gw-htab tr:last-child td{border-bottom:0}
+.gw-htab tr.me td{background:rgba(201,166,94,.1)}
+.gw-htab .hf-p{width:44px;text-align:center;font-family:var(--display);font-size:18px;color:var(--muted)}
+.gw-htab .hf-n{font-family:var(--display);font-size:17px;letter-spacing:.02em}
+.gw-htab tr.top1 .hf-n{color:var(--gold-hi)}
+.gw-htab .hf-w{font-family:var(--display);font-size:20px;color:var(--gold-hi)}
+.hf-ach{display:inline-flex;gap:2px;margin-left:8px;font-size:14px;vertical-align:middle}.hf-ach i{font-style:normal}.hf-ach small{color:var(--muted);font-size:11px;align-self:center}
+.hf-ed{white-space:nowrap}.hf-ed .btn{margin-left:4px}
+.gw-hall .hint{margin-top:10px}.gw-hall-foot{margin-top:6px}
+.gw-ach-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--gold-line)}
+.gw-ach-head h3{font-size:24px;color:var(--gold-hi)}.gw-ach-head span{color:var(--muted);font-size:14px}
+.gw-ach-head:not(:first-child){margin-top:30px}
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.ach{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);opacity:.62}
+.ach.on{opacity:1;border-color:var(--gold-line);background:linear-gradient(160deg,rgba(201,166,94,.14),var(--surface) 60%)}
+.ach-ic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid var(--gold-line);background:var(--bg-2);font-size:22px;filter:grayscale(1)}
+.ach.on .ach-ic,.gw-rep .ach-ic{filter:none;box-shadow:0 0 14px rgba(201,166,94,.35)}
+.ach-b{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.ach-b b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--gold-hi);line-height:1.2}.ach-b>span{font-size:13px;color:#cfc6b4;line-height:1.4}
+.ach-b em{font-style:normal;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}.ach-b small{font-size:12px;color:var(--muted)}
+.ach-bar{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:6px;overflow:hidden}.ach-bar i{display:block;height:100%;background:var(--gold)}
+.ach-add{min-height:68px;aspect-ratio:auto;grid-auto-flow:column;gap:10px}.ach-add span{font-size:30px}
+.ach-ed{border:1px solid var(--gold-line);border-radius:12px;padding:4px 14px 12px;margin-bottom:12px;background:var(--surface)}
+.ach-ed .gw-mf{border-top:0}.ach-ed .gw-mact{display:flex;gap:8px;align-items:center}.ach-ed .grow{flex:1}
+.gw-rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px}
+.gw-rc{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}.gw-rc .gc{--w:120px;cursor:pointer}
+.gw-rc.locked .gc{filter:grayscale(.85) brightness(.55)}
+.gw-rc-n{font-size:13px;color:var(--gold-hi)}.gw-rc.locked .gw-rc-n{color:var(--muted)}.gw-rc-f{font-size:12px;color:var(--muted);margin-top:-4px}
+.gw-rwb{position:absolute;top:-8px;right:-4px;z-index:4;background:linear-gradient(180deg,#e3c482,#a8843f);color:#1a1208;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;box-shadow:0 2px 6px rgba(0,0,0,.5);white-space:nowrap}
+.gw-rwb.lk{background:#2a2b33;color:#d6cebd;border:1px solid var(--gold-line)}
+.gw-cc.locked .gw-cc-card{filter:grayscale(.85) brightness(.5)}.gw-cc.locked .gw-cc-bar{opacity:.4}
+.gw-mtags .gw-mtag-rw{border-color:var(--gold-line);color:var(--gold-hi)}
+.gw-rep{flex-basis:100%;display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid var(--line);color:#d6cebd;font-size:14px}
+.gw-rep-a{display:flex;align-items:center;gap:10px;color:var(--fg)}.gw-rep-a b{color:var(--gold-hi);font-weight:400;font-family:var(--display);font-size:16px}.gw-rep .ach-ic{width:34px;height:34px;font-size:17px}
+.hall-mini{margin-top:34px;padding:18px 20px;border:1px solid var(--gold-line);border-radius:14px;background:linear-gradient(170deg,rgba(201,166,94,.1),var(--surface) 55%)}
+.hall-mini-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}.hall-mini-h h3{font-size:22px;color:var(--gold-hi)}
+.hall-mini ol{list-style:none;margin:0;padding:0}
+.hall-mini li{display:flex;align-items:center;gap:12px;padding:7px 4px;border-bottom:1px solid var(--line)}.hall-mini li:last-child{border-bottom:0}
+.hall-mini li.me{background:rgba(201,166,94,.1);border-radius:6px}.hall-mini li.gap{margin-top:6px;border-top:1px dashed var(--gold-line)}
+.hm-p{width:30px;text-align:center;font-family:var(--display);color:var(--muted)}.hm-n{flex:1;font-family:var(--display);font-size:17px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hm-w{color:var(--gold-hi);font-size:14px;white-space:nowrap}
+.hall-mini .hint{margin:10px 0 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+@media (max-width:640px){
+  .gw-htab .hf-x{display:none}
+  .gw-htab td,.gw-htab th{padding:8px 6px}
+  .hf-ach{display:flex;margin:2px 0 0}
+  .pl-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gw-pages{gap:2px}.gw-page{padding:7px 9px;font-size:14px}
+  .gw-me{width:100%;flex-direction:row;justify-content:space-between;align-items:baseline;padding:6px 8px 2px;border-top:1px solid var(--line)}
+  .gw-me-in{width:100%}
+  .hf-ed{display:flex;flex-direction:column;gap:4px}.hf-ed .btn{margin:0}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 </head>
@@ -1232,7 +1307,7 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 (function(){
 const SB_URL='https://osteatakzwgqvsmsauls.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9zdGVhdGFrendncXZzbXNhdWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIyOTM0MzQsImV4cCI6MjEwNzg2OTQzNH0.pMWIE_sNH-G4BYDou-2wZ7iVtLOSlsAVGMPnDkxxAl4';
-const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false}});
+const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,detectSessionInUrl:false,autoRefreshToken:false,storageKey:'vpv-anon'}});
 
 let S={hero:{eyebrow:'Ролевая игра живого действия',title:'Игра Престолов: Вой по волку',text:''},about:'',lore:[],teams:[],roles:[]};
 let saved=JSON.stringify(S);
@@ -1294,7 +1369,7 @@ function render(){
   o+=`<header class="topbar gutter"><div class="col tb-row">
     <button class="brand" id="to-top" aria-label="Наверх">${logoSrc()?`<img class="brand-logo" src="${h(logoSrc())}" alt="">`:SIGIL}<span class="brand-name">${h(S.hero.title)}</span></button>
     <nav class="tabs" role="tablist" style="--n:${tabs().length}">${tabs().map(([k,l,sh])=>`<button class="tab" role="tab" data-tab="${k}" aria-selected="${ui.tab===k}"><span class="full">${l}</span><span class="short">${sh}</span></button>`).join('')}</nav>
-    <div class="tb-actions">${isMaster()
+    <div class="tb-actions">${plChip()}${isMaster()
       ?`<button class="icon-btn ${e?'on':''}" id="edit-toggle" aria-pressed="${e}">${ICON_PEN}<span class="lbl">${e?'Редактирую':'Редактировать'}</span></button><button class="icon-btn" id="logout" aria-label="Выйти из режима мастера">${ICON_OUT}<span class="lbl">Выйти</span></button>`
       :`<button class="icon-btn" id="login-open" aria-label="Вход для мастера">${ICON_LOCK}<span class="lbl">Мастер</span></button>`}</div>
   </div></header>`;
@@ -1332,13 +1407,13 @@ function render(){
   if(aid&&aid!=='lg-editor'){const el=document.getElementById(aid); if(el){el.focus({preventScroll:true}); if(sel&&el.setSelectionRange){try{el.setSelectionRange(sel[0],sel[1])}catch(_){}}}}
   if(Math.abs(window.scrollY-y)>2) window.scrollTo(0,y);
   {const at=document.querySelector('.tabs .tab[aria-selected="true"]'),tb=at&&at.parentNode;if(tb&&tb.scrollWidth>tb.clientWidth)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2)}
-  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners'){gwTick();requestAnimationFrame(gwFan)} document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);if(ui.tab==='banners')gwFan();
+  measure(); updateBg(); if(ui.tab==='graphs') afterGrRender(); syncMusic(); if(ui.tab==='raven') rvAfterRender(); if(ui.tab==='banners'){gwTick();requestAnimationFrame(gwFan);gwMaybeReport()} document.body.classList.toggle('gwt',ui.tab==='banners'); document.body.classList.toggle('gwg',ui.tab==='banners'&&ui.gw==='game'&&!!GM);if(ui.tab==='banners')gwFan();
 }
 function measure(){const tb=document.querySelector('.topbar'); if(tb) document.documentElement.style.setProperty('--tb',tb.offsetHeight+'px')}
 
 function renderAbout(){
   if(ui.edit) return `<div class="field"><label for="f-about">Вкладка «Об игре»</label>${TOOLBAR('f-about')}<textarea id="f-about" data-bind="about" rows="18">${h(S.about)}</textarea><span class="hint">Пустая строка начинает новый абзац.</span></div>`;
-  return `<div class="section-title"><h2>Об игре</h2></div><article class="prose">${md(S.about)||'<p class="empty">Скоро здесь появится информация об игре.</p>'}</article>`;
+  return `<div class="section-title"><h2>Об игре</h2></div><article class="prose">${md(S.about)||'<p class="empty">Скоро здесь появится информация об игре.</p>'}</article>${hallMini()}`;
 }
 
 function SEC(){return ui.tab==='rules'
@@ -1432,6 +1507,7 @@ function renderCard(r){
 
 function renderModal(){
   const m=ui.modal, wrap=inner=>`<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h">${inner}</div></div>`;
+  if(m.kind==='player') return plModal(m,wrap);
   if(m.kind==='login') return wrap(`<h2 id="m-h">Вход для мастера</h2>
     <form id="login-form"><div class="field"><label for="m-pin">Код мастера</label><input id="m-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" required></div>
     <p class="err" id="m-err">${h(m.err||'')}</p>
@@ -1547,7 +1623,7 @@ document.addEventListener('input',ev=>{
 });
 document.addEventListener('change',ev=>{
   const t=ev.target;
-  if(ui.tab==='banners'&&gwChange(t))return;
+  if(ui.tab==='banners'&&(gwHallChange(t)||gwChange(t)))return;
   if(t.dataset.d&&ui.modal) ui.modal.draft[t.dataset.d]=t.value;
   if(t.id==='rv-to'){RV.to=t.value;rvMsg(null);RVS.knownAt=0;render();return}
   if(t.dataset&&t.dataset.sealicon&&t.files&&t.files[0]){const f=t.files[0],sid=t.dataset.sealicon;t.value='';rvSealIcon(sid,f);return}
@@ -1596,6 +1672,7 @@ document.addEventListener('click',async ev=>{
   const t=ev.target.closest('button, .modal-bg'); if(!t) return;
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
+  if(plClick(t))return;
   if(ds.copy!==undefined){const v=ds.copy;const done=()=>toast('Контакт скопирован');
     try{navigator.clipboard.writeText(v).then(done,()=>{fallbackCopy(v);done()})}catch(_){fallbackCopy(v);done()}return}
   if(ds.lgtab){flushLegend();ui.lgTab=ds.lgtab;ui.confirmTabDel=null;render();return}
@@ -2048,7 +2125,7 @@ function gwData(){const g=S.gwent=S.gwent||{};g.cards=g.cards||{};g.extras=g.ext
 function gwTroopList(){const g=gwData();if(Array.isArray(g.troopList))return g.troopList;return g.troops===false?[]:GW_TROOPS.map(t=>({id:t.k,name:t.name,row:t.row,power:t.power,ability:t.ability,hero:false,max:t.max,faction:'all',img:''}))}
 function gwMercList(){const g=gwData();return Array.isArray(g.mercs)?g.mercs:GW_MERCS.map(m=>Object.assign({img:''},m))}
 function gwMercsEdit(){const g=gwData();if(!Array.isArray(g.mercs))g.mercs=gwMercList().map(m=>Object.assign({},m));return g.mercs}
-function gwMercDef(m){return {id:'m:'+m.id,kind:'merc',name:m.name||'Наёмники',sub:'Наёмники',pic:m.img||'',fb:'',power:+m.power||0,row:m.row||'m',ability:m.ability||'',hero:!!m.hero,max:1,snd:m.snd||''}}
+function gwMercDef(m){return {id:'m:'+m.id,kind:'merc',name:m.name||'Наёмники',sub:'Наёмники',pic:m.img||'',fb:'',power:+m.power||0,row:m.row||'m',ability:m.ability||'',hero:!!m.hero,max:1,snd:m.snd||'',need:+m.need||0}}
 function gwTroopsEdit(){const g=gwData();if(!Array.isArray(g.troopList))g.troopList=gwTroopList().map(t=>Object.assign({},t));return g.troopList}
 function gwHash(s){let x=2166136261;for(const c of String(s))x=Math.imul(x^c.charCodeAt(0),16777619);return x>>>0}
 function gwAuto(r){
@@ -2070,15 +2147,15 @@ function gwImg(src){ // data: URLs are big; turn each into a blob URL once so th
   if(GW_BLOB[src])return GW_BLOB[src];
   try{const [hd,b64]=src.split(','),mime=(hd.match(/data:([^;]+)/)||[])[1]||'image/jpeg',bin=atob(b64),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return GW_BLOB[src]=URL.createObjectURL(new Blob([u],{type:mime}))}catch(_){return src}
 }
-function gwRoleDef(r){const st=gwStats(r),tm=S.teams.find(t=>t.id===r.team);return {id:'r:'+r.id,kind:'role',name:r.name,sub:r.title||'',pic:r.photo||'',fb:tm&&tm.icon||'',faction:r.team,power:+st.power||0,row:st.row,ability:st.ability||'',hero:!!st.hero,max:1,off:!!st.off,snd:st.snd||''}}
-function gwExtraDef(x){const tm=S.teams.find(t=>t.id===x.faction);return {id:'x:'+x.id,kind:'extra',name:x.name||'Без названия',sub:x.faction==='neutral'?'Нейтральная':tm?tm.name:'',pic:x.img||'',fb:tm&&tm.icon||'',faction:x.faction,power:+x.power||0,row:x.row||'m',ability:x.ability||'',hero:!!x.hero,max:Math.max(1,Math.min(3,+x.copies||1)),snd:x.snd||''}}
-function gwTroopDef(t,F){const team=S.teams.find(x=>x.id===F)||{};return {id:'t:'+F+':'+t.id,kind:'troop',name:t.name||'Без названия',sub:team.name||'',pic:t.img||'',fb:team.icon||'',faction:F,power:+t.power||0,row:t.row||'m',ability:t.ability||'',hero:!!t.hero,max:Math.max(1,Math.min(3,+t.max||1)),snd:t.snd||''}}
+function gwRoleDef(r){const st=gwStats(r),tm=S.teams.find(t=>t.id===r.team);return {id:'r:'+r.id,kind:'role',name:r.name,sub:r.title||'',pic:r.photo||'',fb:tm&&tm.icon||'',faction:r.team,power:+st.power||0,row:st.row,ability:st.ability||'',hero:!!st.hero,max:1,off:!!st.off,snd:st.snd||'',need:+st.need||0}}
+function gwExtraDef(x){const tm=S.teams.find(t=>t.id===x.faction);return {id:'x:'+x.id,kind:'extra',name:x.name||'Без названия',sub:x.faction==='neutral'?'Нейтральная':tm?tm.name:'',pic:x.img||'',fb:tm&&tm.icon||'',faction:x.faction,power:+x.power||0,row:x.row||'m',ability:x.ability||'',hero:!!x.hero,max:Math.max(1,Math.min(3,+x.copies||1)),snd:x.snd||'',need:+x.need||0}}
+function gwTroopDef(t,F){const team=S.teams.find(x=>x.id===F)||{};return {id:'t:'+F+':'+t.id,kind:'troop',name:t.name||'Без названия',sub:team.name||'',pic:t.img||'',fb:team.icon||'',faction:F,power:+t.power||0,row:t.row||'m',ability:t.ability||'',hero:!!t.hero,max:Math.max(1,Math.min(3,+t.max||1)),snd:t.snd||'',need:+t.need||0}}
 function gwDefs(F,withOff){ // every card a deck of faction F may contain (withOff: also cards the master switched off)
   const g=gwData(),team=S.teams.find(t=>t.id===F),out=[];
   S.roles.filter(r=>r.team===F).forEach(r=>{const d=gwRoleDef(r);if(!d.off||withOff)out.push(d)});
   g.extras.filter(x=>(x.name||'').trim()&&(x.faction===F||x.faction==='neutral')).forEach(x=>out.push(gwExtraDef(x)));
   if(team)gwTroopList().filter(t=>(t.name||'').trim()&&(!t.faction||t.faction==='all'||t.faction===F)).forEach(t=>out.push(gwTroopDef(t,F)));
-  const spM=g.spMeta||{};Object.keys(GW_SP).forEach(k=>out.push({id:'sp:'+k,kind:'special',special:k,name:(spM[k]&&spM[k].name||'').trim()||GW_SP[k].name,pic:spM[k]&&spM[k].img||'',faction:'neutral',power:0,row:'',ability:'',hero:false,max:k==='scorch'||k==='clear'?2:3,rare:GW_SP[k].rare?gwRareChance(k):0,snd:spM[k]&&spM[k].snd||''}));
+  const spM=g.spMeta||{};Object.keys(GW_SP).forEach(k=>out.push({id:'sp:'+k,kind:'special',special:k,name:(spM[k]&&spM[k].name||'').trim()||GW_SP[k].name,pic:spM[k]&&spM[k].img||'',faction:'neutral',power:0,row:'',ability:'',hero:false,max:k==='scorch'||k==='clear'?2:3,rare:GW_SP[k].rare?gwRareChance(k):0,snd:spM[k]&&spM[k].snd||'',need:spM[k]&&+spM[k].need||0}));
   return out;
 }
 function gwTeamOff(id){return (gwData().offTeams||[]).includes(id)}
@@ -2087,24 +2164,24 @@ function gwDeckKey(F){return 'vpv-gw-deck-'+F}
 function gwRareChance(k){const m=(gwData().spMeta||{})[k];const v=m&&m.chance!==undefined&&m.chance!==''?+m.chance:GW_SP[k].rare;return Math.max(0,Math.min(100,isFinite(v)?v:0))}
 function gwDefaultDeck(F){const d={};gwDefs(F).forEach(c=>{d[c.id]=c.special?(['frost','fog','rain','horn','decoy','scorch','merc'].includes(c.special)?1:0):c.max});return d}
 function gwDeck(F){let d=null;try{d=JSON.parse(localStorage.getItem(gwDeckKey(F))||'null')}catch(_){}
-  const defs=gwDefs(F);if(!d)d=gwDefaultDeck(F);const out={};defs.forEach(c=>{const n=Math.max(0,Math.min(c.max,+d[c.id]||0));if(n&&!(c.special&&GW_SP[c.special].rare))out[c.id]=n});return out}
+  const defs=gwDefs(F);if(!d)d=gwDefaultDeck(F);const out={};defs.forEach(c=>{const n=Math.max(0,Math.min(c.max,+d[c.id]||0));if(n&&!(c.special&&GW_SP[c.special].rare)&&!gwLocked(c))out[c.id]=n});return out}
 function gwSaveDeck(F,d){try{localStorage.setItem(gwDeckKey(F),JSON.stringify(d))}catch(_){}}
 function gwDeckStats(F,d){const defs=gwDefs(F);let units=0,sp=0,power=0,heroes=0;defs.forEach(c=>{const n=d[c.id]||0;if(!n)return;if(c.special)sp+=n;else{units+=n;power+=c.power*n;if(c.hero)heroes+=n}});return {units,sp,power,heroes}}
 
 /* ---- engine ---- */
 let GM=null;
 function gwShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function gwSide(name,F,deckMap){const deck=[],defs=gwDefs(F);defs.forEach(d=>{if(d.rare!==undefined&&GW_SP[d.special]&&GW_SP[d.special].rare)return;for(let k=0;k<(deckMap[d.id]||0);k++)deck.push(Object.assign({},d,{uid:uid('g')}))});
-  defs.filter(d=>d.special&&GW_SP[d.special].rare).forEach(d=>{if(Math.random()*100<d.rare)deck.push(Object.assign({},d,{uid:uid('g')}))});gwShuffle(deck);
+function gwSide(name,F,deckMap,cpu){const deck=[],defs=gwDefs(F);defs.forEach(d=>{if(d.rare!==undefined&&GW_SP[d.special]&&GW_SP[d.special].rare)return;for(let k=0;k<(deckMap[d.id]||0);k++)deck.push(Object.assign({},d,{uid:uid('g')}))});
+  defs.filter(d=>d.special&&GW_SP[d.special].rare&&(cpu?!gwNeed(d):!gwLocked(d))).forEach(d=>{if(Math.random()*100<d.rare)deck.push(Object.assign({},d,{uid:uid('g')}))});gwShuffle(deck);
   return {name,faction:F,deck,hand:deck.splice(0,10),grave:[],rows:{m:[],r:[],s:[]},horn:{m:null,r:null,s:null},lives:2,passed:false}}
-function gwAiDeck(F){const d={};gwDefs(F).forEach(c=>{d[c.id]=c.special?0:c.max});const sp=gwShuffle(Object.keys(GW_SP).filter(k=>!GW_SP[k].rare)).slice(0,6);sp.forEach(k=>d['sp:'+k]=1);return d}
+function gwAiDeck(F){const d={};gwDefs(F).forEach(c=>{d[c.id]=c.special||gwNeed(c)?0:c.max});const sp=gwShuffle(Object.keys(GW_SP).filter(k=>!GW_SP[k].rare)).slice(0,6);sp.forEach(k=>d['sp:'+k]=1);return d}
 function gwStart(F,opF,mode){
   mode=mode==='hot'?'hot':'ai';
   const me=S.teams.find(t=>t.id===F),fs=gwFactions().filter(t=>t.id!==F);
   const op=S.teams.find(t=>t.id===opF)||fs[Math.floor(Math.random()*fs.length)]||me;
   let d2=gwAiDeck(op.id);
   if(mode==='hot'){const d=gwDeck(op.id),st=gwDeckStats(op.id,d);d2=st.units>=GW_MIN_UNITS&&st.sp<=GW_MAX_SP?d:gwDefaultDeck(op.id)}
-  GM={mode,p:[gwSide(mode==='hot'?'Игрок 1':'Вы',F,gwDeck(F)),gwSide(mode==='hot'?'Игрок 2':'Компьютер',op.id,d2)],turn:Math.random()<.5?0:1,round:1,weather:{m:false,r:false,s:false},
+  GM={mode,p:[gwSide(mode==='hot'?'Игрок 1':'Вы',F,gwDeck(F)),gwSide(mode==='hot'?'Игрок 2':'Компьютер',op.id,d2,mode!=='hot')],turn:Math.random()<.5?0:1,round:1,weather:{m:false,r:false,s:false},
     log:[],phase:'mulligan',mull:2,mside:0,shown:0,sel:null,pick:null,banner:'',rounds:[],winner:null};
   GM.p[0].title=me?me.name:'';GM.p[1].title=op.name;
   GM.log.unshift('Монетка: первым ходит '+(mode==='hot'?GM.p[GM.turn].name+'.':GM.turn===0?'игрок.':'компьютер.'));
@@ -2137,7 +2214,7 @@ function gwApply(G,i,c,row,target,auto){
   const me=G.p[i],op=G.p[1-i],L=t=>G.log.unshift(t),who=me.name,Q=k=>{(G.sfx=G.sfx||[]).push(k)};
   if(c.snd)Q('snd:'+c.snd);
   if(c.special){
-    const sp=c.special;Q(sp);
+    const sp=c.special;Q(sp);if(i===0)(G.spUsed=G.spUsed||[]).push(sp);
     if(GW_SP[sp].row){G.weather[GW_SP[sp].row]=true;me.grave.push(c);L(`${who}: ${c.name} (${GW_ROW[GW_SP[sp].row].toLowerCase()}).`)}
     else if(sp==='clear'){G.weather={m:false,r:false,s:false};me.grave.push(c);L(`${who}: ясное небо.`)}
     else if(sp==='horn'){me.horn[row]=c;L(`${who}: боевой рог — ${GW_ROW[row].toLowerCase()}.`)}
@@ -2149,7 +2226,7 @@ function gwApply(G,i,c,row,target,auto){
     else if(sp==='poison'){me.grave.push(c);const f=gwFindUnit(op,target);if(f&&!f.c.hero){op.rows[f.r]=op.rows[f.r].filter(x=>x!==f.c);op.grave.push(f.c);L(`${who}: яд убивает «${f.c.name}».`)}else L(`${who}: яд пропал впустую.`)}
     else if(sp==='raven'){me.grave.push(c);const src=op.hand.length?op.hand:op.deck;if(!src.length){L(`${who}: ворон вернулся ни с чем.`);return null}
       const k=Math.floor(Math.random()*src.length),got=src.splice(k,1)[0];me.hand.push(got);G.reveal={c:got,who,t:'ворон принёс карту соперника'};L(`${who}: ворон похищает «${got.name}».`)}
-    else if(sp==='merc'){me.grave.push(c);const pool=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef);
+    else if(sp==='merc'){me.grave.push(c);const all=gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef),cpu=i===1&&G.mode!=='hot',ok=all.filter(d=>cpu?!gwNeed(d):!gwLocked(d)),pool=ok.length?ok:all;
       if(!pool.length){L(`${who}: наёмников не нашлось.`);return null}
       const got=pool[Math.floor(Math.random()*pool.length)];G.reveal={c:got,who,t:'на зов откликнулись'};
       return gwHire(G,i,got,auto);}
@@ -2274,18 +2351,20 @@ function gwMenu(){
   const F=ui.gwF,defs=gwDefs(F,ed),d=gwDeck(F),st=gwDeckStats(F,d),fOff=gwTeamOff(F),fT=S.teams.find(t=>t.id===F)||{};
   const need=Math.max(0,GW_MIN_UNITS-st.units),ok=!need&&st.sp<=GW_MAX_SP&&!fOff;
   const mercs=ed?gwMercList().filter(m=>(m.name||'').trim()).map(gwMercDef):[];
-  const TABS=[['all','Все'],['role','Персонажи'],['troop','Отряды'],['extra','Карты мастера'],['special','Особые']].concat(ed?[['merc','Наёмники']]:[]);
-  const all=defs.concat(mercs),cnt=k=>k==='all'?defs.length:all.filter(c=>c.kind===k).length;
+  const TABS=[['all','Все'],['role','Персонажи'],['troop','Отряды'],['extra','Карты мастера'],['special','Особые']].concat(ed?[['merc','Наёмники']]:[],[['reward','★ Награды']]);
+  const all=defs.concat(mercs),inTab=(c,k)=>k==='reward'?gwNeed(c)>0:c.kind===k,cnt=k=>k==='all'?defs.length:all.filter(c=>inTab(c,k)).length;
   let tab=ui.gwTab||'all';if(!TABS.some(x=>x[0]===tab)||(tab!=='all'&&!cnt(tab)&&!(ed&&['extra','troop','merc'].includes(tab))))tab='all';
   const rf=ui.gwRowF||'all',KO={role:0,extra:1,troop:2,merc:3,special:4};
-  const list=(tab==='all'?defs:all.filter(c=>c.kind===tab)).filter(c=>rf==='all'||(!c.special&&(c.row===rf||c.row==='a'&&rf!=='s')))
+  const list=(tab==='all'?defs:all.filter(c=>inTab(c,tab))).filter(c=>rf==='all'||(!c.special&&(c.row===rf||c.row==='a'&&rf!=='s')))
     .sort((x,y)=>KO[x.kind]-KO[y.kind]||(y.hero-x.hero)||(y.power-x.power)||x.name.localeCompare(y.name));
   const fl=ui.gwFlash;ui.gwFlash=null;
-  const cc=c=>{const rare=!!(c.special&&GW_SP[c.special].rare),n=c.off?0:d[c.id]||0,merc=c.kind==='merc'||rare,full=n>=c.max;
+  const page=ui.gwPage||'deck';
+  if(page!=='deck')return `<section class="gw gw-db"><div class="rv-head"><h2>Игра знамён</h2></div>${gwPagesBar()}${page==='hall'?gwHall():gwAchPage()}${gwMasterEd()}</section>`;
+  const cc=c=>{const rare=!!(c.special&&GW_SP[c.special].rare),n=c.off?0:d[c.id]||0,merc=c.kind==='merc'||rare,full=n>=c.max,lk=gwLocked(c),nd=gwNeed(c);
     const act=ed||merc?`data-gwopen="${h(c.id)}"`:`data-gwadd="${h(c.id)}"`;
-    return `<div class="gw-cc${n||rare?' in':''}${full&&!merc?' full':''}${c.off?' off':''}${fl===c.id?' pop':''}">
+    return `<div class="gw-cc${n||rare?' in':''}${full&&!merc?' full':''}${c.off?' off':''}${fl===c.id?' pop':''}${lk?' locked':''}">
       ${gwCard(c,{name:true,tip:true,cls:'gw-cc-card',attrs:`${act}${c.snd?` data-gsnd="${h(c.snd)}"`:''} role="button" tabindex="0" aria-label="${h(c.name)}: ${ed||merc?'открыть':full?'уже в колоде':'добавить в колоду'}"`})}
-      ${c.off?'<span class="gw-offb">не в игре</span>':''}
+      ${c.off?'<span class="gw-offb">не в игре</span>':''}${nd?`<span class="gw-rwb${lk?' lk':''}" title="Наградная карта">${lk?'🔒 '+nd+' '+plural(nd,'победа','победы','побед'):'★ '+nd}</span>`:''}
       ${merc?`<span class="gw-cc-note">${rare?`✦ выпадает случайно · ${c.rare}%`:'из карты «Наёмники»'}</span>`:`<div class="gw-cc-bar"><span class="gw-pips">${Array.from({length:c.max},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span>
         <span class="gw-cc-btns">${n?`<button class="gw-cc-b" data-gwdeck="${h(c.id)}" data-dir="-1" aria-label="Убрать одну">−</button>`:''}${ed&&!full&&!c.off?`<button class="gw-cc-b" data-gwdeck="${h(c.id)}" data-dir="1" aria-label="Добавить">+</button>`:''}</span></div>`}
       ${ed||merc?'':`<button class="gw-cc-i" data-gwopen="${h(c.id)}" aria-label="Подробнее о карте">i</button>`}
@@ -2302,7 +2381,7 @@ function gwMenu(){
   const fIc=t=>t.icon&&photoSrc(t.icon)?`<img src="${gwImg(photoSrc(t.icon))}" alt="">`:`<span class="rv-ini">${h((t.name||'?')[0])}</span>`;
   const bar=(v,max,bad)=>`<span class="gw-bar${bad?' bad':''}"><i style="width:${Math.min(100,Math.round(v/max*100))}%"></i></span>`;
   return `<section class="gw gw-db"><div class="rv-head"><h2>Игра знамён</h2><p class="rv-lead">Созовите знамёна своего дома: выберите фракцию, соберите колоду из персонажей, войск и особых карт — и одолейте соперника в трёх битвах.</p></div>
-  ${GW_RULES}
+  ${gwPagesBar()}${GW_RULES}
   <div class="gw-facbar" role="tablist" aria-label="Фракция">${fs.map(t=>`<button class="gw-fb${gwTeamOff(t.id)?' off':''}" data-gwf="${t.id}" role="tab" aria-selected="${t.id===F}" title="${h(t.name)}${gwTeamOff(t.id)?' — скрыта от игроков':''}"><span class="gw-fb-ic">${fIc(t)}</span><span class="gw-fb-n">${h(t.name)}</span>${gwTeamOff(t.id)?'<span class="gw-offb">скрыта</span>':''}</button>`).join('')}</div>
   ${ed?`<div class="gw-facoff${fOff?' is-off':''}"><span>${fOff?`Фракция «${h(fT.name||'')}» скрыта: игроки её не видят, и компьютер ею не играет.`:`Фракция «${h(fT.name||'')}» участвует в игре.`}</span><button class="btn small${fOff?' gold':''}" id="gw-facoff">${fOff?'Вернуть в игру':'Скрыть фракцию от игроков'}</button></div>`:''}
   <div class="gw-db-grid">
@@ -2399,7 +2478,7 @@ function gwBoard(){
       return gwCard(c,{name:true,pow:pw,fx:badge,cls:(decoyMode&&i===v&&!c.hero&&!c.special?'pick':'')+(pz?' pick poison':'')+anim,attrs:`data-gwu="${c.uid}"`+(decoyMode&&i===v&&!c.hero&&!c.special?` data-gwdecoy="${c.uid}" role="button" tabindex="0"`:'')+(pz?` data-gwpoison="${c.uid}" role="button" tabindex="0"`:'')})}).join('')}</div></div>`};
   let act='',selBtns='';
   if(G.phase==='mulligan')act=`<div class="gw-act"><span>${G.mode==='hot'?h(me.name)+': м':'М'}ожно заменить ещё ${G.mull} ${G.mull===1?'карту':'карты'}: нажмите на карту в руке.</span><button class="btn small gold" id="gw-mull-done">Начать бой</button></div>`;
-  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div></div>`;
+  else if(G.phase==='over')act=`<div class="gw-act"><span>${G.rounds.map((x,k)=>`${GW_ROMAN[k+1]}: ${x[0]}:${x[1]}`).join(' · ')}</span><div class="gw-btns"><button class="btn small gold" id="gw-again">Сыграть ещё</button><button class="btn small" id="gw-menu">К колоде</button></div>${G.mode==='ai'?gwRepHtml(G):''}</div>`;
   else if(G.pick&&G.pick.type==='merc')act=`<div class="gw-act col"><span>Наёмники: выберите отряд, который вступит в бой.</span><div class="gw-gr">${G.pick.opts.map((c,k)=>`<div class="gw-mopt">${gwCard(c,{attrs:`data-gwmerc="${k}" role="button" tabindex="0"`,cls:'pick',name:true})}<span>${c.ability?GW_AB[c.ability]+' · ':''}${GW_ROW[c.row]}</span></div>`).join('')}</div></div>`;
   else if(G.pick&&G.pick.type==='medic')act=`<div class="gw-act col"><span>Исцеление: выберите карту из сброса, которая вернётся на поле.</span><div class="gw-gr">${me.grave.filter(x=>!x.hero&&!x.special).map(c=>gwCard(c,{attrs:`data-gwmedic="${c.uid}" role="button" tabindex="0"`,cls:'pick',name:true})).join('')}</div><button class="btn small" id="gw-medic-skip">Не возвращать</button></div>`;
   else if(sel&&my){
@@ -2608,11 +2687,12 @@ function gwTick(){ // one pending timer at a time: clears round banners, then le
 function gwClick(t,ds){
   if(ds.gwf){ui.gwF=ds.gwf;render();return true}
   if(ds.gwdeck||ds.gwadd){const F=ui.gwF,d=gwDeck(F),id=ds.gwadd||ds.gwdeck,dir=ds.gwadd?1:+ds.dir,c=gwDefs(F).find(x=>x.id===id);
+    if(c&&gwLocked(c)&&dir>0){gwSfx(['down']);toast(`Наградная карта: откроется после ${gwNeed(c)} ${plural(gwNeed(c),'победы','побед','побед')}${PL.me?` (у вас ${PL.me.wins})`:' — войдите и побеждайте'}`);return true}
     if(c&&!c.off&&!(c.special&&GW_SP[c.special].rare)){const was=d[c.id]||0,nv=Math.max(0,Math.min(c.max,was+dir));if(nv!==was){d[c.id]=nv;gwSaveDeck(F,d);ui.gwFlash=c.id;gwSfx([dir>0?'land':'back'])}else if(dir>0)gwSfx(['down'])}render();return true}
   if(ds.gwtab){ui.gwTab=ds.gwtab;render();return true}
   if(ds.gwrowf){ui.gwRowF=ds.gwrowf;render();return true}
   if(t.id==='gw-dp-tog'){ui.gwDeckOpen=!ui.gwDeckOpen;render();return true}
-  if(t.id==='gw-all'){const F=ui.gwF,d=gwDeck(F);gwDefs(F).forEach(c=>{if(!c.special)d[c.id]=c.max});gwSaveDeck(F,d);render();return true}
+  if(t.id==='gw-all'){const F=ui.gwF,d=gwDeck(F);gwDefs(F).forEach(c=>{if(!c.special&&!c.off&&!gwLocked(c))d[c.id]=c.max});gwSaveDeck(F,d);render();return true}
   if(t.id==='gw-clear'){gwSaveDeck(ui.gwF,{});render();return true}
   if(t.id==='gw-mode-ai'||t.id==='gw-mode-hot'){ui.gwMode=t.id==='gw-mode-hot'?'hot':'ai';render();return true}
   if(t.id==='gw-play'){gwStart(ui.gwF,ui.gwOp,ui.gwMode);render();gwMusicGo();window.scrollTo(0,0);return true}
@@ -2656,6 +2736,7 @@ function gwModalObj(id){ // → {kind, obj, def}
   if(id.startsWith('sp:')){const k=id.slice(3),d=gwDefs(ui.gwF).find(c=>c.id===id);if(!d)return null;const g=gwData(),sm=g.spMeta=g.spMeta||{};return {kind:'special',obj:Object.assign({id:k},sm[k]||{}),def:d}}
   return null;
 }
+const GW_NEEDF=def=>`<label class="gw-mf-w">★ Наградная карта: открывается после стольких побед<input type="number" data-gm="need" min="0" max="999" value="${gwNeed(def)}" title="0 — карта доступна всем"><span class="hint">0 — доступна всем. Компьютер наградные карты не получает.</span></label>`;
 function gwMasterEd(){
   const M=ui.gwModal&&gwModalObj(ui.gwModal.id);
   if(ui.gwModal&&!M)ui.gwModal=null;
@@ -2675,7 +2756,7 @@ function gwMasterEd(){
   const rowO=[['m','⚔ Ближний бой'],['r','🏹 Дальний бой'],['s','🏰 Осада'],['a','⇄ Ближний или дальний']],abO=Object.entries(GW_AB).map(([k,v])=>[k,(GW_AI[k]?GW_AI[k]+' ':'')+v]);
   let form='';
   if(ed&&kind==='special'){
-    form=`<div class="gw-mf"><label class="gw-mf-w">Название<input data-gm="name" value="${h(obj.name||'')}" maxlength="40" placeholder="${h(GW_SP[obj.id].name)}"></label>${GW_SP[obj.id].rare?`<label class="gw-mf-w">Шанс выпасть в колоду в начале боя, %<input type="number" data-gm="chance" min="0" max="100" value="${gwRareChance(obj.id)}"></label>`:''}</div>
+    form=`<div class="gw-mf"><label class="gw-mf-w">Название<input data-gm="name" value="${h(obj.name||'')}" maxlength="40" placeholder="${h(GW_SP[obj.id].name)}"></label>${GW_NEEDF(def)}${GW_SP[obj.id].rare?`<label class="gw-mf-w">Шанс выпасть в колоду в начале боя, %<input type="number" data-gm="chance" min="0" max="100" value="${gwRareChance(obj.id)}"></label>`:''}</div>
     <div class="gw-mact"><label class="btn small gold" for="gw-m-img">${obj.img?'Заменить картинку':'Загрузить картинку'}</label><input type="file" id="gw-m-img" accept="image/*" hidden>
       ${obj.img?'<button class="btn small" id="gw-m-noimg">Убрать картинку</button>':''}<span class="hint">Действие карты не меняется: значок в углу показывает, что она делает.</span></div>
 <div class="gw-mact gw-msnd"><span class="lbl" style="margin:0">Звук карты</span>${obj.snd?`<button class="btn small" id="gw-m-sndplay">▶ Послушать</button>`:''}<label class="btn small${obj.snd?'':' gold'}" for="gw-m-snd">${ui.musUp?'Загружаю…':obj.snd?'Заменить звук':'Загрузить звук'}</label><input type="file" id="gw-m-snd" accept="audio/*,.mp3,.ogg,.m4a,.wav" hidden>${obj.snd?'<button class="btn small" id="gw-m-sndno">Убрать звук</button>':''}<span class="hint">Звучит при наведении на карту в колоде и когда карту выкладывают на поле. Лучше короткий: 1–3 секунды.</span></div>
@@ -2690,7 +2771,7 @@ function gwMasterEd(){
       <label>Ряд${sel('row',def.row,rowO)}</label>
       <label class="gw-mf-w">Способность${sel('ability',def.ability,abO)}</label>
       ${kind==='role'||kind==='merc'?'':`<label>Копий в колоде${sel('copies',def.max,[[1,'1'],[2,'2'],[3,'3']])}</label>`}
-      <label class="gw-chk"><input type="checkbox" data-gm="hero"${def.hero?' checked':''}> ♛ Герой</label>
+      ${GW_NEEDF(def)}<label class="gw-chk"><input type="checkbox" data-gm="hero"${def.hero?' checked':''}> ♛ Герой</label>
       ${kind==='role'?`<label class="gw-chk"><input type="checkbox" data-gm="on"${def.off?'':' checked'}> Участвует в игре</label>`:''}
     </div>
     <div class="gw-mact">${kind==='role'?`<span class="hint">Имя, должность и портрет берутся из сетки ролей.</span>${own?'<button class="btn small" id="gw-m-auto">Вернуть автоматические статы</button>':''}`
@@ -2703,7 +2784,7 @@ function gwMasterEd(){
   return tools+`<div class="gw-mbg" id="gw-mbg"><div class="gw-modal" role="dialog" aria-label="${h(def.name)}"><button class="gw-mx" id="gw-mclose" aria-label="Закрыть">×</button>
     <div class="gw-mcard">${gwCard(def,{name:true})}</div>
     <div class="gw-mbody"><h3>${h(def.name)}</h3>${def.sub?`<div class="gw-msub">${h(def.sub)}</div>`:''}
-      <div class="gw-mtags">${def.special?'<span>Особая карта</span>':`<span>${GW_RI[def.row]||''} ${GW_ROW[def.row]||''}</span><span>Сила ${def.power}</span>${def.hero?'<span>♛ Герой</span>':''}${def.ability?`<span>${GW_AI[def.ability]} ${GW_AB[def.ability]}</span>`:''}<span>до ${def.max} в колоде</span>`}</div>
+      <div class="gw-mtags">${def.special?'<span>Особая карта</span>':`<span>${GW_RI[def.row]||''} ${GW_ROW[def.row]||''}</span><span>Сила ${def.power}</span>${def.hero?'<span>♛ Герой</span>':''}${def.ability?`<span>${GW_AI[def.ability]} ${GW_AB[def.ability]}</span>`:''}<span>до ${def.max} в колоде</span>`}${gwNeed(def)?`<span class="gw-mtag-rw">${gwLocked(def)?'🔒':'★'} Наградная: после ${gwNeed(def)} ${plural(gwNeed(def),'победы','побед','побед')}</span>`:''}</div>
       <p class="gw-d">${gwDesc(def)}</p>${form}</div></div></div>`;
 }
 function gwSetSnd(M,src){const g=gwData();let x;
@@ -2723,7 +2804,7 @@ function gwChange(t){
   if(t.id==='gw-m-img'&&t.files&&t.files[0]){const M=gwModalObj(ui.gwModal&&ui.gwModal.id),f=t.files[0];t.value='';if(M&&M.obj)gwXImg(M.obj.id,f,M.kind==='troop'?true:M.kind==='special'?'sp':M.kind==='merc'?'merc':false);return true}
   const f=t.dataset&&t.dataset.gm;if(!f)return false;
   const M=gwModalObj(ui.gwModal&&ui.gwModal.id);if(!M)return true;
-  const val=f==='hero'||f==='on'?t.checked:f==='power'?Math.max(0,Math.min(20,+t.value||0)):f==='copies'?+t.value:t.value;
+  const val=f==='hero'||f==='on'?t.checked:f==='power'?Math.max(0,Math.min(20,+t.value||0)):f==='need'?Math.max(0,Math.min(999,Math.floor(+t.value||0))):f==='copies'?+t.value:t.value;
   if(M.kind==='special'){const sm=gwData().spMeta,k=M.obj.id;sm[k]=Object.assign({},sm[k]||{},{[f]:f==='chance'?Math.max(0,Math.min(100,+t.value||0)):val});soft();render();return true}
   if(M.kind==='role'){const g=gwData(),cur=gwStats(M.obj),o=Object.assign({power:cur.power,row:cur.row,ability:cur.ability,hero:cur.hero},g.cards[M.obj.id]||{});
     if(f==='on'){if(val)delete o.off;else o.off=true}else o[f]=val;g.cards[M.obj.id]=o}
@@ -2770,7 +2851,7 @@ document.addEventListener('click',ev=>{
   if(ev.target.id==='gw-mbg'){ui.gwModal=null;render();return}
   {const rp=ev.target.closest&&ev.target.closest('[data-gwrowplay]');if(rp&&!ev.target.closest('[data-gwdecoy],[data-gwpoison]')){gwClick({id:''},{gwplay:rp.dataset.gwrowplay});return}}
   const t=ev.target.closest&&ev.target.closest('[data-gwhand],[data-gwdecoy],[data-gwpoison],[data-gwmedic],[data-gwmerc],[data-gwadd],[data-gwopen],button,summary,.gw-banner,.gw-reveal');if(!t||t.id==='gw-mbg')return;
-  const ds=t.dataset||{};gwClick(t,ds)||gwMasterClick(t,ds);
+  const ds=t.dataset||{};gwClick(t,ds)||gwHallClick(t,ds)||gwMasterClick(t,ds);
 });
 document.addEventListener('contextmenu',ev=>{const el=ui.tab==='banners'&&ev.target.closest&&ev.target.closest('[data-gwadd]');if(!el)return;ev.preventDefault();gwClick({id:''},{gwdeck:el.dataset.gwadd,dir:'-1'})});
 document.addEventListener('keydown',ev=>{if(ui.tab==='banners'&&ev.key==='Escape'&&ui.gwModal){ui.gwModal=null;render();return}if(ui.tab==='banners'&&(ev.key==='Enter'||ev.key===' ')&&ev.target.matches&&ev.target.matches('[data-gwhand],[data-gwdecoy],[data-gwmedic],[data-gwmerc],[data-gwadd],[data-gwopen]')){ev.preventDefault();ev.target.click()}});
@@ -4005,6 +4086,258 @@ window.addEventListener('beforeunload',ev=>{if(isMaster()&&(dirty()||lgTimer||lg
 window.addEventListener('resize',measure);
 
 function photoIds(){return [...JSON.stringify(S).matchAll(/\[\[img:([\w-]+)/g)].map(m=>'ph:'+m[1]).concat((S.seals||[]).map(x=>x.icon||''),((S.gwent||{}).extras||[]).concat((S.gwent||{}).troopList||[],Object.values((S.gwent||{}).spMeta||{}),(S.gwent||{}).mercs||[]).map(x=>x.img||''),S.roles.map(r=>r.photo||'')).concat(S.teams.map(t=>t.icon||''),S.lore.map(a=>a.cover||''),(S.rules||[]).map(a=>a.cover||''),Object.values(S.brand||{})).filter(p=>p.startsWith('ph:')).map(p=>p.slice(3))}
+
+/* ---------------- hall of fame: player accounts (email), scores, achievements, reward cards ---------------- */
+const sbu=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,storageKey:'vpv-player',detectSessionInUrl:true,flowType:'implicit',autoRefreshToken:true}});
+const PL={session:null,me:null,ready:false,board:null,boardAt:0,boardErr:'',boardBusy:false,missing:false};
+const ICON_CROWN=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 12.5h11M3 12.5 2 5l3.5 2.8L8 3.5l2.5 4.3L14 5l-1 7.5"/></svg>`;
+const plWins=()=>PL.me?PL.me.wins:0;
+function plErr(e){const m=String(e&&(e.message||e.msg)||e||'');
+  if(/rate limit|too many|over_email_send_rate/i.test(m))return 'Почтовый сервис сайта сейчас перегружен письмами. Попробуйте через несколько минут.';
+  if(/seconds|only request this after/i.test(m))return 'Письмо уже отправлено. Новое можно запросить через минуту.';
+  if(/expired|invalid|otp/i.test(m))return 'Код не подошёл или устарел. Проверьте его или запросите новое письмо.';
+  if(/email.*invalid|valid email|unable to validate email/i.test(m))return 'Проверьте адрес почты.';
+  if(/gw_|schema cache|function .* does not exist|PGRST202/i.test(m)){PL.missing=true;return 'Зал славы ещё не подключён на сервере (мастеру: запустите SQL-файл).'}
+  if(/fetch|network/i.test(m))return 'Нет связи с сервером. Проверьте интернет.';
+  return m||'Что-то пошло не так.';
+}
+const NAME_ERR={bad_name:'Имя — от 2 до 24 символов: буквы, цифры, пробел, дефис, точка или апостроф.',taken:'Это имя уже занято. Добавьте, например, фамилию или титул.',auth:'Сначала войдите по почте.'};
+async function plLoadMe(){
+  const {data,error}=await sbu.rpc('gw_me');
+  if(error){PL.ready=true;ui.plErr=plErr(error);render();return}
+  PL.me=data||null;PL.ready=true;
+  if(!PL.me){let nm='';try{nm=localStorage.getItem('vpv-pl-name')||''}catch(_){}
+    if(nm){const r=await sbu.rpc('gw_set_name',{p_name:nm});if(!r.error&&r.data&&r.data.ok){PL.me=r.data.me;try{localStorage.removeItem('vpv-pl-name')}catch(_){};if(ui.modal&&ui.modal.kind==='player')ui.modal=null;toast('Добро пожаловать, '+PL.me.name+'!');PL.boardAt=0;return}
+      ui.modal={kind:'player',step:'name',name:nm,err:r.error?plErr(r.error):NAME_ERR[r.data&&r.data.code]||''};}
+    else ui.modal={kind:'player',step:'name',name:''};
+  }else if(ui.modal&&ui.modal.kind==='player'&&ui.modal.step!=='profile'){ui.modal=null;toast('Вы вошли как '+PL.me.name)}
+  render();
+}
+try{
+sbu.auth.onAuthStateChange((ev,s)=>{const had=!!(PL.session&&PL.session.user),uidOld=had&&PL.session.user.id;PL.session=s;
+  if(s&&s.user){if(!had||uidOld!==s.user.id)setTimeout(plLoadMe,0)}else{PL.me=null;PL.ready=true;render()}});
+sbu.auth.getSession().then(({data})=>{if(!data||!data.session){PL.ready=true;setTimeout(plHello,1500)}});
+}catch(e){PL.ready=true;console.warn('player login unavailable',e)}
+function plHello(){ // first visit: invite the player to introduce themselves
+  let seen=false;try{seen=localStorage.getItem('vpv-pl-hello')==='1'}catch(_){seen=true}
+  if(seen||PL.session||pin)return;
+  if(PL.boardErr||PL.missing)return; // the hall is not set up on the server yet
+  if(!PL.board){plLoadBoard();setTimeout(plHello,1500);return}
+  if(ui.loading||ui.modal||ui.gw==='game'){setTimeout(plHello,2000);return}
+  try{localStorage.setItem('vpv-pl-hello','1')}catch(_){}
+  ui.modal={kind:'player',step:'hello'};render();setTimeout(()=>document.getElementById('pl-name')?.focus(),30);
+}
+function plOpen(){ui.modal=PL.me?{kind:'player',step:'profile'}:PL.session?{kind:'player',step:'name',name:''}:{kind:'player',step:'hello'};render();
+  setTimeout(()=>document.getElementById(PL.me?'pl-x':'pl-name')?.focus(),30)}
+function plChip(){const n=PL.me?PL.me.name:'';
+  return `<button class="icon-btn pl-chip${PL.me?' in':''}" data-plopen="1" aria-label="${PL.me?'Мой профиль: '+h(n):'Войти игроку'}">${ICON_CROWN}<span class="lbl">${PL.me?h(n)+` · ${PL.me.wins}`:'Войти'}</span></button>`}
+
+/* achievements */
+const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['special','Побед с особой картой…']];
+const ACH_DEF=[
+  {id:'w1',icon:'🩸',name:'Первая кровь',type:'wins',n:1},
+  {id:'w5',icon:'⚔',name:'Знаменосец',type:'wins',n:5},
+  {id:'w15',icon:'🛡',name:'Лорд-командующий',type:'wins',n:15},
+  {id:'w30',icon:'👑',name:'Король Семи Королевств',type:'wins',n:30},
+  {id:'fl',icon:'✨',name:'Без единой царапины',type:'flawless',n:1},
+  {id:'st3',icon:'🐺',name:'Стая выживает',type:'streak',n:3},
+  {id:'cb',icon:'🦁',name:'Ланнистеры платят долги',type:'comeback',n:1},
+  {id:'fx3',icon:'🗺',name:'Знамёна всех домов',type:'factions',n:3},
+  {id:'dr',icon:'🐉',name:'Огонь и кровь',type:'special',arg:'dragon',n:1},
+  {id:'fc',icon:'🎭',name:'Валар моргулис',type:'special',arg:'faceless',n:1},
+  {id:'g25',icon:'🏟',name:'Завсегдатай турниров',type:'games',n:25}];
+function achList(){const g=gwData();return Array.isArray(g.ach)?g.ach:ACH_DEF}
+function achEdit(){const g=gwData();if(!Array.isArray(g.ach))g.ach=JSON.parse(JSON.stringify(ACH_DEF));return g.ach}
+function achVal(p,a){if(!p)return 0;const o=p.fac||{},s=p.sp||{};
+  return a.type==='wins'?p.wins:a.type==='games'?p.games:a.type==='flawless'?p.flawless:a.type==='streak'?p.best_streak:a.type==='comeback'?p.comeback
+    :a.type==='factions'?Object.values(o).filter(v=>v>0).length:a.type==='faction'?+o[a.arg]||0:a.type==='special'?+s[a.arg]||0:0}
+const achN=a=>Math.max(1,+a.n||1);
+const achDone=(p,a)=>achVal(p,a)>=achN(a);
+function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),P=(w)=>n+' '+plural(n,...w);
+  switch(a.type){
+    case 'wins':return n===1?'Одержите первую победу.':`Одержите ${P(['победу','победы','побед'])}.`;
+    case 'games':return `Сыграйте ${P(['партию','партии','партий'])}.`;
+    case 'flawless':return n===1?'Победите, не проиграв ни одной битвы (2:0).':`Победите всухую (2:0) ${P(['раз','раза','раз'])}.`;
+    case 'streak':return `Одержите ${P(['победу','победы','побед'])} подряд.`;
+    case 'comeback':return n===1?'Проиграйте первую битву — и всё равно выиграйте партию.':`Отыграйтесь после проигранной первой битвы ${P(['раз','раза','раз'])}.`;
+    case 'factions':return `Победите за ${P(['фракцию','разные фракции','разных фракций'])}.`;
+    case 'faction':{const t=S.teams.find(x=>x.id===a.arg);return `Победите за фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
+    case 'special':{const k=a.arg,nm=GW_SP[k]?((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name:'?';return `Победите в партии, где вы сыграли карту «${nm}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
+  }return ''}
+function achEarned(p){return achList().filter(a=>achDone(p,a))}
+
+/* reward cards */
+function gwNeed(c){return Math.max(0,Math.floor(+c.need||0))}
+function gwLocked(c){const n=gwNeed(c);return n>0&&!pin&&plWins()<n}
+function gwRewardDefs(){const seen=new Set(),out=[];S.teams.forEach(t=>gwDefs(t.id,!!pin).forEach(c=>{if(gwNeed(c)&&!seen.has(c.id)&&!c.off){seen.add(c.id);out.push(c)}}));
+  gwMercList().filter(m=>(m.name||'').trim()&&gwNeed(m)).forEach(m=>{const d=gwMercDef(m);if(!seen.has(d.id)){seen.add(d.id);out.push(d)}});
+  return out.sort((a,b)=>gwNeed(a)-gwNeed(b)||a.name.localeCompare(b.name))}
+
+/* reporting a finished game against the computer */
+function gwSnapshot(p){return {ach:new Set(achEarned(p).map(a=>a.id)),wins:p?p.wins:0}}
+function gwMaybeReport(){
+  const G=GM;if(!G||G.phase!=='over'||G.mode!=='ai'||G.reported)return;G.reported=true;
+  const res=G.winner===0?'win':G.winner===1?'loss':'draw';
+  if(!PL.me){G.rep={msg:PL.session?'Представьтесь, чтобы победы шли в Зал славы.':'Войдите, чтобы победы шли в Зал славы.',login:true};render();return}
+  const before=gwSnapshot(PL.me);G.rep={msg:'Записываю результат в Зал славы…'};render();
+  sbu.rpc('gw_report',{p_res:{result:res,faction:G.p[0].faction,rounds:G.rounds,sp:[...new Set(G.spUsed||[])]}}).then(({data,error})=>{
+    if(error||!data||!data.ok){G.rep={msg:error?plErr(error):data&&data.code==='too_fast'?'Партия слишком короткая — в Зал славы не записана.':'Не удалось записать результат.'};render();return}
+    PL.me=data.me;PL.boardAt=0;const now=achEarned(PL.me).filter(a=>!before.ach.has(a.id));
+    const cards=gwRewardDefs().filter(c=>gwNeed(c)>before.wins&&gwNeed(c)<=PL.me.wins);
+    G.rep={msg:res==='win'?`Победа записана: у вас ${PL.me.wins} ${plural(PL.me.wins,'победа','победы','побед')}.`:res==='loss'?'Поражение записано. Серия побед прервана.':'Ничья записана.',ach:now,cards};
+    if(now.length||cards.length)gwSfx(['victory']);render();
+  });
+}
+function gwRepHtml(G){const r=G.rep;if(!r)return '';
+  return `<div class="gw-rep">${h(r.msg)}${r.login?' <button class="btn small gold" data-plopen="1">Войти</button>':''}
+    ${(r.ach||[]).map(a=>`<div class="gw-rep-a"><span class="ach-ic">${h(a.icon||'★')}</span><span>Новое достижение: <b>${h(a.name)}</b></span></div>`).join('')}
+    ${(r.cards||[]).map(c=>`<div class="gw-rep-a"><span class="ach-ic">🔓</span><span>Открыта наградная карта: <b>${h(c.name)}</b></span></div>`).join('')}</div>`}
+
+/* hall of fame + achievements pages */
+function plLoadBoard(force){
+  if(PL.boardBusy||(!force&&PL.board&&Date.now()-PL.boardAt<30000))return;PL.boardBusy=true;
+  sbu.rpc('gw_board').then(({data,error})=>{PL.boardBusy=false;if(error){PL.boardErr=plErr(error)}else{PL.board=data||[];PL.boardErr='';PL.boardAt=Date.now()}render()});
+}
+function gwPagesBar(){const p=ui.gwPage||'deck';
+  return `<div class="gw-pages" role="tablist">${[['deck','Колода',gwIco('flag')],['hall','Зал славы',ICON_CROWN],['ach','Награды','★']].map(([k,l,ic])=>`<button class="gw-page" data-gwpage="${k}" role="tab" aria-selected="${p===k}"><span class="gw-page-ic">${ic}</span>${l}</button>`).join('')}
+    ${plChipWide()}</div>`}
+function plChipWide(){return PL.me?`<button class="gw-me" data-plopen="1"><b>${h(PL.me.name)}</b><span>${PL.me.wins} ${plural(PL.me.wins,'победа','победы','побед')}</span></button>`
+  :`<button class="btn small gold gw-me-in" data-plopen="1">${PL.session?'Представиться':'Войти и вести счёт'}</button>`}
+function gwHall(){
+  plLoadBoard();const ed=!!(ui.edit&&pin),B=PL.board,myId=PL.me&&PL.me.id;
+  if(!B)return `<div class="gw-hall"><p class="empty">${PL.boardErr?h(PL.boardErr):'Загружаю таблицу…'}</p></div>`;
+  const pos=myId?B.findIndex(p=>p.id===myId)+1:0;
+  const head=PL.me?`<div class="gw-hall-me"><span class="gw-hall-pos">${pos?'#'+pos:'—'}</span><div><b>${h(PL.me.name)}</b><span>${PL.me.wins} ${plural(PL.me.wins,'победа','победы','побед')} · ${PL.me.losses} ${plural(PL.me.losses,'поражение','поражения','поражений')} · серия ${PL.me.streak}</span></div></div>`
+    :`<div class="gw-hall-me"><div><b>Вас пока нет в таблице</b><span>Войдите по почте — и каждая победа над компьютером попадёт сюда.</span></div><button class="btn small gold" data-plopen="1">Войти</button></div>`;
+  const row=(p,i)=>{const pct=p.games?Math.round(p.wins/p.games*100):0,ach=achEarned(p),pl=i+1;
+    return `<tr class="${p.id===myId?'me':''}${pl<=3?' top'+pl:''}"><td class="hf-p">${pl<=3?['🥇','🥈','🥉'][pl-1]:pl}</td>
+      <td class="hf-n">${h(p.name)}${ach.length?`<span class="hf-ach">${ach.slice(-6).map(a=>`<i title="${h(a.name)}">${h(a.icon||'★')}</i>`).join('')}${ach.length>6?`<small>+${ach.length-6}</small>`:''}</span>`:''}</td>
+      <td class="hf-w">${p.wins}</td><td>${p.losses}</td><td class="hf-x">${p.games}</td><td class="hf-x">${pct}%</td><td class="hf-x">${p.best_streak}</td>
+      ${ed?`<td class="hf-ed"><button class="btn small" data-gwadm="rename" data-u="${p.id}" data-n="${h(p.name)}">Имя</button><button class="btn small" data-gwadm="reset" data-u="${p.id}">${ui.gwAdm==='reset'+p.id?'Точно обнулить?':'Обнулить'}</button><button class="btn small danger" data-gwadm="delete" data-u="${p.id}">${ui.gwAdm==='delete'+p.id?'Точно убрать?':'Убрать'}</button></td>`:''}</tr>`};
+  return `<div class="gw-hall">${head}
+    ${B.length?`<div class="gw-htab-w"><table class="gw-htab"><thead><tr><th>#</th><th>Игрок</th><th title="Победы">Победы</th><th title="Поражения">Пор.</th><th class="hf-x">Партий</th><th class="hf-x">% побед</th><th class="hf-x" title="Лучшая серия побед">Серия</th>${ed?'<th></th>':''}</tr></thead>
+      <tbody>${B.map(row).join('')}</tbody></table></div>`:'<p class="empty">В таблице пока никого. Станьте первым!</p>'}
+    <p class="hint">Считаются партии против компьютера. Место — по числу побед, при равенстве выше тот, у кого меньше поражений.${ed?' Режим мастера: можно поправить имя, обнулить счёт или убрать игрока.':''}</p>
+    <div class="gw-hall-foot"><button class="btn small" id="gw-hall-reload">Обновить</button></div></div>`;
+}
+function gwAchPage(){
+  const ed=!!(ui.edit&&pin),p=PL.me,L=achList(),done=L.filter(a=>achDone(p,a)).length,R=gwRewardDefs();
+  const achCard=(a,i)=>{const v=Math.min(achVal(p,a),achN(a)),ok=achDone(p,a);
+    return `<div class="ach${ok?' on':''}"><span class="ach-ic">${h(a.icon||'★')}</span><div class="ach-b"><b>${h(a.name||'Достижение')}</b><span>${h(achDesc(a))}</span>
+      ${ok?'<em>Получено</em>':achN(a)>1?`<span class="ach-bar"><i style="width:${Math.round(v/achN(a)*100)}%"></i></span><small>${v} / ${achN(a)}</small>`:''}</div>
+      ${ed?`<button class="btn small" data-achedit="${i}">Изменить</button>`:''}</div>`};
+  const opt=(arr,val)=>arr.map(([v,l])=>`<option value="${h(v)}"${String(val)===String(v)?' selected':''}>${h(l)}</option>`).join('');
+  const ea=ed&&ui.achEd!==undefined&&achEdit()[ui.achEd];
+  const editor=ea?`<div class="ach-ed"><div class="gw-mf">
+      <label>Значок<input data-ach="icon" value="${h(ea.icon||'')}" maxlength="4"></label>
+      <label class="gw-mf-w">Название<input data-ach="name" value="${h(ea.name||'')}" maxlength="40"></label>
+      <label class="gw-mf-w">Условие<select data-ach="type">${opt(ACH_TYPES,ea.type)}</select></label>
+      ${ea.type==='faction'?`<label class="gw-mf-w">Фракция<select data-ach="arg">${opt(S.teams.map(t=>[t.id,t.name]),ea.arg)}</select></label>`:''}
+      ${ea.type==='special'?`<label class="gw-mf-w">Особая карта<select data-ach="arg">${opt(Object.keys(GW_SP).map(k=>[k,((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name]),ea.arg)}</select></label>`:''}
+      <label>Сколько<input type="number" data-ach="n" min="1" max="999" value="${achN(ea)}"></label>
+      <label class="gw-mf-w">Описание (можно оставить пустым)<input data-ach="desc" value="${h(ea.desc||'')}" maxlength="120" placeholder="${h(achDesc(Object.assign({},ea,{desc:''})))}"></label></div>
+    <div class="gw-mact"><button class="btn small danger" id="ach-del">${ui.achDel?'Точно удалить?':'Удалить достижение'}</button><span class="grow"></span><button class="btn small gold" id="ach-done">Готово</button></div></div>`:'';
+  return `<div class="gw-achp">
+    <div class="gw-ach-head"><h3>Достижения</h3><span>${p?`Получено ${done} из ${L.length}`:'Войдите, чтобы собирать достижения'}</span></div>
+    ${editor}
+    <div class="ach-grid">${L.map(achCard).join('')}${ed?'<button class="gw-addc ach-add" id="ach-add"><span>+</span>Новое достижение</button>':''}</div>
+    ${ed?`<div class="gw-mtools"><button class="btn small" id="ach-reset">Вернуть стандартные достижения</button></div>`:''}
+    <div class="gw-ach-head"><h3>Наградные карты</h3><span>Открываются за победы${p?` · у вас ${p.wins}`:''}</span></div>
+    ${R.length?`<div class="gw-rgrid">${R.map(c=>{const lk=gwNeed(c)>plWins();return `<div class="gw-rc${lk?' locked':''}">${gwCard(c,{name:true,tip:true,attrs:`data-gwopen="${h(c.id)}" role="button" tabindex="0"`})}
+      <span class="gw-rc-n">${lk?`🔒 после ${gwNeed(c)} ${plural(gwNeed(c),'победы','побед','побед')}`:'★ открыта'}</span><span class="gw-rc-f">${h(c.sub||'')}</span></div>`}).join('')}</div>`
+      :`<p class="empty">${ed?'Наградных карт пока нет. Откройте любую карту во вкладке «Колода» и укажите, после скольких побед она открывается.':'Мастер ещё не назначил наградные карты.'}</p>`}
+  </div>`;
+}
+function gwHallClick(t,ds){
+  if(ds.gwpage){ui.gwPage=ds.gwpage;ui.achEd=undefined;if(ds.gwpage==='hall')plLoadBoard(true);render();return true}
+  if(t.id==='gw-hall-reload'){plLoadBoard(true);return true}
+  if(ds.gwadm&&pin){const u=ds.u,a=ds.gwadm;let nm=null;
+    if(a==='rename'){nm=prompt('Новое имя игрока',ds.n||'');if(!nm||!nm.trim())return true}
+    else if(ui.gwAdm!==a+u){ui.gwAdm=a+u;render();return true}
+    ui.gwAdm=null;sb.rpc('gw_admin',{p_pin:pin,p_action:a,p_user:u,p_name:nm}).then(({data,error})=>{if(error||!data)toast(error?plErr(error):'Не получилось');else{toast(a==='delete'?'Игрок убран из таблицы':a==='reset'?'Счёт обнулён':'Имя изменено');if(PL.me&&PL.me.id===u)plLoadMe()}plLoadBoard(true)});return true}
+  if(ds.achedit!==undefined){ui.achEd=+ds.achedit;ui.achDel=false;render();return true}
+  if(t.id==='ach-add'){const L=achEdit();L.push({id:uid('a'),icon:'★',name:'Новое достижение',type:'wins',n:10});ui.achEd=L.length-1;ui.achDel=false;soft();render();return true}
+  if(t.id==='ach-done'){ui.achEd=undefined;render();return true}
+  if(t.id==='ach-del'){if(!ui.achDel){ui.achDel=true;render();return true}achEdit().splice(ui.achEd,1);ui.achEd=undefined;ui.achDel=false;soft();render();return true}
+  if(t.id==='ach-reset'){gwData().ach=JSON.parse(JSON.stringify(ACH_DEF));ui.achEd=undefined;soft();render();return true}
+  return false;
+}
+function gwHallChange(t){const f=t.dataset&&t.dataset.ach;if(!f)return false;const a=achEdit()[ui.achEd];if(!a)return true;
+  a[f]=f==='n'?Math.max(1,Math.min(999,Math.floor(+t.value||1))):t.value;
+  if(f==='type'){a.arg=a.type==='faction'?(S.teams[0]||{}).id||'':a.type==='special'?'dragon':undefined;if(a.arg===undefined)delete a.arg}
+  soft();render();return true}
+
+/* the player modal */
+function plModal(m,wrap){
+  const st=m.step,err=m.err?`<p class="err">${h(m.err)}</p>`:'<p class="err"></p>';
+  if(st==='hello')return wrap(`<h2 id="m-h">Добро пожаловать в Вестерос</h2>
+    <p class="pl-lead">Представьтесь — и в «Игре знамён» начнётся ваш счёт побед: турнирная таблица, достижения и особые карты, которые открываются победителям.</p>
+    <form id="pl-form" data-step="hello"><div class="field"><label for="pl-name">Ваше имя в турнирной таблице</label><input id="pl-name" maxlength="24" autocomplete="nickname" value="${h(m.name||'')}" required></div>
+    <div class="field"><label for="pl-email">Почта</label><input id="pl-email" type="email" autocomplete="email" inputmode="email" value="${h(m.email||'')}" required><span class="hint">Пришлём письмо с кодом для входа. Пароль не нужен. Почту никто, кроме вас, не увидит.</span></div>
+    ${err}<div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Позже</button><button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Отправляю…':'Получить код'}</button></div></form>`);
+  if(st==='code')return wrap(`<h2 id="m-h">Проверьте почту</h2>
+    <p class="pl-lead">Мы отправили письмо на <b>${h(m.email)}</b>. Введите код из письма — или просто нажмите в письме на ссылку для входа.</p>
+    <form id="pl-form" data-step="code"><div class="field"><label for="pl-code">Код из письма</label><input id="pl-code" class="pin-input" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required></div>
+    ${err}<div class="foot"><button type="button" class="btn small" id="pl-back">Другая почта</button><button type="button" class="btn small" id="pl-resend"${m.busy?' disabled':''}>Отправить ещё раз</button><span class="grow"></span><button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Проверяю…':'Войти'}</button></div></form>
+    <p class="hint">Письма нет? Загляните в «Спам» и «Промоакции».</p>`);
+  if(st==='name')return wrap(`<h2 id="m-h">${PL.me?'Сменить имя':'Как вас зовут?'}</h2>
+    <form id="pl-form" data-step="name"><div class="field"><label for="pl-name">Имя в турнирной таблице</label><input id="pl-name" maxlength="24" autocomplete="nickname" value="${h(m.name||(PL.me?PL.me.name:''))}" required></div>
+    ${err}<div class="foot">${PL.me?'':'<button type="button" class="btn small" id="pl-out">Выйти</button>'}<span class="grow"></span><button type="button" class="btn" id="${PL.me?'pl-prof':'m-cancel'}">${PL.me?'Назад':'Позже'}</button><button type="submit" class="btn primary"${m.busy?' disabled':''}>Сохранить</button></div></form>`);
+  // profile
+  const p=PL.me;if(!p)return wrap(`<h2 id="m-h">Профиль</h2><p class="empty">Загружаю…</p><div class="foot"><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>`);
+  const pos=PL.board?PL.board.findIndex(x=>x.id===p.id)+1:0,ach=achEarned(p),R=gwRewardDefs(),open=R.filter(c=>gwNeed(c)<=p.wins).length,nx=R.find(c=>gwNeed(c)>p.wins);
+  const S2=(v,l)=>`<div><b>${v}</b><span>${l}</span></div>`;
+  return wrap(`<h2 id="m-h">${h(p.name)}</h2><p class="hint" style="margin-top:-6px">${h(PL.session&&PL.session.user&&PL.session.user.email||'')}</p>
+    <div class="pl-stats">${S2(pos?'#'+pos:'—','место')}${S2(p.wins,plural(p.wins,'победа','победы','побед'))}${S2(p.losses,plural(p.losses,'поражение','поражения','поражений'))}${S2(p.best_streak,'лучшая серия')}</div>
+    <div class="pl-sec"><span class="lbl">Достижения · ${ach.length} из ${achList().length}</span><div class="pl-ach">${ach.length?ach.map(a=>`<span title="${h(achDesc(a))}"><i>${h(a.icon||'★')}</i>${h(a.name)}</span>`).join(''):'<em>Пока нет — одержите первую победу!</em>'}</div></div>
+    ${R.length?`<div class="pl-sec"><span class="lbl">Наградные карты · открыто ${open} из ${R.length}</span><p class="hint" style="margin:4px 0 0">${nx?`Следующая — «${h(nx.name)}» — через ${gwNeed(nx)-p.wins} ${plural(gwNeed(nx)-p.wins,'победу','победы','побед')}.`:'Все наградные карты открыты!'}</p></div>`:''}
+    <div class="foot"><button class="btn small" id="pl-out">Выйти</button><button class="btn small" id="pl-rename">Сменить имя</button><span class="grow"></span><button class="btn small gold" data-plhall="1">Зал славы</button><button class="btn" id="m-cancel" data-x="1">Закрыть</button></div>`);
+}
+async function plSend(email,resend){const m=ui.modal;m.busy=true;m.err='';render();
+  const {error}=await sbu.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}});
+  m.busy=false;if(error){m.err=plErr(error);render();return}
+  m.step='code';m.email=email;if(resend)m.err='Новое письмо отправлено.';render();setTimeout(()=>document.getElementById('pl-code')?.focus(),30);
+}
+document.addEventListener('submit',async ev=>{
+  if(ev.target.id!=='pl-form')return;ev.preventDefault();const m=ui.modal;if(!m||m.kind!=='player'||m.busy)return;
+  const st=ev.target.dataset.step;
+  if(st==='hello'){const name=document.getElementById('pl-name').value.trim().replace(/\s+/g,' '),email=document.getElementById('pl-email').value.trim();m.name=name;m.email=email;
+    if(name.length<2||name.length>24){m.err=NAME_ERR.bad_name;render();return}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){m.err='Проверьте адрес почты.';render();return}
+    try{localStorage.setItem('vpv-pl-name',name)}catch(_){}
+    plSend(email);return}
+  if(st==='code'){const code=document.getElementById('pl-code').value.replace(/\D/g,'');if(code.length<6){m.err='В коде из письма 6 цифр (или больше).';render();return}
+    m.busy=true;m.err='';render();
+    let r=await sbu.auth.verifyOtp({email:m.email,token:code,type:'email'});
+    if(r.error)r=await sbu.auth.verifyOtp({email:m.email,token:code,type:'signup'}).then(x=>x.error?r:x);
+    m.busy=false;if(r.error){m.err=plErr(r.error);render();return}
+    m.err='';render();return} // onAuthStateChange finishes the job
+  if(st==='name'){const name=document.getElementById('pl-name').value.trim().replace(/\s+/g,' ');m.name=name;m.busy=true;m.err='';render();
+    const {data,error}=await sbu.rpc('gw_set_name',{p_name:name});m.busy=false;
+    if(error||!data||!data.ok){m.err=error?plErr(error):NAME_ERR[data&&data.code]||'Не получилось.';render();return}
+    const first=!PL.me;PL.me=data.me;PL.boardAt=0;try{localStorage.removeItem('vpv-pl-name')}catch(_){}
+    ui.modal=first?null:{kind:'player',step:'profile'};render();toast(first?'Добро пожаловать, '+PL.me.name+'!':'Имя изменено');return}
+});
+function plClick(t){
+  if(t.dataset.plopen){plOpen();return true}
+  if(t.dataset.plhall){ui.modal=null;ui.tab='banners';ui.gw='menu';GM=null;ui.gwPage='hall';plLoadBoard(true);render();window.scrollTo(0,0);return true}
+  const m=ui.modal;if(!m||m.kind!=='player')return false;
+  if(t.id==='pl-back'){m.step='hello';m.err='';render();return true}
+  if(t.id==='pl-resend'){plSend(m.email,true);return true}
+  if(t.id==='pl-rename'){ui.modal={kind:'player',step:'name',name:PL.me?PL.me.name:''};render();document.getElementById('pl-name')?.select();return true}
+  if(t.id==='pl-prof'){ui.modal={kind:'player',step:'profile'};render();return true}
+  if(t.id==='pl-out'){ui.modal=null;sbu.auth.signOut().then(()=>{PL.me=null;PL.session=null;render();toast('Вы вышли из профиля')});return true}
+  return false;
+}
+/* a small leaderboard on the front page */
+function hallMini(){
+  if(ui.edit)return '';plLoadBoard();const B=PL.board;if(!B||!B.length&&!PL.me)return B&&!B.length?`<div class="hall-mini"><div class="hall-mini-h"><h3>Зал славы «Игры знамён»</h3><button class="btn small gold" ${PL.me?'data-plhall="1"':'data-plopen="1"'}>${PL.me?'Открыть':'Войти и сыграть'}</button></div><p class="hint">Таблица пока пуста — станьте первым победителем.</p></div>`:'';
+  const myId=PL.me&&PL.me.id,top=B.slice(0,5),pos=myId?B.findIndex(p=>p.id===myId):-1;
+  return `<div class="hall-mini"><div class="hall-mini-h"><h3>Зал славы «Игры знамён»</h3><button class="btn small gold" data-plhall="1">Вся таблица</button></div>
+    <ol>${top.map((p,i)=>`<li class="${p.id===myId?'me':''}"><span class="hm-p">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span class="hm-n">${h(p.name)}</span><span class="hm-w">${p.wins} ${plural(p.wins,'победа','победы','побед')}</span></li>`).join('')}
+    ${pos>=5?`<li class="me gap"><span class="hm-p">${pos+1}</span><span class="hm-n">${h(B[pos].name)}</span><span class="hm-w">${B[pos].wins} ${plural(B[pos].wins,'победа','победы','побед')}</span></li>`:''}</ol>
+    ${PL.me?'':'<p class="hint">Войдите, чтобы ваши победы попали в таблицу. <button class="btn small" data-plopen="1">Войти</button></p>'}</div>`;
+}
 
 /* ---------------- boot ---------------- */
 const hash=(location.hash||'').slice(1);
