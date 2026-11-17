@@ -1223,6 +1223,12 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-msnd{padding-top:10px;border-top:1px solid var(--line)}
 .gw-cc .gc[data-gsnd]::after{content:'♪';position:absolute;left:6px;bottom:30px;font-size:13px;color:var(--gold-hi);text-shadow:0 1px 3px #000;opacity:.8}
 /* hall of fame */
+.pl-seg{display:flex;gap:4px;padding:4px;border:1px solid var(--line);border-radius:10px;margin:4px 0 14px;background:var(--bg-2)}
+.pl-seg button{flex:1;border:0;background:none;color:var(--muted);padding:8px;border-radius:7px;font:inherit;font-size:15px;cursor:pointer}
+.pl-seg button[aria-selected=true]{background:var(--raised);color:var(--gold-hi);box-shadow:inset 0 0 0 1px var(--gold-line)}
+.pl-pw{position:relative}.pl-pw input{padding-right:46px}
+.pl-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-size:17px;padding:6px 8px;opacity:.6}.pl-eye:hover{opacity:1}
+.pl-link{align-self:flex-start;text-align:left;display:block;width:auto;border:0;background:none;color:var(--gold);font:inherit;font-size:14px;padding:6px 0 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .ach-gh{display:flex;align-items:baseline;gap:10px;margin:18px 0 8px;font-family:var(--display);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}.ach-gh small{font-family:var(--body);letter-spacing:0;text-transform:none;color:var(--muted);font-size:13px}
 .ach-gh:first-of-type{margin-top:4px}
 .pl-chip.in{color:var(--gold-hi);border-color:var(--gold-line)}
@@ -4103,32 +4109,39 @@ const plWins=()=>PL.me?PL.me.wins:0;
 { // came back from an email link that failed (expired, already used…): explain instead of a silent page
   const hp=new URLSearchParams((location.hash||'').slice(1)),ec=hp.get('error_code')||hp.get('error');
   if(ec){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}
-    ui.modal={kind:'player',step:'hello',err:/expired|invalid/i.test(ec+hp.get('error_description'))?'Ссылка из письма устарела или уже была использована. Запросите новое письмо — и лучше введите код из него, это надёжнее ссылки.':'Не удалось войти по ссылке. Запросите новое письмо.'};
+    ui.modal={kind:'player',step:'hello',err:/expired|invalid/i.test(ec+hp.get('error_description'))?'Ссылка из письма устарела или уже была использована. Если вы восстанавливали пароль — запросите новую ссылку («Вход» → «Забыли пароль?»).':'Не удалось открыть ссылку из письма. Попробуйте ещё раз.',mode:'login'};
     try{localStorage.setItem('vpv-pl-hello','1')}catch(_){}}
 }
 function plErr(e){const m=String(e&&(e.message||e.msg)||e||'');
   if(/rate limit|too many|over_email_send_rate/i.test(m))return 'Почтовый сервис сайта сейчас перегружен письмами. Попробуйте через несколько минут.';
   if(/seconds|only request this after/i.test(m))return 'Письмо уже отправлено. Новое можно запросить через минуту.';
-  if(/expired|invalid|otp/i.test(m))return 'Код не подошёл или устарел. Проверьте его или запросите новое письмо.';
+  if(/invalid login credentials/i.test(m))return 'Неверная почта или пароль.';
+  if(/email not confirmed/i.test(m))return 'Почта ещё не подтверждена: откройте ссылку из письма, которое пришло при регистрации.';
+  if(/password should be|weak password|password.*characters/i.test(m))return 'Пароль слишком простой: нужно не меньше 6 символов.';
+  if(/signups? not allowed|signup.*disabled/i.test(m))return 'Регистрация на сайте сейчас выключена.';
+  if(/expired|invalid|otp/i.test(m))return 'Ссылка устарела. Запросите новую.';
   if(/email.*invalid|valid email|unable to validate email/i.test(m))return 'Проверьте адрес почты.';
   if(/gw_|schema cache|function .* does not exist|PGRST202/i.test(m)){PL.missing=true;return 'Зал славы ещё не подключён на сервере (мастеру: запустите SQL-файл).'}
   if(/fetch|network/i.test(m))return 'Нет связи с сервером. Проверьте интернет.';
   return m||'Что-то пошло не так.';
 }
-const NAME_ERR={bad_name:'Имя — от 2 до 24 символов: буквы, цифры, пробел, дефис, точка или апостроф.',taken:'Это имя уже занято. Добавьте, например, фамилию или титул.',auth:'Сначала войдите по почте.'};
+const NAME_ERR={bad_name:'Имя — от 2 до 24 символов: буквы, цифры, пробел, дефис, точка или апостроф.',taken:'Это имя уже занято. Добавьте, например, фамилию или титул.',auth:'Сначала войдите.'};
 async function plLoadMe(){
   const {data,error}=await sbu.rpc('gw_me');
   if(error){PL.ready=true;ui.plErr=plErr(error);render();return}
   PL.me=data||null;PL.ready=true;
+  if(!PL.me&&ui.modal&&ui.modal.kind==='player'&&ui.modal.step==='newpass'){render();return} // asked for the name after the new password
   if(!PL.me){let nm='';try{nm=localStorage.getItem('vpv-pl-name')||''}catch(_){}
     if(nm){const r=await sbu.rpc('gw_set_name',{p_name:nm});if(!r.error&&r.data&&r.data.ok){PL.me=r.data.me;try{localStorage.removeItem('vpv-pl-name')}catch(_){};if(ui.modal&&ui.modal.kind==='player')ui.modal=null;toast('Добро пожаловать, '+PL.me.name+'!');PL.boardAt=0;return}
       ui.modal={kind:'player',step:'name',name:nm,err:r.error?plErr(r.error):NAME_ERR[r.data&&r.data.code]||''};}
     else ui.modal={kind:'player',step:'name',name:''};
-  }else if(ui.modal&&ui.modal.kind==='player'&&ui.modal.step!=='profile'){ui.modal=null;toast('Вы вошли как '+PL.me.name)}
+  }else if(ui.modal&&ui.modal.kind==='player'&&ui.modal.step!=='profile'&&ui.modal.step!=='newpass'){ui.modal=null;toast('Вы вошли как '+PL.me.name)}
   render();
 }
 try{
 sbu.auth.onAuthStateChange((ev,s)=>{const had=!!(PL.session&&PL.session.user),uidOld=had&&PL.session.user.id;PL.session=s;
+  if(s&&s.user)try{localStorage.setItem('vpv-pl-known','1');if(s.user.email)localStorage.setItem('vpv-pl-email',s.user.email)}catch(_){}
+  if(ev==='PASSWORD_RECOVERY'){ui.modal={kind:'player',step:'newpass'};setTimeout(render,0)}
   if(s&&s.user){if(!had||uidOld!==s.user.id)setTimeout(plLoadMe,0)}else{PL.me=null;PL.ready=true;render()}});
 sbu.auth.getSession().then(({data})=>{if(!data||!data.session){PL.ready=true;setTimeout(plHello,1500)}});
 }catch(e){PL.ready=true;console.warn('player login unavailable',e)}
@@ -4141,8 +4154,9 @@ function plHello(){ // first visit: invite the player to introduce themselves
   try{localStorage.setItem('vpv-pl-hello','1')}catch(_){}
   ui.modal={kind:'player',step:'hello'};render();setTimeout(()=>document.getElementById('pl-name')?.focus(),30);
 }
-function plOpen(){ui.modal=PL.me?{kind:'player',step:'profile'}:PL.session?{kind:'player',step:'name',name:''}:{kind:'player',step:'hello'};render();
-  setTimeout(()=>document.getElementById(PL.me?'pl-x':'pl-name')?.focus(),30)}
+function plOpen(){let known=false,em='';try{known=localStorage.getItem('vpv-pl-known')==='1';em=localStorage.getItem('vpv-pl-email')||''}catch(_){}
+  ui.modal=PL.me?{kind:'player',step:'profile'}:PL.session?{kind:'player',step:'name',name:''}:{kind:'player',step:'hello',mode:known?'login':'reg',email:known?em:''};render();
+  setTimeout(()=>document.getElementById(PL.me?'pl-x':known?(em?'pl-pass':'pl-email'):'pl-name')?.focus(),30)}
 function plChip(){const n=PL.me?PL.me.name:'';
   return `<button class="icon-btn pl-chip${PL.me?' in':''}" data-plopen="1" aria-label="${PL.me?'Мой профиль: '+h(n):'Войти игроку'}">${ICON_CROWN}<span class="lbl">${PL.me?h(n)+` · ${PL.me.wins}`:'Войти'}</span></button>`}
 
@@ -4321,16 +4335,24 @@ function gwHallChange(t){const f=t.dataset&&t.dataset.ach;if(!f)return false;con
 /* the player modal */
 function plModal(m,wrap){
   const st=m.step,err=m.err?`<p class="err">${h(m.err)}</p>`:'<p class="err"></p>';
-  if(st==='hello')return wrap(`<h2 id="m-h">Добро пожаловать в Вестерос</h2>
-    <p class="pl-lead">Представьтесь — и в «Игре знамён» начнётся ваш счёт побед: турнирная таблица, достижения и особые карты, которые открываются победителям.</p>
-    <form id="pl-form" data-step="hello"><div class="field"><label for="pl-name">Ваше имя в турнирной таблице</label><input id="pl-name" maxlength="24" autocomplete="nickname" value="${h(m.name||'')}" required></div>
-    <div class="field"><label for="pl-email">Почта</label><input id="pl-email" type="email" autocomplete="email" inputmode="email" value="${h(m.email||'')}" required><span class="hint">Пришлём письмо с кодом для входа. Пароль не нужен. Почту никто, кроме вас, не увидит.</span></div>
-    ${err}<div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">Позже</button><button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Отправляю…':'Получить код'}</button></div></form>`);
-  if(st==='code')return wrap(`<h2 id="m-h">Проверьте почту</h2>
-    <p class="pl-lead">Мы отправили письмо на <b>${h(m.email)}</b>. Введите код из письма — или просто нажмите в письме на ссылку для входа.</p>
-    <form id="pl-form" data-step="code"><div class="field"><label for="pl-code">Код из письма</label><input id="pl-code" class="pin-input" inputmode="numeric" autocomplete="one-time-code" maxlength="10" required></div>
-    ${err}<div class="foot"><button type="button" class="btn small" id="pl-back">Другая почта</button><button type="button" class="btn small" id="pl-resend"${m.busy?' disabled':''}>Отправить ещё раз</button><span class="grow"></span><button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Проверяю…':'Войти'}</button></div></form>
-    <p class="hint">Письма нет? Загляните в «Спам» и «Промоакции».</p>`);
+  const pw=(id,ac,ph)=>`<div class="pl-pw"><input id="${id}" type="password" autocomplete="${ac}" minlength="6" maxlength="72" placeholder="${ph||''}" required><button type="button" class="pl-eye" data-pleye="${id}" aria-label="Показать пароль">👁</button></div>`;
+  if(st==='hello'){const reg=m.mode!=='login';
+    return wrap(`<h2 id="m-h">${reg?'Добро пожаловать в Вестерос':'С возвращением'}</h2>
+    <div class="pl-seg" role="tablist"><button type="button" role="tab" data-plmode="reg" aria-selected="${reg}">Регистрация</button><button type="button" role="tab" data-plmode="login" aria-selected="${!reg}">Вход</button></div>
+    ${reg?'<p class="pl-lead">Заведите профиль — и в «Игре знамён» начнётся ваш счёт побед: турнирная таблица, достижения и особые карты, которые открываются победителям.</p>':''}
+    <form id="pl-form" data-step="${reg?'reg':'login'}">
+    ${reg?`<div class="field"><label for="pl-name">Ваше имя в турнирной таблице</label><input id="pl-name" maxlength="24" autocomplete="nickname" value="${h(m.name||'')}" required></div>`:''}
+    <div class="field"><label for="pl-email">Почта</label><input id="pl-email" type="email" autocomplete="${reg?'email':'username'}" inputmode="email" value="${h(m.email||'')}" required></div>
+    <div class="field"><label for="pl-pass">Пароль</label>${pw('pl-pass',reg?'new-password':'current-password',reg?'не короче 6 символов':'')}
+      ${reg?'<span class="hint">Почту и пароль никто, кроме вас, не увидит. Почта нужна только чтобы восстановить пароль.</span>':'<button type="button" class="pl-link" id="pl-forgot">Забыли пароль?</button>'}</div>
+    ${err}<div class="foot"><span class="grow"></span><button type="button" class="btn" id="m-cancel">${reg?'Позже':'Отмена'}</button><button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Минутку…':reg?'Зарегистрироваться':'Войти'}</button></div></form>`)}
+  if(st==='forgot')return wrap(`<h2 id="m-h">Восстановить пароль</h2>
+    <p class="pl-lead">${m.sent?`Письмо отправлено на <b>${h(m.email)}</b>. Откройте ссылку из него — сайт попросит придумать новый пароль.`:'Укажите почту, с которой регистрировались. Мы пришлём ссылку, чтобы задать новый пароль.'}</p>
+    <form id="pl-form" data-step="forgot">${m.sent?'':`<div class="field"><label for="pl-email">Почта</label><input id="pl-email" type="email" autocomplete="email" inputmode="email" value="${h(m.email||'')}" required></div>`}
+    ${err}<div class="foot"><button type="button" class="btn small" id="pl-back">Назад ко входу</button><span class="grow"></span>${m.sent?'<button type="button" class="btn" id="m-cancel">Закрыть</button>':`<button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Отправляю…':'Прислать ссылку'}</button>`}</div></form>`);
+  if(st==='newpass')return wrap(`<h2 id="m-h">${m.change?'Сменить пароль':'Новый пароль'}</h2>
+    <form id="pl-form" data-step="newpass"><div class="field"><label for="pl-pass">Новый пароль</label>${pw('pl-pass','new-password','не короче 6 символов')}</div>
+    ${err}<div class="foot"><span class="grow"></span>${m.change?'<button type="button" class="btn" id="pl-prof">Назад</button>':''}<button type="submit" class="btn primary"${m.busy?' disabled':''}>${m.busy?'Сохраняю…':'Сохранить пароль'}</button></div></form>`);
   if(st==='name')return wrap(`<h2 id="m-h">${PL.me?'Сменить имя':'Как вас зовут?'}</h2>
     <form id="pl-form" data-step="name"><div class="field"><label for="pl-name">Имя в турнирной таблице</label><input id="pl-name" maxlength="24" autocomplete="nickname" value="${h(m.name||(PL.me?PL.me.name:''))}" required></div>
     ${err}<div class="foot">${PL.me?'':'<button type="button" class="btn small" id="pl-out">Выйти</button>'}<span class="grow"></span><button type="button" class="btn" id="${PL.me?'pl-prof':'m-cancel'}">${PL.me?'Назад':'Позже'}</button><button type="submit" class="btn primary"${m.busy?' disabled':''}>Сохранить</button></div></form>`);
@@ -4342,27 +4364,31 @@ function plModal(m,wrap){
     <div class="pl-stats">${S2(pos?'#'+pos:'—','место')}${S2(p.wins,plural(p.wins,'победа','победы','побед'))}${S2(p.losses,plural(p.losses,'поражение','поражения','поражений'))}${S2(p.best_streak,'лучшая серия')}</div>
     <div class="pl-sec"><span class="lbl">Достижения · ${ach.length} из ${achList().length}</span><div class="pl-ach">${ach.length?ach.map(a=>`<span title="${h(achDesc(a))}"><i>${h(a.icon||'★')}</i>${h(a.name)}</span>`).join(''):'<em>Пока нет — одержите первую победу!</em>'}</div></div>
     ${R.length?`<div class="pl-sec"><span class="lbl">Наградные карты · открыто ${open} из ${R.length}</span><p class="hint" style="margin:4px 0 0">${nx?`Следующая — «${h(nx.name)}» — через ${gwNeed(nx)-p.wins} ${plural(gwNeed(nx)-p.wins,'победу','победы','побед')}.`:'Все наградные карты открыты!'}</p></div>`:''}
-    <div class="foot"><button class="btn small" id="pl-out">Выйти</button><button class="btn small" id="pl-rename">Сменить имя</button><span class="grow"></span><button class="btn small gold" data-plhall="1">Зал славы</button><button class="btn" id="m-cancel" data-x="1">Закрыть</button></div>`);
-}
-async function plSend(email,resend){const m=ui.modal;m.busy=true;m.err='';render();
-  const {error}=await sbu.auth.signInWithOtp({email,options:{shouldCreateUser:true,emailRedirectTo:location.origin+location.pathname}});
-  m.busy=false;if(error){m.err=plErr(error);render();return}
-  m.step='code';m.email=email;if(resend)m.err='Новое письмо отправлено.';render();setTimeout(()=>document.getElementById('pl-code')?.focus(),30);
+    <div class="foot"><button class="btn small" id="pl-out">Выйти</button><button class="btn small" id="pl-rename">Сменить имя</button><button class="btn small" id="pl-chpass">Сменить пароль</button><span class="grow"></span><button class="btn small gold" data-plhall="1">Зал славы</button><button class="btn" id="m-cancel" data-x="1">Закрыть</button></div>`);
 }
 document.addEventListener('submit',async ev=>{
   if(ev.target.id!=='pl-form')return;ev.preventDefault();const m=ui.modal;if(!m||m.kind!=='player'||m.busy)return;
   const st=ev.target.dataset.step;
-  if(st==='hello'){const name=document.getElementById('pl-name').value.trim().replace(/\s+/g,' '),email=document.getElementById('pl-email').value.trim();m.name=name;m.email=email;
-    if(name.length<2||name.length>24){m.err=NAME_ERR.bad_name;render();return}
+  const V=id=>(document.getElementById(id)||{}).value||'';
+  if(st==='reg'||st==='login'){const email=V('pl-email').trim(),pass=V('pl-pass'),name=st==='reg'?V('pl-name').trim().replace(/\s+/g,' '):'';m.email=email;if(st==='reg')m.name=name;
+    if(st==='reg'&&(name.length<2||name.length>24)){m.err=NAME_ERR.bad_name;render();return}
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){m.err='Проверьте адрес почты.';render();return}
-    try{localStorage.setItem('vpv-pl-name',name)}catch(_){}
-    plSend(email);return}
-  if(st==='code'){const code=document.getElementById('pl-code').value.replace(/\D/g,'');if(code.length<6){m.err='В коде из письма 6 цифр (или больше).';render();return}
+    if(pass.length<6){m.err='Пароль — не короче 6 символов.';render();return}
+    if(st==='reg')try{localStorage.setItem('vpv-pl-name',name)}catch(_){}
     m.busy=true;m.err='';render();
-    let r=await sbu.auth.verifyOtp({email:m.email,token:code,type:'email'});
-    if(r.error)r=await sbu.auth.verifyOtp({email:m.email,token:code,type:'signup'}).then(x=>x.error?r:x);
-    m.busy=false;if(r.error){m.err=plErr(r.error);render();return}
+    const r=st==='reg'?await sbu.auth.signUp({email,password:pass,options:{emailRedirectTo:location.origin+location.pathname}}):await sbu.auth.signInWithPassword({email,password:pass});
+    m.busy=false;
+    if(r.error){if(st==='reg'&&/already|registered|exists/i.test(r.error.message||'')){m.mode='login';m.err='Эта почта уже зарегистрирована — войдите с её паролем.'}else m.err=plErr(r.error);render();return}
+    if(st==='reg'&&r.data&&r.data.user&&!r.data.session){m.err='Почти готово: подтвердите почту по ссылке из письма, потом войдите здесь.';m.mode='login';render();return}
+    if(st==='reg'&&r.data&&r.data.user&&Array.isArray(r.data.user.identities)&&!r.data.user.identities.length){m.mode='login';m.err='Эта почта уже зарегистрирована — войдите с её паролем.';render();return}
     m.err='';render();return} // onAuthStateChange finishes the job
+  if(st==='forgot'){const email=V('pl-email').trim();m.email=email;if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){m.err='Проверьте адрес почты.';render();return}
+    m.busy=true;m.err='';render();const {error}=await sbu.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});m.busy=false;
+    if(error){m.err=plErr(error);render();return}m.sent=true;render();return}
+  if(st==='newpass'){const pass=V('pl-pass');if(pass.length<6){m.err='Пароль — не короче 6 символов.';render();return}
+    m.busy=true;m.err='';render();const {error}=await sbu.auth.updateUser({password:pass});m.busy=false;
+    if(error){m.err=/same|different/i.test(error.message||'')?'Новый пароль совпадает со старым.':plErr(error);render();return}
+    ui.modal=PL.me&&m.change?{kind:'player',step:'profile'}:null;render();toast('Пароль сохранён');if(!PL.me&&PL.session)plLoadMe();return}
   if(st==='name'){const name=document.getElementById('pl-name').value.trim().replace(/\s+/g,' ');m.name=name;m.busy=true;m.err='';render();
     const {data,error}=await sbu.rpc('gw_set_name',{p_name:name});m.busy=false;
     if(error||!data||!data.ok){m.err=error?plErr(error):NAME_ERR[data&&data.code]||'Не получилось.';render();return}
@@ -4373,8 +4399,11 @@ function plClick(t){
   if(t.dataset.plopen){plOpen();return true}
   if(t.dataset.plhall){ui.modal=null;ui.tab='banners';ui.gw='menu';GM=null;ui.gwPage='hall';plLoadBoard(true);render();window.scrollTo(0,0);return true}
   const m=ui.modal;if(!m||m.kind!=='player')return false;
-  if(t.id==='pl-back'){m.step='hello';m.err='';render();return true}
-  if(t.id==='pl-resend'){plSend(m.email,true);return true}
+  if(t.dataset.plmode){m.mode=t.dataset.plmode;m.err='';render();setTimeout(()=>document.getElementById(m.mode==='login'?'pl-email':'pl-name')?.focus(),30);return true}
+  if(t.dataset.pleye){const el=document.getElementById(t.dataset.pleye);if(el)el.type=el.type==='password'?'text':'password';return true}
+  if(t.id==='pl-forgot'){ui.modal={kind:'player',step:'forgot',email:(document.getElementById('pl-email')||{}).value||m.email||''};render();return true}
+  if(t.id==='pl-back'){ui.modal={kind:'player',step:'hello',mode:'login',email:m.email||''};render();return true}
+  if(t.id==='pl-chpass'){ui.modal={kind:'player',step:'newpass',change:true};render();document.getElementById('pl-pass')?.focus();return true}
   if(t.id==='pl-rename'){ui.modal={kind:'player',step:'name',name:PL.me?PL.me.name:''};render();document.getElementById('pl-name')?.select();return true}
   if(t.id==='pl-prof'){ui.modal={kind:'player',step:'profile'};render();return true}
   if(t.id==='pl-out'){ui.modal=null;sbu.auth.signOut().then(()=>{PL.me=null;PL.session=null;render();toast('Вы вышли из профиля')});return true}
