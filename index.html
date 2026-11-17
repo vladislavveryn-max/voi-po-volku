@@ -1223,6 +1223,8 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-msnd{padding-top:10px;border-top:1px solid var(--line)}
 .gw-cc .gc[data-gsnd]::after{content:'♪';position:absolute;left:6px;bottom:30px;font-size:13px;color:var(--gold-hi);text-shadow:0 1px 3px #000;opacity:.8}
 /* hall of fame */
+.ach-gh{display:flex;align-items:baseline;gap:10px;margin:18px 0 8px;font-family:var(--display);font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}.ach-gh small{font-family:var(--body);letter-spacing:0;text-transform:none;color:var(--muted);font-size:13px}
+.ach-gh:first-of-type{margin-top:4px}
 .pl-chip.in{color:var(--gold-hi);border-color:var(--gold-line)}
 .pl-chip .lbl{max-width:150px;overflow:hidden;text-overflow:ellipsis}
 .pl-lead{color:#d6cebd;margin:6px 0 16px;font-size:16px}
@@ -4139,7 +4141,21 @@ function plChip(){const n=PL.me?PL.me.name:'';
   return `<button class="icon-btn pl-chip${PL.me?' in':''}" data-plopen="1" aria-label="${PL.me?'Мой профиль: '+h(n):'Войти игроку'}">${ICON_CROWN}<span class="lbl">${PL.me?h(n)+` · ${PL.me.wins}`:'Войти'}</span></button>`}
 
 /* achievements */
-const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['special','Побед с особой картой…']];
+const ACH_TYPES=[['wins','Побед всего'],['games','Сыграно партий'],['flawless','Побед 2:0'],['streak','Побед подряд'],['comeback','Побед после проигранной первой битвы'],['factions','Разных фракций с победой'],['faction','Побед за фракцию…'],['vs','Побед против фракции…'],['pair','Побед за фракцию… против фракции…'],['beaten','Разных побеждённых фракций'],['special','Побед с особой картой…']];
+const ACH_GRP=['Общие','Дома','Противостояния'];
+// houses are found by name, so the achievements follow whatever factions the master has
+const ACH_HOUSE={north:/север/i,crown:/королевск|свит/i,river:/речн/i,storm:/штормов/i,west:/западн/i,reach:/простор/i,iron:/железн/i,vale:/долин|аррен/i,dorne:/дорн/i};
+const ACH_HOUSE_W=[['north','🐺','Зима близко'],['crown','👑','Железный трон'],['river','🐟','Семья, долг, честь'],['storm','🦌','Нам ярость!'],['west','🦁','Слушай мой рёв!'],
+  ['reach','🌹','Вырастая — крепнем'],['iron','🦑','Мы не сеем'],['vale','🦅','Высокий, как честь'],['dorne','☀','Непокорённые, несгибаемые, несломленные']];
+const ACH_RIVAL=[['north','west','⚔','Король Севера'],['west','north','🗡','Ланнистеры шлют привет'],['river','north','🍷','Красная свадьба'],['iron','north','🦑','Что мертво, умереть не может'],
+  ['north','iron','🏰','Ров Кейлин'],['storm','crown','🔥','Битва на Черноводной'],['crown','storm','🟢','Дикий огонь'],['dorne','crown','🐍','Месть за Элию'],
+  ['reach','dorne','🌹','Войны на Марках'],['dorne','reach','🏜','Принцев перевал'],['west','river','🐎','Гора за рекой'],['river','iron','🔥','Пепел Харренхолла'],['vale','crown','🦅','Восстание Джона Аррена']];
+function achHouse(){const T=k=>S.teams.find(t=>ACH_HOUSE[k].test(t.name||'')),out=[];
+  ACH_HOUSE_W.forEach(([k,ic,nm])=>{const t=T(k);if(t)out.push({id:'h-'+k,icon:ic,name:nm,type:'faction',arg:t.id,n:3,grp:'Дома'})});
+  ACH_RIVAL.forEach(([a,b,ic,nm])=>{const ta=T(a),tb=T(b);if(ta&&tb)out.push({id:'p-'+a+'-'+b,icon:ic,name:nm,type:'pair',arg:ta.id+'>'+tb.id,n:1,grp:'Противостояния'})});
+  out.push({id:'b4',icon:'🛡',name:'Щит, что хранит королевства',type:'beaten',n:4,grp:'Противостояния'},{id:'b7',icon:'🗡',name:'Гроза Семи Королевств',type:'beaten',n:7,grp:'Противостояния'},{id:'f6',icon:'🏰',name:'Объединитель',type:'factions',n:6,grp:'Дома'});
+  return out}
+const achDefaults=()=>JSON.parse(JSON.stringify(ACH_DEF)).concat(achHouse());
 const ACH_DEF=[
   {id:'w1',icon:'🩸',name:'Первая кровь',type:'wins',n:1},
   {id:'w5',icon:'⚔',name:'Знаменосец',type:'wins',n:5},
@@ -4152,11 +4168,12 @@ const ACH_DEF=[
   {id:'dr',icon:'🐉',name:'Огонь и кровь',type:'special',arg:'dragon',n:1},
   {id:'fc',icon:'🎭',name:'Валар моргулис',type:'special',arg:'faceless',n:1},
   {id:'g25',icon:'🏟',name:'Завсегдатай турниров',type:'games',n:25}];
-function achList(){const g=gwData();return Array.isArray(g.ach)?g.ach:ACH_DEF}
-function achEdit(){const g=gwData();if(!Array.isArray(g.ach))g.ach=JSON.parse(JSON.stringify(ACH_DEF));return g.ach}
+function achList(){const g=gwData();return Array.isArray(g.ach)?g.ach:achDefaults()}
+function achEdit(){const g=gwData();if(!Array.isArray(g.ach))g.ach=achDefaults();return g.ach}
 function achVal(p,a){if(!p)return 0;const o=p.fac||{},s=p.sp||{};
   return a.type==='wins'?p.wins:a.type==='games'?p.games:a.type==='flawless'?p.flawless:a.type==='streak'?p.best_streak:a.type==='comeback'?p.comeback
-    :a.type==='factions'?Object.values(o).filter(v=>v>0).length:a.type==='faction'?+o[a.arg]||0:a.type==='special'?+s[a.arg]||0:0}
+    :a.type==='factions'?Object.values(o).filter(v=>v>0).length:a.type==='faction'?+o[a.arg]||0:a.type==='special'?+s[a.arg]||0
+    :a.type==='vs'?+(p.vs||{})[a.arg]||0:a.type==='pair'?+(p.pairs||{})[a.arg]||0:a.type==='beaten'?Object.values(p.vs||{}).filter(v=>v>0).length:0}
 const achN=a=>Math.max(1,+a.n||1);
 const achDone=(p,a)=>achVal(p,a)>=achN(a);
 function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),P=(w)=>n+' '+plural(n,...w);
@@ -4168,6 +4185,9 @@ function achDesc(a){if((a.desc||'').trim())return a.desc.trim();const n=achN(a),
     case 'comeback':return n===1?'Проиграйте первую битву — и всё равно выиграйте партию.':`Отыграйтесь после проигранной первой битвы ${P(['раз','раза','раз'])}.`;
     case 'factions':return `Победите за ${P(['фракцию','разные фракции','разных фракций'])}.`;
     case 'faction':{const t=S.teams.find(x=>x.id===a.arg);return `Победите за фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
+    case 'vs':{const t=S.teams.find(x=>x.id===a.arg);return `Победите фракцию «${t?t.name:'?'}»${n>1?' '+P(['раз','раза','раз']):''}.`}
+    case 'pair':{const [f,o]=String(a.arg||'').split('>'),tf=S.teams.find(x=>x.id===f),to=S.teams.find(x=>x.id===o);return `Победите «${to?to.name:'?'}», играя за «${tf?tf.name:'?'}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
+    case 'beaten':return `Победите ${P(['фракцию','разные фракции','разных фракций'])}.`;
     case 'special':{const k=a.arg,nm=GW_SP[k]?((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name:'?';return `Победите в партии, где вы сыграли карту «${nm}»${n>1?' — '+P(['раз','раза','раз']):''}.`}
   }return ''}
 function achEarned(p){return achList().filter(a=>achDone(p,a))}
@@ -4186,7 +4206,7 @@ function gwMaybeReport(){
   const res=G.winner===0?'win':G.winner===1?'loss':'draw';
   if(!PL.me){G.rep={msg:PL.session?'Представьтесь, чтобы победы шли в Зал славы.':'Войдите, чтобы победы шли в Зал славы.',login:true};render();return}
   const before=gwSnapshot(PL.me);G.rep={msg:'Записываю результат в Зал славы…'};render();
-  sbu.rpc('gw_report',{p_res:{result:res,faction:G.p[0].faction,rounds:G.rounds,sp:[...new Set(G.spUsed||[])]}}).then(({data,error})=>{
+  sbu.rpc('gw_report',{p_res:{result:res,faction:G.p[0].faction,op:G.p[1].faction,rounds:G.rounds,sp:[...new Set(G.spUsed||[])]}}).then(({data,error})=>{
     if(error||!data||!data.ok){G.rep={msg:error?plErr(error):data&&data.code==='too_fast'?'Партия слишком короткая — в Зал славы не записана.':'Не удалось записать результат.'};render();return}
     PL.me=data.me;PL.boardAt=0;const now=achEarned(PL.me).filter(a=>!before.ach.has(a.id));
     const cards=gwRewardDefs().filter(c=>gwNeed(c)>before.wins&&gwNeed(c)<=PL.me.wins);
@@ -4239,6 +4259,9 @@ function gwAchPage(){
       <label class="gw-mf-w">Название<input data-ach="name" value="${h(ea.name||'')}" maxlength="40"></label>
       <label class="gw-mf-w">Условие<select data-ach="type">${opt(ACH_TYPES,ea.type)}</select></label>
       ${ea.type==='faction'?`<label class="gw-mf-w">Фракция<select data-ach="arg">${opt(S.teams.map(t=>[t.id,t.name]),ea.arg)}</select></label>`:''}
+      ${ea.type==='vs'?`<label class="gw-mf-w">Против фракции<select data-ach="arg">${opt(S.teams.map(t=>[t.id,t.name]),ea.arg)}</select></label>`:''}
+      ${ea.type==='pair'?`<label class="gw-mf-w">Играя за<select data-ach="argF">${opt(S.teams.map(t=>[t.id,t.name]),String(ea.arg||'').split('>')[0])}</select></label><label class="gw-mf-w">Против<select data-ach="argO">${opt(S.teams.map(t=>[t.id,t.name]),String(ea.arg||'').split('>')[1])}</select></label>`:''}
+      <label class="gw-mf-w">Раздел<select data-ach="grp">${opt(ACH_GRP.map(g=>[g,g]),ea.grp||'Общие')}</select></label>
       ${ea.type==='special'?`<label class="gw-mf-w">Особая карта<select data-ach="arg">${opt(Object.keys(GW_SP).map(k=>[k,((gwData().spMeta||{})[k]||{}).name||GW_SP[k].name]),ea.arg)}</select></label>`:''}
       <label>Сколько<input type="number" data-ach="n" min="1" max="999" value="${achN(ea)}"></label>
       <label class="gw-mf-w">Описание (можно оставить пустым)<input data-ach="desc" value="${h(ea.desc||'')}" maxlength="120" placeholder="${h(achDesc(Object.assign({},ea,{desc:''})))}"></label></div>
@@ -4246,7 +4269,8 @@ function gwAchPage(){
   return `<div class="gw-achp">
     <div class="gw-ach-head"><h3>Достижения</h3><span>${p?`Получено ${done} из ${L.length}`:'Войдите, чтобы собирать достижения'}</span></div>
     ${editor}
-    <div class="ach-grid">${L.map(achCard).join('')}${ed?'<button class="gw-addc ach-add" id="ach-add"><span>+</span>Новое достижение</button>':''}</div>
+    ${ACH_GRP.map(gn=>{const idx=L.map((a,i)=>[a,i]).filter(([a])=>(ACH_GRP.includes(a.grp)?a.grp:'Общие')===gn);if(!idx.length&&!(ed&&gn==='Общие'))return '';const got=p?idx.filter(([a])=>achDone(p,a)).length:0;
+      return `<div class="ach-gh"><span>${gn}</span><small>${p?got+' / '+idx.length:idx.length}</small></div><div class="ach-grid">${idx.map(([a,i])=>achCard(a,i)).join('')}${ed&&gn==='Общие'?'<button class="gw-addc ach-add" id="ach-add"><span>+</span>Новое достижение</button>':''}</div>`}).join('')}
     ${ed?`<div class="gw-mtools"><button class="btn small" id="ach-reset">Вернуть стандартные достижения</button></div>`:''}
     <div class="gw-ach-head"><h3>Наградные карты</h3><span>Открываются за победы${p?` · у вас ${p.wins}`:''}</span></div>
     ${R.length?`<div class="gw-rgrid">${R.map(c=>{const lk=gwNeed(c)>plWins();return `<div class="gw-rc${lk?' locked':''}">${gwCard(c,{name:true,tip:true,attrs:`data-gwopen="${h(c.id)}" role="button" tabindex="0"`})}
@@ -4265,12 +4289,13 @@ function gwHallClick(t,ds){
   if(t.id==='ach-add'){const L=achEdit();L.push({id:uid('a'),icon:'★',name:'Новое достижение',type:'wins',n:10});ui.achEd=L.length-1;ui.achDel=false;soft();render();return true}
   if(t.id==='ach-done'){ui.achEd=undefined;render();return true}
   if(t.id==='ach-del'){if(!ui.achDel){ui.achDel=true;render();return true}achEdit().splice(ui.achEd,1);ui.achEd=undefined;ui.achDel=false;soft();render();return true}
-  if(t.id==='ach-reset'){gwData().ach=JSON.parse(JSON.stringify(ACH_DEF));ui.achEd=undefined;soft();render();return true}
+  if(t.id==='ach-reset'){gwData().ach=achDefaults();ui.achEd=undefined;soft();render();return true}
   return false;
 }
 function gwHallChange(t){const f=t.dataset&&t.dataset.ach;if(!f)return false;const a=achEdit()[ui.achEd];if(!a)return true;
+  if(f==='argF'||f==='argO'){const q=String(a.arg||'').split('>');q[f==='argF'?0:1]=t.value;a.arg=q[0]+'>'+(q[1]||'');soft();render();return true}
   a[f]=f==='n'?Math.max(1,Math.min(999,Math.floor(+t.value||1))):t.value;
-  if(f==='type'){a.arg=a.type==='faction'?(S.teams[0]||{}).id||'':a.type==='special'?'dragon':undefined;if(a.arg===undefined)delete a.arg}
+  if(f==='type'){const t0=(S.teams[0]||{}).id||'',t1=(S.teams[1]||S.teams[0]||{}).id||'';a.arg=a.type==='faction'||a.type==='vs'?t0:a.type==='pair'?t0+'>'+t1:a.type==='special'?'dragon':undefined;if(a.arg===undefined)delete a.arg}
   soft();render();return true}
 
 /* the player modal */
