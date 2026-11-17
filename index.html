@@ -4092,6 +4092,12 @@ const sbu=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,
 const PL={session:null,me:null,ready:false,board:null,boardAt:0,boardErr:'',boardBusy:false,missing:false};
 const ICON_CROWN=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 12.5h11M3 12.5 2 5l3.5 2.8L8 3.5l2.5 4.3L14 5l-1 7.5"/></svg>`;
 const plWins=()=>PL.me?PL.me.wins:0;
+{ // came back from an email link that failed (expired, already used…): explain instead of a silent page
+  const hp=new URLSearchParams((location.hash||'').slice(1)),ec=hp.get('error_code')||hp.get('error');
+  if(ec){try{history.replaceState(null,'',location.pathname+location.search)}catch(_){}
+    ui.modal={kind:'player',step:'hello',err:/expired|invalid/i.test(ec+hp.get('error_description'))?'Ссылка из письма устарела или уже была использована. Запросите новое письмо — и лучше введите код из него, это надёжнее ссылки.':'Не удалось войти по ссылке. Запросите новое письмо.'};
+    try{localStorage.setItem('vpv-pl-hello','1')}catch(_){}}
+}
 function plErr(e){const m=String(e&&(e.message||e.msg)||e||'');
   if(/rate limit|too many|over_email_send_rate/i.test(m))return 'Почтовый сервис сайта сейчас перегружен письмами. Попробуйте через несколько минут.';
   if(/seconds|only request this after/i.test(m))return 'Письмо уже отправлено. Новое можно запросить через минуту.';
