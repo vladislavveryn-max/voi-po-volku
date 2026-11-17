@@ -4243,8 +4243,10 @@ function achEarned(p){return achList().filter(a=>achDone(p,a))}
 /* reward cards */
 function gwNeed(c){return Math.max(0,Math.floor(+c.need||0))}
 function gwLocked(c){const n=gwNeed(c);return n>0&&!pin&&plWins()<n}
-function gwRewardDefs(){const seen=new Set(),out=[];S.teams.forEach(t=>gwDefs(t.id,!!pin).forEach(c=>{if(gwNeed(c)&&!seen.has(c.id)&&!c.off){seen.add(c.id);out.push(c)}}));
-  gwMercList().filter(m=>(m.name||'').trim()&&gwNeed(m)).forEach(m=>{const d=gwMercDef(m);if(!seen.has(d.id)){seen.add(d.id);out.push(d)}});
+function gwRewardDefs(){const seen=new Map(),out=[]; // a troop shared by every faction is one card, not one per faction
+  S.teams.forEach(t=>gwDefs(t.id,!!pin).forEach(c=>{if(!gwNeed(c)||c.off)return;const key=c.kind==='troop'?'troop:'+c.id.split(':').slice(2).join(':'):c.id;
+    const was=seen.get(key);if(was){if(was.sub!==c.sub)was.sub='Все фракции';return}const d=Object.assign({},c);seen.set(key,d);out.push(d)}));
+  gwMercList().filter(m=>(m.name||'').trim()&&gwNeed(m)).forEach(m=>{const d=gwMercDef(m);if(!seen.has(d.id)){seen.set(d.id,d);out.push(d)}});
   return out.sort((a,b)=>gwNeed(a)-gwNeed(b)||a.name.localeCompare(b.name))}
 
 /* reporting a finished game against the computer */
