@@ -1223,6 +1223,20 @@ body.has-bg .hero{background:linear-gradient(180deg,rgba(13,14,17,.35),rgba(13,1
 .gw-msnd{padding-top:10px;border-top:1px solid var(--line)}
 .gw-cc .gc[data-gsnd]::after{content:'♪';position:absolute;left:6px;bottom:30px;font-size:13px;color:var(--gold-hi);text-shadow:0 1px 3px #000;opacity:.8}
 /* hall of fame */
+.gw-htab tbody tr,.hall-mini li[data-plview]{cursor:pointer;transition:background .15s}.gw-htab tbody tr:hover td,.hall-mini li[data-plview]:hover{background:rgba(201,166,94,.07)}
+.gw-htab tbody tr:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.modal:has(.pv){width:min(760px,100%)}
+.pv-head{display:flex;align-items:center;gap:14px;margin-bottom:4px}.pv-head h2{margin:0}.pv-head h2 small{font-size:15px;color:var(--muted)}.pv-head>div>span{color:var(--muted);font-size:14px}
+.pv-pos{font-family:var(--display);font-size:34px;color:var(--gold-hi);min-width:52px;text-align:center}
+.pl-stats.pv-stats{grid-template-columns:repeat(6,minmax(0,1fr))}.pv-stats b{font-size:22px}
+.pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.pv-a{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg-2);opacity:.6}
+.pv-a.on{opacity:1;border-color:var(--gold-line);background:linear-gradient(160deg,rgba(201,166,94,.13),var(--bg-2) 65%)}
+.pv-a .ach-ic{width:36px;height:36px;font-size:18px}.pv-a.on .ach-ic{filter:none;box-shadow:0 0 12px rgba(201,166,94,.3)}
+.pv-a>div{min-width:0;display:flex;flex-direction:column;gap:1px}.pv-a b{font-family:var(--display);font-weight:400;font-size:15px;color:var(--gold-hi);line-height:1.2}.pv-a>div>span{font-size:12px;color:#cfc6b4;line-height:1.35}
+.pv-miss{margin-top:18px}.pv-miss summary{cursor:pointer;color:var(--muted);font-size:14px;letter-spacing:.06em;padding:6px 0}.pv-miss[open] summary{margin-bottom:8px}
+.pv-all{color:var(--gold-hi);margin-top:14px}
+@media (max-width:640px){.pl-stats.pv-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.pv-pos{font-size:26px;min-width:40px}}
 .gw-net{display:flex;flex-direction:column;gap:10px}
 .gw-net-join{display:flex;gap:8px}.gw-net-join input{flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:18px;letter-spacing:.3em;text-transform:uppercase;text-align:center;color:var(--fg);font-family:var(--display)}
 .gw-net-code{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed var(--gold-line);border-radius:10px;background:rgba(201,166,94,.06)}
@@ -1526,6 +1540,7 @@ function renderCard(r){
 function renderModal(){
   const m=ui.modal, wrap=inner=>`<div class="modal-bg" id="modal-bg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-h">${inner}</div></div>`;
   if(m.kind==='player') return plModal(m,wrap);
+  if(m.kind==='pview') return plView(m,wrap);
   if(m.kind==='login') return wrap(`<h2 id="m-h">Вход для мастера</h2>
     <form id="login-form"><div class="field"><label for="m-pin">Код мастера</label><input id="m-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="12" required></div>
     <p class="err" id="m-err">${h(m.err||'')}</p>
@@ -4288,14 +4303,14 @@ function gwHall(){
   const head=PL.me?`<div class="gw-hall-me"><span class="gw-hall-pos">${pos?'#'+pos:'—'}</span><div><b>${h(PL.me.name)}</b><span>${PL.me.wins} ${plural(PL.me.wins,'победа','победы','побед')} · ${PL.me.losses} ${plural(PL.me.losses,'поражение','поражения','поражений')} · серия ${PL.me.streak}</span></div></div>`
     :`<div class="gw-hall-me"><div><b>Вас пока нет в таблице</b><span>Войдите по почте — и каждая победа над компьютером попадёт сюда.</span></div><button class="btn small gold" data-plopen="1">Войти</button></div>`;
   const row=(p,i)=>{const pct=p.games?Math.round(p.wins/p.games*100):0,ach=achEarned(p),pl=i+1;
-    return `<tr class="${p.id===myId?'me':''}${pl<=3?' top'+pl:''}"><td class="hf-p">${pl<=3?['🥇','🥈','🥉'][pl-1]:pl}</td>
+    return `<tr class="${p.id===myId?'me':''}${pl<=3?' top'+pl:''}" data-plview="${h(p.id)}" tabindex="0" title="Все достижения игрока"><td class="hf-p">${pl<=3?['🥇','🥈','🥉'][pl-1]:pl}</td>
       <td class="hf-n">${h(p.name)}${ach.length?`<span class="hf-ach">${ach.slice(-6).map(a=>`<i title="${h(a.name)}">${h(a.icon||'★')}</i>`).join('')}${ach.length>6?`<small>+${ach.length-6}</small>`:''}</span>`:''}</td>
       <td class="hf-w">${p.wins}</td><td>${p.losses}</td><td class="hf-x">${p.games}</td><td class="hf-x">${pct}%</td><td class="hf-x">${p.best_streak}</td>
       ${ed?`<td class="hf-ed"><button class="btn small" data-gwadm="rename" data-u="${p.id}" data-n="${h(p.name)}">Имя</button><button class="btn small" data-gwadm="reset" data-u="${p.id}">${ui.gwAdm==='reset'+p.id?'Точно обнулить?':'Обнулить'}</button><button class="btn small danger" data-gwadm="delete" data-u="${p.id}">${ui.gwAdm==='delete'+p.id?'Точно убрать?':'Убрать'}</button></td>`:''}</tr>`};
   return `<div class="gw-hall">${head}
     ${B.length?`<div class="gw-htab-w"><table class="gw-htab"><thead><tr><th>#</th><th>Игрок</th><th title="Победы">Победы</th><th title="Поражения">Пор.</th><th class="hf-x">Партий</th><th class="hf-x">% побед</th><th class="hf-x" title="Лучшая серия побед">Серия</th>${ed?'<th></th>':''}</tr></thead>
       <tbody>${B.map(row).join('')}</tbody></table></div>`:'<p class="empty">В таблице пока никого. Станьте первым!</p>'}
-    <p class="hint">Считаются партии против компьютера. Место — по числу побед, при равенстве выше тот, у кого меньше поражений.${ed?' Режим мастера: можно поправить имя, обнулить счёт или убрать игрока.':''}</p>
+    <p class="hint">Нажмите на игрока, чтобы увидеть все его достижения. Считаются партии против компьютера. Место — по числу побед, при равенстве выше тот, у кого меньше поражений.${ed?' Режим мастера: можно поправить имя, обнулить счёт или убрать игрока.':''}</p>
     <div class="gw-hall-foot"><button class="btn small" id="gw-hall-reload">Обновить</button></div></div>`;
 }
 function gwAchPage(){
@@ -4433,11 +4448,31 @@ function hallMini(){
   if(ui.edit)return '';plLoadBoard();const B=PL.board;if(!B||!B.length&&!PL.me)return B&&!B.length?`<div class="hall-mini"><div class="hall-mini-h"><h3>Зал славы «Игры знамён»</h3><button class="btn small gold" ${PL.me?'data-plhall="1"':'data-plopen="1"'}>${PL.me?'Открыть':'Войти и сыграть'}</button></div><p class="hint">Таблица пока пуста — станьте первым победителем.</p></div>`:'';
   const myId=PL.me&&PL.me.id,top=B.slice(0,5),pos=myId?B.findIndex(p=>p.id===myId):-1;
   return `<div class="hall-mini"><div class="hall-mini-h"><h3>Зал славы «Игры знамён»</h3><button class="btn small gold" data-plhall="1">Вся таблица</button></div>
-    <ol>${top.map((p,i)=>`<li class="${p.id===myId?'me':''}"><span class="hm-p">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span class="hm-n">${h(p.name)}</span><span class="hm-w">${p.wins} ${plural(p.wins,'победа','победы','побед')}</span></li>`).join('')}
-    ${pos>=5?`<li class="me gap"><span class="hm-p">${pos+1}</span><span class="hm-n">${h(B[pos].name)}</span><span class="hm-w">${B[pos].wins} ${plural(B[pos].wins,'победа','победы','побед')}</span></li>`:''}</ol>
+    <ol>${top.map((p,i)=>`<li class="${p.id===myId?'me':''}" data-plview="${h(p.id)}" tabindex="0"><span class="hm-p">${i<3?['🥇','🥈','🥉'][i]:i+1}</span><span class="hm-n">${h(p.name)}</span><span class="hm-w">${p.wins} ${plural(p.wins,'победа','победы','побед')}</span></li>`).join('')}
+    ${pos>=5?`<li class="me gap" data-plview="${h(B[pos].id)}" tabindex="0"><span class="hm-p">${pos+1}</span><span class="hm-n">${h(B[pos].name)}</span><span class="hm-w">${B[pos].wins} ${plural(B[pos].wins,'победа','победы','побед')}</span></li>`:''}</ol>
     ${PL.me?'':'<p class="hint">Войдите, чтобы ваши победы попали в таблицу. <button class="btn small" data-plopen="1">Войти</button></p>'}</div>`;
 }
 
+
+
+/* a player's card: place, stats and every achievement */
+function plView(m,wrap){
+  const B=PL.board||[],i=B.findIndex(x=>x.id===m.id),p=B[i];
+  if(!p)return wrap(`<h2 id="m-h">Игрок</h2><p class="empty">Игрок не найден — возможно, таблица обновилась.</p><div class="foot"><span class="grow"></span><button class="btn" id="m-cancel">Закрыть</button></div>`);
+  const L=achList(),grp=a=>ACH_GRP.includes(a.grp)?a.grp:'Общие',got=L.filter(a=>achDone(p,a)),miss=L.filter(a=>!achDone(p,a));
+  const pct=p.games?Math.round(p.wins/p.games*100):0,fav=Object.entries(p.fac||{}).sort((a,b)=>b[1]-a[1])[0],favT=fav&&S.teams.find(t=>t.id===fav[0]);
+  const S2=(v,l)=>`<div><b>${v}</b><span>${l}</span></div>`,me=PL.me&&PL.me.id===p.id;
+  const card=(a,done)=>{const v=Math.min(achVal(p,a),achN(a));return `<div class="pv-a${done?' on':''}"><span class="ach-ic">${h(a.icon||'★')}</span><div><b>${h(a.name||'Достижение')}</b><span>${h(achDesc(a))}</span>${!done&&achN(a)>1&&v>0?`<span class="ach-bar"><i style="width:${Math.round(v/achN(a)*100)}%"></i></span>`:''}</div></div>`};
+  return wrap(`<div class="pv"><div class="pv-head"><span class="pv-pos">${i<3?['🥇','🥈','🥉'][i]:'#'+(i+1)}</span><div><h2 id="m-h">${h(p.name)}${me?' <small>(вы)</small>':''}</h2>
+      <span>${favT?`Чаще всего побеждает за «${h(favT.name)}» · `:''}достижений ${got.length} из ${L.length}</span></div></div>
+    <div class="pl-stats pv-stats">${S2(p.wins,plural(p.wins,'победа','победы','побед'))}${S2(p.losses,plural(p.losses,'поражение','поражения','поражений'))}${S2(p.games,plural(p.games,'партия','партии','партий'))}${S2(pct+'%','побед')}${S2(p.best_streak,'лучшая серия')}${S2(p.flawless,'побед 2:0')}</div>
+    ${got.length?ACH_GRP.map(g=>{const A=got.filter(a=>grp(a)===g);return A.length?`<div class="ach-gh"><span>${g}</span><small>${A.length} / ${L.filter(a=>grp(a)===g).length}</small></div><div class="pv-grid">${A.map(a=>card(a,true)).join('')}</div>`:''}).join('')
+      :'<p class="empty">Достижений пока нет.</p>'}
+    ${miss.length?`<details class="pv-miss"><summary>Ещё не получено · ${miss.length}</summary><div class="pv-grid">${miss.map(a=>card(a,false)).join('')}</div></details>`:'<p class="pv-all">Собраны все достижения!</p>'}
+    <div class="foot"><span class="grow"></span>${me?'<button class="btn small" data-plopen="1">Мой профиль</button>':''}<button class="btn" id="m-cancel">Закрыть</button></div></div>`);
+}
+document.addEventListener('click',ev=>{const el=ev.target.closest&&ev.target.closest('[data-plview]');if(!el||ev.target.closest('button'))return;ui.modal={kind:'pview',id:el.dataset.plview};render()});
+document.addEventListener('keydown',ev=>{if((ev.key==='Enter'||ev.key===' ')&&ev.target&&ev.target.dataset&&ev.target.dataset.plview){ev.preventDefault();ui.modal={kind:'pview',id:ev.target.dataset.plview};render()}});
 
 /* ---------------- online duel: two devices, one room code (Supabase Realtime broadcast) ---------------- */
 // The game is turn-based, so whoever acts runs the engine locally and sends the whole state to the other device.
