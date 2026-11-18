@@ -1381,7 +1381,7 @@ function md(text){
     for(const l of b.split('\n')){
       const t=l.trim();
       const im=t.match(/^\[\[img:([\w-]+)(?:\|([^\]]*))?\]\]$/);
-      if(im){flushP();flushL();const src=photos[im[1]];out+=`<figure class="md-img">${src?`<img src="${src}" alt="${im[2]||''}" loading="lazy">`:'<div class="md-img-ph">картинка загружается…</div>'}${im[2]?`<figcaption>${inline(im[2])}</figcaption>`:''}</figure>`}
+      if(im){flushP();flushL();const src=photoSrc('ph:'+im[1]);out+=`<figure class="md-img">${src?`<img src="${src}" alt="${im[2]||''}" loading="lazy">`:'<div class="md-img-ph">картинка загружается…</div>'}${im[2]?`<figcaption>${inline(im[2])}</figcaption>`:''}</figure>`}
       else if(t.startsWith('### ')){flushP();flushL();out+='<h4>'+inline(t.slice(4))+'</h4>'}
       else if(t.startsWith('## ')){flushP();flushL();out+='<h3>'+inline(t.slice(3))+'</h3>'}
       else if(/^[-•]\s/.test(t)){flushP();list.push(t.replace(/^[-•]\s+/,''))}
@@ -1421,6 +1421,7 @@ function render(){
 
   o+='<main class="col gutter">';
   if(e) o+=`<div class="edit-banner"><span style="flex:1;min-width:200px">Режим мастера. Правки увидят все после кнопки «Сохранить» внизу экрана.</span><button class="btn small gold" id="brand-open">Оформление сайта</button></div>`;
+  if(pin&&!ui.loading&&!ui.loadErr&&(!stMode()||MIG.msg)) o+=`<div class="edit-banner mig"><span style="flex:1;min-width:220px">${MIG.msg?h(MIG.msg):'Картинки, музыка и звуки пока хранятся прямо в базе и перегружают её, когда игроков много. Перенесите их в файловое хранилище — один раз, это займёт пару минут.'}</span>${stMode()&&!MIG.busy?'<button class="btn small" id="mig-ok">Понятно</button>':`<button class="btn small gold" id="mig-go"${MIG.busy?' disabled':''}>${MIG.busy?'Переношу…':'Перенести файлы'}</button>`}</div>`;
   if(ui.loading) o+='<p class="empty">Загружаю…</p>';
   else if(ui.loadErr) o+='<p class="empty">Не удалось загрузить данные. Проверьте интернет и обновите страницу.</p>';
   else o+= ui.tab==='graphs'&&pin?renderGraphs():ui.tab==='legends'&&pin?renderLegends():(ui.tab==='lore'||ui.tab==='rules')?renderLore():ui.tab==='roles'?renderRoles():ui.tab==='raven'?renderRaven():ui.tab==='banners'?renderGwent():renderAbout();
@@ -1514,7 +1515,36 @@ function renderRoles(){
   else if(!teams.length) o+='<p class="empty">Сетка ролей пока пуста.</p>';
   return o;
 }
-function photoSrc(p){if(!p) return ''; if(p.startsWith('ph:')) return photos[p.slice(3)]||''; return p}
+// Pictures and sounds live in Supabase Storage (bucket «media»): the database keeps only text and scores.
+// Before the one-time move (S.media!=='storage') they are still read from the old tables.
+const MEDIA=SB_URL+'/storage/v1/object/public/media/';
+const stMode=()=>!!(S&&S.media==='storage');
+function photoSrc(p){if(!p) return ''; if(p.startsWith('ph:')){const id=p.slice(3);return photos[id]||(stMode()?MEDIA+'ph/'+id:'')} return p}
+function mediaFn(body){return fetch(SB_URL+'/functions/v1/media',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify(Object.assign({pin},body))})
+  .then(r=>r.json()).catch(()=>({ok:false,code:'network'}))}
+async function mediaSave(kind,id,dataUrl){ // same answer shape as the old rpc: {data:true|false, error}
+  if(!stMode())return sb.rpc(kind==='ph'?'save_role_photo':'save_lore_audio',{p_pin:pin,p_id:id,p_data:dataUrl});
+  try{const r=await mediaFn({action:'sign',kind,id});
+    if(!r.ok)return r.code==='bad_pin'?{data:false,error:null}:{data:null,error:{message:'хранилище файлов: '+(r.detail||r.code)}};
+    const blob=await (await fetch(dataUrl)).blob();
+    const {error}=await sb.storage.from('media').uploadToSignedUrl(r.path,r.token,blob,{contentType:blob.type,cacheControl:'31536000'});
+    return error?{data:null,error}:{data:true,error:null}}catch(e){return {data:null,error:{message:e.message||String(e)}}}
+}
+const MIG={busy:false,msg:'',n:0};
+async function mediaMigrate(){ // one-time move of every old picture and sound from the database to Storage
+  if(MIG.busy||!pin)return;MIG.busy=true;MIG.n=0;MIG.msg='Переношу картинки…';render();
+  try{
+    for(const kind of ['ph','au']){let after='';
+      for(let guard=0;guard<5000;guard++){const r=await mediaFn({action:'migrate',kind,after});
+        if(!r.ok)throw new Error(r.code==='bad_pin'?'Код мастера больше не подходит — войдите заново.':r.code==='network'?'Нет связи с сервером.':'Сервер ответил: '+(r.detail||r.code));
+        MIG.n+=r.moved||0;MIG.msg=(kind==='ph'?'Переношу картинки… ':'Переношу музыку и звуки… ')+MIG.n;render();
+        if(r.done||!r.next)break;after=r.next}}
+    S.media='storage';MIG.msg='Файлы перенесены ('+MIG.n+'). Сохраняю…';render();
+    await save();
+    MIG.msg=dirty()?'Файлы перенесены, но сохранить не удалось — нажмите «Сохранить».':'Готово: все картинки и звуки теперь в хранилище.';
+  }catch(e){MIG.msg='Перенос прервался: '+(e.message||e)+' Можно нажать ещё раз — уже перенесённое не потеряется.'}
+  MIG.busy=false;render();
+}
 const ICON_MSG=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/></svg>`;
 function contactHref(c){
   if(/^https?:\/\/\S+$/i.test(c)) return c;
@@ -1706,6 +1736,8 @@ document.addEventListener('click',async ev=>{
   if(t.id==='modal-bg'){if(ev.target===t){ui.modal=null;render()}return}
   const ds=t.dataset;
   if(plClick(t))return;
+  if(t.id==='mig-go'){mediaMigrate();return}
+  if(t.id==='mig-ok'){MIG.msg='';render();return}
   if(ds.copy!==undefined){const v=ds.copy;const done=()=>toast('Контакт скопирован');
     try{navigator.clipboard.writeText(v).then(done,()=>{fallbackCopy(v);done()})}catch(_){fallbackCopy(v);done()}return}
   if(ds.lgtab){flushLegend();ui.lgTab=ds.lgtab;ui.confirmTabDel=null;render();return}
@@ -1867,7 +1899,7 @@ async function uploadMusic(file,tgt){
     let d=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('Не удалось прочитать файл.'));r.readAsDataURL(file)});
     if(!/^data:audio\//.test(d)){const ext=(file.name.split('.').pop()||'').toLowerCase(),mt={mp3:'mpeg',ogg:'ogg',oga:'ogg',m4a:'mp4',aac:'aac',wav:'wav',flac:'flac',opus:'ogg',webm:'webm'}[ext];if(!mt)throw new Error('Это не похоже на аудиофайл. Подойдут mp3, ogg, m4a, wav.');d=d.replace(/^data:[^;,]*/,'data:audio/'+mt)}
     const id=uid('a');
-    const {data,error}=await sb.rpc('save_lore_audio',{p_pin:pin,p_id:id,p_data:d});
+    const {data,error}=await mediaSave('au',id,d);
     if(error){const m=rpcErr(error);throw new Error(/save_lore_audio|schema cache|function/i.test(error.message||'')?'В базе ещё не настроено хранение музыки: запустите SQL-скрипт для музыки в Supabase. Пока можно вставить ссылку на mp3.':m)}
     if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
     mus.cache[id]=d;
@@ -1879,6 +1911,7 @@ async function uploadMusic(file,tgt){
 async function musSrc(src){
   if(!src.startsWith('au:')) return src;
   const id=src.slice(3);
+  if(!mus.cache[id]&&stMode())return MEDIA+'au/'+id;
   if(!mus.cache[id]){const {data,error}=await sb.from('lore_audio').select('data').eq('id',id).maybeSingle();if(error||!data)throw new Error('нет файла');mus.cache[id]=data.data}
   const b=await (await fetch(mus.cache[id])).blob(); return URL.createObjectURL(b);
 }
@@ -1929,7 +1962,7 @@ async function uploadMdImg(file){ // image inside lore/rules/about text: stored 
   try{
     if(!/^image\//.test(file.type)) throw new Error('Это не картинка.');
     const d=await shrink(file,1600), id=uid('i');
-    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    const {data,error}=await mediaSave('ph',id,d);
     if(error) throw new Error(rpcErr(error));
     if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[id]=d;
@@ -2124,7 +2157,7 @@ async function rvSetup(){
 }
 async function rvSealIcon(sid,file){
   const x=(S.seals||[]).find(y=>y.id===sid);if(!x)return;RVS.sealMsg='Загружаю герб…';render();
-  try{const d=await shrink(file,500,'png'),id=uid('c');const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+  try{const d=await shrink(file,500,'png'),id=uid('c');const {data,error}=await mediaSave('ph',id,d);
     if(error)throw new Error(rpcErr(error));if(!data)throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[id]=d;x.icon='ph:'+id;soft();RVS.sealMsg='Герб загружен. Нажмите «Сохранить».'}
   catch(e){RVS.sealMsg=e.message||'Не получилось загрузить герб.'}
@@ -2886,7 +2919,7 @@ function gwMasterClick(t,ds){
 }
 async function gwXImg(id,file,troop){
   let x;if(troop==='merc')x=gwMercsEdit().find(y=>y.id===id);else if(troop==='sp'){const sm=gwData().spMeta=gwData().spMeta||{};x=sm[id]=sm[id]||{}}else x=(troop?gwTroopsEdit():gwData().extras).find(y=>y.id===id);if(!x)return;ui.gwMsg='Загружаю картинку…';render();
-  try{const d=await shrink(file,600),pid=uid('c');const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:pid,p_data:d});
+  try{const d=await shrink(file,600),pid=uid('c');const {data,error}=await mediaSave('ph',pid,d);
     if(error)throw new Error(rpcErr(error));if(!data)throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[pid]=d;x.img='ph:'+pid;soft();ui.gwMsg='Картинка загружена. Нажмите «Сохранить».'}
   catch(e){ui.gwMsg=e.message||'Не получилось загрузить картинку.'}
@@ -2906,7 +2939,7 @@ async function uploadCover(file){
   ui.coverMsg='Загружаю обложку…';render();
   try{
     const d=await shrink(file,1600), id=uid('c');
-    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    const {data,error}=await mediaSave('ph',id,d);
     if(error) throw new Error(rpcErr(error));
     if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[id]=d; art.cover='ph:'+id; ui.coverMsg='Обложка загружена. Нажмите «Сохранить» внизу.';
@@ -2925,7 +2958,7 @@ async function uploadBrand(key,file){
   try{
     const d=key==='logo'?await shrink(file,256,'png'):await shrink(file,1800);
     const id=uid('b');
-    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:d});
+    const {data,error}=await mediaSave('ph',id,d);
     if(error) throw new Error(rpcErr(error));
     if(!data) throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[id]=d; S.brand=S.brand||{}; S.brand[key]='ph:'+id;
@@ -2955,7 +2988,7 @@ async function handlePhoto(file,field){
   try{
     const dataUrl=field==='icon'?await shrink(file,160,'png'):await shrink(file,520);
     const id=uid('p');
-    const {data,error}=await sb.rpc('save_role_photo',{p_pin:pin,p_id:id,p_data:dataUrl});
+    const {data,error}=await mediaSave('ph',id,dataUrl);
     if(error)throw new Error(rpcErr(error));
     if(!data)throw new Error('Код мастера больше не подходит. Войдите заново.');
     photos[id]=dataUrl;
@@ -4122,8 +4155,10 @@ async function save(){
   else if(!data){ui.err='Код мастера больше не подходит. Выйдите и войдите заново.'}
   else{
     saved=JSON.stringify(S);
-    sb.rpc('delete_role_photos',{p_pin:pin,p_keep:photoIds()});
-    sb.rpc('delete_lore_audio',{p_pin:pin,p_keep:audioIds()}).then(()=>{},()=>{});
+    // after the move the old tables are emptied; files nobody uses any more are removed from Storage
+    sb.rpc('delete_role_photos',{p_pin:pin,p_keep:stMode()?[]:photoIds()}).then(()=>{},()=>{});
+    sb.rpc('delete_lore_audio',{p_pin:pin,p_keep:stMode()?[]:audioIds()}).then(()=>{},()=>{});
+    if(stMode())mediaFn({action:'clean',keep:{ph:photoIds(),au:audioIds()}});
     ui.saving=false;toast('Сохранено');return;
   }
   ui.saving=false;render();
@@ -4581,7 +4616,7 @@ sb.from('site_content').select('data').eq('id',1).maybeSingle().then(({data,erro
   ui.loading=false;render();
   if(NET.joinWanted&&!NET.code){ui.gwDeckOpen=true;netJoin(NET.joinWanted);setTimeout(()=>document.querySelector('.gw-net')?.scrollIntoView({block:'center',behavior:'smooth'}),400)}
   sb.rpc('list_pinned_roles').then(({data,error})=>{if(!error&&Array.isArray(data)){PINNED=new Set(data);render()}});
-  const ids=photoIds();
+  const ids=stMode()?[]:photoIds();
   // photos in small batches: the page fills in quickly instead of waiting for one huge response
   if(ids.length){const B=12,parts=[];for(let i=0;i<ids.length;i+=B)parts.push(ids.slice(i,i+B));let rt=0;
     const flush=()=>{if(!rt)rt=setTimeout(()=>{rt=0;render()},150)};
