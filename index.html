@@ -2029,10 +2029,11 @@ function renderRaven(){
   // mass mailing (master only): every player, or every player of one faction; counts are by unique Telegram nicknames
   const bcOf=tid=>{const us=[...new Set(recs.filter(x=>tid==='all'||x.r.team===tid).map(x=>x.u.toLowerCase()))];return {n:us.length,k:known?us.filter(u=>known.has(u)).length:null}};
   const bcOpt=(tid,label)=>{const c=bcOf(tid);return c.n?`<option value="bc:${tid}"${RV.to==='bc:'+tid?' selected':''}>📣 ${h(label)} — ${c.k===null?c.n+' чел.':`ворон знает дорогу к ${c.k} из ${c.n}`}</option>`:''};
-  const bcGroup=pin?`<optgroup label="Рассылка (только мастер)">${bcOpt('all','Всем игрокам')}${S.teams.map(t=>bcOpt(t.id,'Всем: '+t.name)).join('')}</optgroup>`:'';
-  const bcTo=pin&&RV.to.startsWith('bc:')?RV.to.slice(3):'';
+  const bcGroup=`<optgroup label="Рассылка${pin?'':' (раз в 30 минут, нужен вход в профиль)'}">${bcOpt('all','Всем игрокам')}${S.teams.map(t=>bcOpt(t.id,'Всем: '+t.name)).join('')}</optgroup>`;
+  const bcTo=RV.to.startsWith('bc:')?RV.to.slice(3):'';
   const bcInfo=bcTo?(()=>{const lost=recs.filter(x=>(bcTo==='all'||x.r.team===bcTo)&&known&&!known.has(x.u.toLowerCase())).map(x=>x.r.name);
-    return `Письмо получат все, к кому ворон знает дорогу.${lost.length?` Не получат (не нажали «Старт» у ${RVS.bot?'@'+h(RVS.bot):'бота'}): ${h(lost.join(', '))}.`:''}`})():'';
+    const gate=pin?'':PL.session?' Рассылка — не чаще раза в 30 минут.':' Чтобы сделать рассылку, войдите в свой профиль (кнопка «Войти» вверху сайта) — так ворон защищён от спама. Адресаты не увидят, кто вы.';
+    return `Письмо получат все, к кому ворон знает дорогу.${gate}${lost.length?` Не получат (не нажали «Старт» у ${RVS.bot?'@'+h(RVS.bot):'бота'}): ${h(lost.join(', '))}.`:''}`})():'';
   const botLink=RVS.bot?`<a href="https://t.me/${h(RVS.bot)}" target="_blank" rel="noopener">@${h(RVS.bot)}</a>`:'бота «Ворон»';
   const sealEd=ui.edit&&pin?`<div class="rv-seal-ed"><div class="rv-cap">Печати (видит и правит только мастер)</div>
     ${(S.seals||[]).map((x,i)=>`<div class="rv-se-row"><span class="rv-se-ic">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:'—'}</span>
@@ -2176,19 +2177,20 @@ async function rvPdf(){
   return doc.output('datauristring').split(',')[1];
 }
 async function rvSend(){
-  const seal=rvSeal(), anon=RV.seal==='none', bc=pin&&RV.to.startsWith('bc:')?RV.to.slice(3):'', rec=rvRecipients().find(x=>x.r.id===RV.to);
+  const seal=rvSeal(), anon=RV.seal==='none', bc=RV.to.startsWith('bc:')?RV.to.slice(3):'', rec=rvRecipients().find(x=>x.r.id===RV.to);
   if(!seal&&!anon){rvMsg({k:'err',t:'Выберите, под чьей печатью идёт письмо, или «Без печати».'});return}
   if(!rec&&!bc){rvMsg({k:'err',t:'Выберите адресата.'});return}
+  if(bc&&!pin&&!(PL.session&&PL.session.access_token)){rvMsg({k:'err',t:'Рассылка доступна после входа в профиль: нажмите «Войти» вверху сайта.'});return}
   if(!RV.text.trim()){rvMsg({k:'err',t:'Письмо пустое.'});return}
   RVS.busy=true;rvMsg({k:'',t:'Запечатываю письмо…'});try{render()}catch(e){console.warn(e)}
   let res;
   try{const pdf=await rvPdf();rvMsg({k:'',t:'Ворон взлетает…'});
     const letter={seal:anon?'':seal.name,anon,pdf,filename:anon?'Ворон без печати':'Ворон — '+seal.name};
-    res=bc?await rvFn(Object.assign({action:'broadcast',pin,team:bc},letter)):await rvFn(Object.assign({action:'send',to:rec.r.id},letter));
+    res=bc?await rvFn(Object.assign({action:'broadcast',team:bc},pin?{pin}:{jwt:PL.session.access_token},letter)):await rvFn(Object.assign({action:'send',to:rec.r.id},letter));
   }catch(e){console.warn(e);res={ok:false,code:e&&e.message==='lib'?'lib':e&&e.name==='SecurityError'?'seal':'net'}}
   RVS.busy=false;
   const bot=RVS.bot?'@'+RVS.bot:'бота «Ворон»';
-  const M={bad_pin:'Код мастера больше не подходит — войдите заново.',nobody:'В этой фракции ни у кого не указан Telegram-ник.',none_sent:'Ворон никому не долетел: никто из адресатов не нажал «Старт» у бота.',no_team:'Такой фракции больше нет — обновите страницу.',seal:'Не получилось запечатать письмо: картинка печати не загрузилась. Обновите страницу или выберите другую печать.',no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec?rec.u:''}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
+  const M={login:'Рассылка доступна после входа в профиль: нажмите «Войти» вверху сайта.',bc_wait:`Рассылку можно делать не чаще раза в 30 минут. Попробуйте через ${res&&res.wait||30} мин.`,bc_busy:'Вороны устали: игроки уже сделали много рассылок за этот час. Попробуйте позже.',bad_pin:'Код мастера больше не подходит — войдите заново.',nobody:'В этой фракции ни у кого не указан Telegram-ник.',none_sent:'Ворон никому не долетел: никто из адресатов не нажал «Старт» у бота.',no_team:'Такой фракции больше нет — обновите страницу.',seal:'Не получилось запечатать письмо: картинка печати не загрузилась. Обновите страницу или выберите другую печать.',no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec?rec.u:''}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
   if(res&&res.ok&&bc){const n=(res.sent||[]).length,miss=(res.unknown||[]),bad=(res.failed||[]);
     rvMsg({k:bad.length||miss.length?'':'ok',t:`Вороны разлетелись: письмо получили ${n} ${plural(n,'игрок','игрока','игроков')}.`+(miss.length?` Не знают дороги: ${miss.join(', ')}.`:'')+(bad.length?` Не долетели (бот заблокирован?): ${bad.join(', ')}.`:'')});RV.text='';RV.salut='';}
   else if(res&&res.ok){rvMsg({k:'ok',t:`Ворон улетел! Адресат: ${rec.r.name}.`});RV.text='';RV.salut='';}
