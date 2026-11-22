@@ -2026,6 +2026,13 @@ function renderRaven(){
   const loose=recs.filter(x=>!S.teams.some(t=>t.id===x.r.team));
   const opt=x=>{const k=kn(x.u);return `<option value="${x.r.id}"${RV.to===x.r.id?' selected':''}>${h(x.r.name)}${x.r.player?' · '+h(x.r.player):''}${k===false?' — ворон не знает дороги':''}</option>`};
   const toRole=recs.find(x=>x.r.id===RV.to), toKnown=toRole?kn(toRole.u):null;
+  // mass mailing (master only): every player, or every player of one faction; counts are by unique Telegram nicknames
+  const bcOf=tid=>{const us=[...new Set(recs.filter(x=>tid==='all'||x.r.team===tid).map(x=>x.u.toLowerCase()))];return {n:us.length,k:known?us.filter(u=>known.has(u)).length:null}};
+  const bcOpt=(tid,label)=>{const c=bcOf(tid);return c.n?`<option value="bc:${tid}"${RV.to==='bc:'+tid?' selected':''}>📣 ${h(label)} — ${c.k===null?c.n+' чел.':`ворон знает дорогу к ${c.k} из ${c.n}`}</option>`:''};
+  const bcGroup=pin?`<optgroup label="Рассылка (только мастер)">${bcOpt('all','Всем игрокам')}${S.teams.map(t=>bcOpt(t.id,'Всем: '+t.name)).join('')}</optgroup>`:'';
+  const bcTo=pin&&RV.to.startsWith('bc:')?RV.to.slice(3):'';
+  const bcInfo=bcTo?(()=>{const lost=recs.filter(x=>(bcTo==='all'||x.r.team===bcTo)&&known&&!known.has(x.u.toLowerCase())).map(x=>x.r.name);
+    return `Письмо получат все, к кому ворон знает дорогу.${lost.length?` Не получат (не нажали «Старт» у ${RVS.bot?'@'+h(RVS.bot):'бота'}): ${h(lost.join(', '))}.`:''}`})():'';
   const botLink=RVS.bot?`<a href="https://t.me/${h(RVS.bot)}" target="_blank" rel="noopener">@${h(RVS.bot)}</a>`:'бота «Ворон»';
   const sealEd=ui.edit&&pin?`<div class="rv-seal-ed"><div class="rv-cap">Печати (видит и правит только мастер)</div>
     ${(S.seals||[]).map((x,i)=>`<div class="rv-se-row"><span class="rv-se-ic">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:'—'}</span>
@@ -2043,17 +2050,18 @@ function renderRaven(){
   return `<section class="raven"><div class="rv-head"><h2>Отправить ворона</h2>
     <p class="rv-lead">Выберите печать, адресата и напишите письмо. Ворон доставит его в Telegram свитком на пергаменте.<br>Чтобы получать воронов, откройте ${botLink} и нажмите «Старт», а в сетке ролей в контакте вашей роли должен стоять ваш @ник.</p></div>
   <div class="rv-grid"><div class="rv-form">
-    <div class="field"><span class="lbl">Под чьей печатью</span><div class="rv-seals">${seals.length?seals.map(x=>`<button class="rv-seal" data-rvseal="${x.id}" aria-pressed="${RV.seal===x.id}">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:`<span class="rv-ini">${h((x.name||'?').trim()[0]||'?')}</span>`}<span>${h(x.name)}</span></button>`).join(''):'<p class="empty">Мастер ещё не добавил печати.</p>'}</div></div>
+    <div class="field"><span class="lbl">Под чьей печатью</span><div class="rv-seals">${seals.map(x=>`<button class="rv-seal" data-rvseal="${x.id}" aria-pressed="${RV.seal===x.id}">${x.icon&&photoSrc(x.icon)?`<img src="${photoSrc(x.icon)}" alt="">`:`<span class="rv-ini">${h((x.name||'?').trim()[0]||'?')}</span>`}<span>${h(x.name)}</span></button>`).join('')}<button class="rv-seal rv-noseal" data-rvseal="none" aria-pressed="${RV.seal==='none'}"><span class="rv-ini">?</span><span>Без печати</span></button></div>
+      ${RV.seal==='none'?`<span class="hint">Письмо уйдёт без печати${RV.sign.trim()?', но с вашей подписью. Чтобы отправитель остался неизвестен, сотрите подпись.':' и без подписи — никто не узнает, от кого оно.'}</span>`:''}</div>
     ${sealEd}
-    <div class="field"><label for="rv-to">Кому</label><select id="rv-to"><option value="">— выберите адресата —</option>${byTeam.map(g=>`<optgroup label="${h(g.t.name)}">${g.list.map(opt).join('')}</optgroup>`).join('')}${loose.length?`<optgroup label="Без команды">${loose.map(opt).join('')}</optgroup>`:''}</select>
-      <span class="hint">${toRole?(toKnown===false?`Ворон пока не знает дороги к @${h(toRole.u)}: игрок должен открыть ${RVS.bot?'@'+h(RVS.bot):'бота'} и нажать «Старт».`:toKnown?`Ворон знает дорогу к @${h(toRole.u)}.`:`Письмо уйдёт в Telegram @${h(toRole.u)}.`):'В списке только роли, у которых в контакте указан Telegram-ник.'}</span></div>
+    <div class="field"><label for="rv-to">Кому</label><select id="rv-to"><option value="">— выберите адресата —</option>${bcGroup}${byTeam.map(g=>`<optgroup label="${h(g.t.name)}">${g.list.map(opt).join('')}</optgroup>`).join('')}${loose.length?`<optgroup label="Без команды">${loose.map(opt).join('')}</optgroup>`:''}</select>
+      <span class="hint">${bcInfo?bcInfo:toRole?(toKnown===false?`Ворон пока не знает дороги к @${h(toRole.u)}: игрок должен открыть ${RVS.bot?'@'+h(RVS.bot):'бота'} и нажать «Старт».`:toKnown?`Ворон знает дорогу к @${h(toRole.u)}.`:`Письмо уйдёт в Telegram @${h(toRole.u)}.`):'В списке только роли, у которых в контакте указан Telegram-ник.'}</span></div>
     <div class="field"><label for="rv-salut">Обращение</label><input id="rv-salut" data-rv="salut" maxlength="80" value="${h(RV.salut)}" placeholder="Милорд Старк," autocomplete="off"></div>
     <div class="field"><label for="rv-text">Письмо</label><textarea id="rv-text" data-rv="text" maxlength="${RV_MAX}" rows="9" placeholder="Зима близко…">${h(RV.text)}</textarea><span class="hint" id="rv-count">${RV.text.length} / ${RV_MAX}</span></div>
     <div class="field"><label for="rv-sign">Подпись</label><input id="rv-sign" data-rv="sign" maxlength="60" value="${h(RV.sign)}" placeholder="Можно оставить пустой — тогда письмо анонимно" autocomplete="off"></div>
     <div class="rv-actions"><button class="btn gold" id="rv-send"${RVS.busy?' disabled':''}>${RVS.busy?'Ворон в пути…':'Отправить ворона'}</button><span id="rv-msg" class="rv-msg${RVS.msg?' '+RVS.msg.k:''}" role="status">${RVS.msg?h(RVS.msg.t):''}</span></div>
     ${setup}
   </div>
-  <div class="rv-prev"><canvas id="rv-canvas" width="1200" height="1700" aria-label="Предпросмотр письма"></canvas><span class="hint">Так письмо будет выглядеть в PDF${sel?'':' — выберите печать'}.</span></div></div></section>`;
+  <div class="rv-prev"><canvas id="rv-canvas" width="1200" height="1700" aria-label="Предпросмотр письма"></canvas><span class="hint">Так письмо будет выглядеть в PDF${sel||RV.seal==='none'?'':' — выберите печать'}.</span></div></div></section>`;
 }
 function rvAfterRender(){
   rvDraw();
@@ -2151,7 +2159,8 @@ function rvDraw(target){
   lines.slice(0,maxLines).forEach((ln,i)=>{const last=i===maxLines-1&&lines.length>maxLines;x.fillText(last?ln.replace(/\s*\S*$/,'')+'…':ln,L+(i<2?capW:0),y+fs+i*lh)});
   y+=Math.min(lines.length,maxLines)*lh;
   if(sign){x.font=`${Math.round(fs*1.15)}px "Bad Script", cursive`;x.textAlign='right';x.fillText(sign,Rr,Math.min(y+lh*1.4,sealY-150))}
-  if(seal){rvWax(x,W/2,sealY,112,seal);x.font='30px Forum, Georgia, serif';x.textAlign='center';x.fillStyle='rgba(70,38,14,.75)';x.fillText(seal.name,W/2,sealY+165)}
+  if(RV.seal==='none'){}
+  else if(seal){rvWax(x,W/2,sealY,112,seal);x.font='30px Forum, Georgia, serif';x.textAlign='center';x.fillStyle='rgba(70,38,14,.75)';x.fillText(seal.name,W/2,sealY+165)}
   else{x.setLineDash([8,10]);x.strokeStyle='rgba(90,50,18,.4)';x.lineWidth=3;x.beginPath();x.arc(W/2,sealY,100,0,Math.PI*2);x.stroke();x.setLineDash([]);x.font='28px Forum, Georgia, serif';x.textAlign='center';x.fillStyle='rgba(90,50,18,.55)';x.fillText('место для печати',W/2,sealY+10)}
 }
 let pdfReady=null;
@@ -2163,25 +2172,28 @@ async function rvPdf(){
   const f=document.createElement('canvas');f.width=c.width;f.height=c.height;const fx=f.getContext('2d');fx.fillStyle='#fff';fx.fillRect(0,0,f.width,f.height);fx.drawImage(c,0,0);
   const doc=new window.jspdf.jsPDF({unit:'mm',format:'a5',orientation:'portrait'});
   doc.addImage(f.toDataURL('image/jpeg',.82),'JPEG',0,0,148,210);
-  doc.setProperties({title:'Ворон — '+(rvSeal()||{}).name});
+  doc.setProperties({title:rvSeal()?'Ворон — '+rvSeal().name:'Ворон без печати'});
   return doc.output('datauristring').split(',')[1];
 }
 async function rvSend(){
-  const seal=rvSeal(), rec=rvRecipients().find(x=>x.r.id===RV.to);
-  if(!seal){rvMsg({k:'err',t:'Выберите, под чьей печатью идёт письмо.'});return}
-  if(!rec){rvMsg({k:'err',t:'Выберите адресата.'});return}
+  const seal=rvSeal(), anon=RV.seal==='none', bc=pin&&RV.to.startsWith('bc:')?RV.to.slice(3):'', rec=rvRecipients().find(x=>x.r.id===RV.to);
+  if(!seal&&!anon){rvMsg({k:'err',t:'Выберите, под чьей печатью идёт письмо, или «Без печати».'});return}
+  if(!rec&&!bc){rvMsg({k:'err',t:'Выберите адресата.'});return}
   if(!RV.text.trim()){rvMsg({k:'err',t:'Письмо пустое.'});return}
   RVS.busy=true;rvMsg({k:'',t:'Запечатываю письмо…'});try{render()}catch(e){console.warn(e)}
   let res;
   try{const pdf=await rvPdf();rvMsg({k:'',t:'Ворон взлетает…'});
-    res=await rvFn({action:'send',to:rec.r.id,seal:seal.name,pdf,filename:'Ворон — '+seal.name});
+    const letter={seal:anon?'':seal.name,anon,pdf,filename:anon?'Ворон без печати':'Ворон — '+seal.name};
+    res=bc?await rvFn(Object.assign({action:'broadcast',pin,team:bc},letter)):await rvFn(Object.assign({action:'send',to:rec.r.id},letter));
   }catch(e){console.warn(e);res={ok:false,code:e&&e.message==='lib'?'lib':e&&e.name==='SecurityError'?'seal':'net'}}
   RVS.busy=false;
   const bot=RVS.bot?'@'+RVS.bot:'бота «Ворон»';
-  const M={seal:'Не получилось запечатать письмо: картинка печати не загрузилась. Обновите страницу или выберите другую печать.',no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec.u}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
-  if(res&&res.ok){rvMsg({k:'ok',t:`Ворон улетел! Адресат: ${rec.r.name}.`});RV.text='';RV.salut='';}
+  const M={bad_pin:'Код мастера больше не подходит — войдите заново.',nobody:'В этой фракции ни у кого не указан Telegram-ник.',none_sent:'Ворон никому не долетел: никто из адресатов не нажал «Старт» у бота.',no_team:'Такой фракции больше нет — обновите страницу.',seal:'Не получилось запечатать письмо: картинка печати не загрузилась. Обновите страницу или выберите другую печать.',no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec?rec.u:''}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
+  if(res&&res.ok&&bc){const n=(res.sent||[]).length,miss=(res.unknown||[]),bad=(res.failed||[]);
+    rvMsg({k:bad.length||miss.length?'':'ok',t:`Вороны разлетелись: письмо получили ${n} ${plural(n,'игрок','игрока','игроков')}.`+(miss.length?` Не знают дороги: ${miss.join(', ')}.`:'')+(bad.length?` Не долетели (бот заблокирован?): ${bad.join(', ')}.`:'')});RV.text='';RV.salut='';}
+  else if(res&&res.ok){rvMsg({k:'ok',t:`Ворон улетел! Адресат: ${rec.r.name}.`});RV.text='';RV.salut='';}
   else rvMsg({k:'err',t:M[res&&res.code]||('Ворон не долетел'+(res&&res.detail?': '+res.detail:'.'))});
-  if(res&&res.code==='not_connected'&&RVS.known)RVS.known.delete(rec.u.toLowerCase());
+  if(rec&&res&&res.code==='not_connected'&&RVS.known)RVS.known.delete(rec.u.toLowerCase());
   render();
 }
 async function rvSetup(){
