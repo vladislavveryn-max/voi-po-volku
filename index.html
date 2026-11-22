@@ -2088,7 +2088,7 @@ function rvParchment(W,H){
   x.restore();
   return RVS.bg=c;
 }
-function rvImg(src){if(!src)return null;let o=RVS.imgs[src];if(!o){o=RVS.imgs[src]=new Image();o.onload=rvDrawSoon;o.src=src}return o.complete&&o.naturalWidth?o:null}
+function rvImg(src){if(!src)return null;let o=RVS.imgs[src];if(!o){o=RVS.imgs[src]=new Image();if(!/^(data|blob):/.test(src))o.crossOrigin='anonymous';o.onload=rvDrawSoon;o.src=src}return o.complete&&o.naturalWidth?o:null} // crossOrigin: storage pictures must stay usable for the PDF
 function rvWax(ctx,cx,cy,r,seal){
   const R=rvRand(77+((seal&&seal.name)||'').length*13);
   ctx.save();
@@ -2103,7 +2103,7 @@ function rvWax(ctx,cx,cy,r,seal){
   if(img){ // icon pressed into wax: brightness → wax shade
     const sz=Math.round(ir*2),o=document.createElement('canvas');o.width=o.height=sz;const ox=o.getContext('2d');
     const k=Math.min(sz/img.naturalWidth,sz/img.naturalHeight),w=img.naturalWidth*k,hh=img.naturalHeight*k;ox.drawImage(img,(sz-w)/2,(sz-hh)/2,w,hh);
-    const d=ox.getImageData(0,0,sz,sz),a=d.data;for(let i=0;i<a.length;i+=4){const l=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/255;a[i]=70+l*165;a[i+1]=8+l*100;a[i+2]=6+l*86}ox.putImageData(d,0,0);
+    try{const d=ox.getImageData(0,0,sz,sz),a=d.data;for(let i=0;i<a.length;i+=4){const l=(a[i]*.3+a[i+1]*.59+a[i+2]*.11)/255;a[i]=70+l*165;a[i+1]=8+l*100;a[i+2]=6+l*86}ox.putImageData(d,0,0)}catch(_){ox.globalCompositeOperation='source-atop';ox.fillStyle='rgba(120,20,14,.6)';ox.fillRect(0,0,sz,sz)}
     ctx.save();ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.clip();ctx.fillStyle='#6a0e0a';ctx.fillRect(cx-ir,cy-ir,2*ir,2*ir);ctx.globalAlpha=.95;ctx.drawImage(o,cx-ir,cy-ir);ctx.restore();
     ctx.lineWidth=4;ctx.strokeStyle='rgba(40,3,2,.45)';ctx.beginPath();ctx.arc(cx,cy,ir,0,Math.PI*2);ctx.stroke();
   }else{
@@ -2171,14 +2171,14 @@ async function rvSend(){
   if(!seal){rvMsg({k:'err',t:'Выберите, под чьей печатью идёт письмо.'});return}
   if(!rec){rvMsg({k:'err',t:'Выберите адресата.'});return}
   if(!RV.text.trim()){rvMsg({k:'err',t:'Письмо пустое.'});return}
-  RVS.busy=true;rvMsg({k:'',t:'Запечатываю письмо…'});render();
+  RVS.busy=true;rvMsg({k:'',t:'Запечатываю письмо…'});try{render()}catch(e){console.warn(e)}
   let res;
   try{const pdf=await rvPdf();rvMsg({k:'',t:'Ворон взлетает…'});
     res=await rvFn({action:'send',to:rec.r.id,seal:seal.name,pdf,filename:'Ворон — '+seal.name});
-  }catch(e){res={ok:false,code:e&&e.message==='lib'?'lib':'net'}}
+  }catch(e){console.warn(e);res={ok:false,code:e&&e.message==='lib'?'lib':e&&e.name==='SecurityError'?'seal':'net'}}
   RVS.busy=false;
   const bot=RVS.bot?'@'+RVS.bot:'бота «Ворон»';
-  const M={no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec.u}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
+  const M={seal:'Не получилось запечатать письмо: картинка печати не загрузилась. Обновите страницу или выберите другую печать.',no_token:'Ворон ещё не обучен: мастер пока не подключил бота.',not_connected:`Ворон не знает дороги к @${rec.u}: игрок должен открыть ${bot} и нажать «Старт».`,no_contact:'У этой роли в контакте нет Telegram-ника.',no_role:'Такой роли больше нет — обновите страницу.',too_many:'Этому адресату уже прилетело много воронов за последние 10 минут. Подождите немного.',busy:'Вороны устали: слишком много писем за последние минуты. Попробуйте минут через 10.',blocked:'Адресат заблокировал ворона в Telegram.',bad_letter:'Письмо не удалось запечатать. Попробуйте ещё раз.',lib:'Не загрузился модуль для PDF. Проверьте интернет и попробуйте снова.',net:'Ворон не смог вылететь: нет связи с сервером. Попробуйте ещё раз.'};
   if(res&&res.ok){rvMsg({k:'ok',t:`Ворон улетел! Адресат: ${rec.r.name}.`});RV.text='';RV.salut='';}
   else rvMsg({k:'err',t:M[res&&res.code]||('Ворон не долетел'+(res&&res.detail?': '+res.detail:'.'))});
   if(res&&res.code==='not_connected'&&RVS.known)RVS.known.delete(rec.u.toLowerCase());
